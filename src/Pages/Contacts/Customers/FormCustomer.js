@@ -10,7 +10,7 @@ import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
 
-class CreateCustomer extends Component {
+class FormCustomer extends Component {
 
     state = {
         form: {
@@ -18,11 +18,32 @@ class CreateCustomer extends Component {
         }
     }
 
+    async componentDidMount() {
+        const { match: { params } } = this.props
+        if (params.id) {
+            tokenAuth(this.props.token);
+            try {
+                await clienteAxios.get(`customers/${params.id}/edit`)
+                    .then(res => {
+                        this.setState({ form: res.data.customer })
+                    })
+            } catch (error) {
+                console.log(error)
+            }
+        }
+    }
+
     submit = async () => {
         tokenAuth(this.props.token);
         try {
-            await clienteAxios.post('customers', this.state.form)
-                .then(res => this.props.history.push('/contactos/clientes'))
+            let { form } = this.state
+            if (form.id) {
+                await clienteAxios.put(`customers/${form.id}`, form)
+                    .then(res => this.props.history.push('/contactos/clientes'))
+            } else {
+                await clienteAxios.post('customers', this.state.form)
+                    .then(res => this.props.history.push('/contactos/clientes'))
+            }
         } catch (error) {
             console.log(error)
         }
@@ -91,7 +112,7 @@ class CreateCustomer extends Component {
                                             <Label for="type_identification" sm={4}>Tipo de identicatión *</Label>
                                             <Col sm={6}>
                                                 <CustomInput bsSize="sm" onChange={this.handleChange} value={form.type_identification}
-                                                    type="select" id="type_identification" name="type_identification">
+                                                    type="select" id="type_identification" name="type_identification" requiered>
                                                     <option value="cédula">Cédula</option>
                                                     <option value="ruc">RUC</option>
                                                     <option value="pasaporte">Pasaporte</option>
@@ -102,18 +123,18 @@ class CreateCustomer extends Component {
                                             <Label for="identication" sm={4}>Identificación *</Label>
                                             <Col sm={6}>
                                                 <Input bsSize="sm" onChange={this.handleChange} value={form.identication}
-                                                    type="text" id="identication" name="identication" maxlength="13" />
+                                                    type="text" id="identication" name="identication" maxlength="13" requiered />
                                             </Col>
                                         </FormGroup>
                                         <FormGroup className="mb-1" row>
                                             <Label for="name" sm={4}>Nombre *</Label>
                                             <Col sm={6}>
                                                 <Input bsSize="sm" onChange={this.handleChange} value={form.name}
-                                                    type="text" id="name" name="name" maxlength={300} />
+                                                    type="text" id="name" name="name" maxlength={300} requiered />
                                             </Col>
                                         </FormGroup>
                                         <FormGroup className="mb-1" row>
-                                            <Label for="address" sm={4}>Dirección *</Label>
+                                            <Label for="address" sm={4}>Dirección</Label>
                                             <Col sm={6}>
                                                 <Input bsSize="sm" onChange={this.handleChange} value={form.address}
                                                     type="text" id="address" name="address" />
@@ -149,4 +170,4 @@ const mapStateToProps = state => ({
     token: state.AuthReducer.token
 });
 
-export default connect(mapStateToProps)(CreateCustomer);
+export default connect(mapStateToProps)(FormCustomer);

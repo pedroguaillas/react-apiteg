@@ -10,28 +10,40 @@ import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
 
-class EditCustomer extends Component {
+class FormProvider extends Component {
 
-    state = { form: {} }
+    state = {
+        form: {
+            'type_identification': 'ruc'
+        }
+    }
 
     async componentDidMount() {
         const { match: { params } } = this.props
-        tokenAuth(this.props.token);
-        try {
-            await clienteAxios.get(`customers/${params.id}/edit`)
-                .then(res => {
-                    this.setState({ form: res.data.customer })
-                })
-        } catch (error) {
-            console.log(error)
+        if (params.id) {
+            tokenAuth(this.props.token)
+            try {
+                await clienteAxios.get(`providers/${params.id}/edit`)
+                    .then(res => {
+                        this.setState({ form: res.data.provider })
+                    })
+            } catch (error) {
+                console.log(error)
+            }
         }
     }
 
     submit = async () => {
         tokenAuth(this.props.token);
         try {
-            await clienteAxios.put(`customers/${this.state.form.id}`, this.state.form)
-                .then(res => this.props.history.push('/contactos/clientes'))
+            let { form } = this.state
+            if (form.id) {
+                await clienteAxios.put(`providers/${form.id}`, form)
+                    .then(res => this.props.history.push('/contactos/proveedores'))
+            } else {
+                await clienteAxios.post('providers', form)
+                    .then(res => this.props.history.push('/contactos/proveedores'))
+            }
         } catch (error) {
             console.log(error)
         }
@@ -57,6 +69,15 @@ class EditCustomer extends Component {
         }))
     }
 
+    selectAccount = (account, attribute) => {
+        this.setState({
+            form: {
+                ...this.state.form,
+                [attribute]: account.id
+            }
+        })
+    }
+
     render() {
 
         let { form } = this.state
@@ -65,10 +86,10 @@ class EditCustomer extends Component {
             <Fragment>
                 <PageTitle
                     options={[
-                        { type: 'button', id: 'tooltip-edit-customer', action: this.submit, icon: 'save', msmTooltip: 'Editar cliente', color: 'primary' },
+                        { type: 'button', id: 'tooltip-save-customer', action: this.submit, icon: 'save', msmTooltip: 'Guardar cliente', color: 'primary' },
                     ]}
-                    heading="Clientes"
-                    subheading="Registro de un nuevo cliente."
+                    heading="Proveedores"
+                    subheading="Registro de un nuevo proveedor"
                     icon="pe-7s-add-user icon-gradient bg-mean-fruit"
                 />
                 <ReactCSSTransitionGroup
@@ -88,12 +109,12 @@ class EditCustomer extends Component {
                                             <p className='mt-2'><strong>Nota:</strong> Los campos marcados con * son obligatorios</p>
                                         </Row>
                                         <FormGroup className="mb-1" row>
-                                            <Label for="type_identification" sm={4}>Estado</Label>
+                                            <Label for="type_identification" sm={4}>Tipo de identicatión *</Label>
                                             <Col sm={6}>
                                                 <CustomInput bsSize="sm" onChange={this.handleChange} value={form.type_identification}
-                                                    type="select" id="type_identification" name="type_identification">
-                                                    <option value="cédula">Cédula</option>
+                                                    type="select" id="type_identification" name="type_identification" requiered>
                                                     <option value="ruc">RUC</option>
+                                                    <option value="cédula">Cédula</option>
                                                     <option value="pasaporte">Pasaporte</option>
                                                 </CustomInput>
                                             </Col>
@@ -102,18 +123,18 @@ class EditCustomer extends Component {
                                             <Label for="identication" sm={4}>Identificación *</Label>
                                             <Col sm={6}>
                                                 <Input bsSize="sm" onChange={this.handleChange} value={form.identication}
-                                                    type="text" id="identication" name="identication" maxlength="13" />
+                                                    type="text" id="identication" name="identication" maxlength="13" requiered />
                                             </Col>
                                         </FormGroup>
                                         <FormGroup className="mb-1" row>
                                             <Label for="name" sm={4}>Nombre *</Label>
                                             <Col sm={6}>
                                                 <Input bsSize="sm" onChange={this.handleChange} value={form.name}
-                                                    type="text" id="name" name="name" maxlength={300} />
+                                                    type="text" id="name" name="name" maxlength={300} requiered />
                                             </Col>
                                         </FormGroup>
                                         <FormGroup className="mb-1" row>
-                                            <Label for="address" sm={4}>Dirección *</Label>
+                                            <Label for="address" sm={4}>Dirección</Label>
                                             <Col sm={6}>
                                                 <Input bsSize="sm" onChange={this.handleChange} value={form.address}
                                                     type="text" id="address" name="address" />
@@ -149,5 +170,4 @@ const mapStateToProps = state => ({
     token: state.AuthReducer.token
 });
 
-
-export default connect(mapStateToProps)(EditCustomer);
+export default connect(mapStateToProps)(FormProvider);

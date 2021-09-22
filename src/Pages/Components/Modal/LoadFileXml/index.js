@@ -24,14 +24,14 @@ class LoadFileXml extends Component {
 
         // Solo RUC por que es de un proveedor 
         let ruc = this._getTag(xmlDoc, "ruc");
-        let { contacts, selectContact, selectDocXml } = this.props;
+        let { providers, selectProvider, selectDocXml } = this.props;
 
-        let provider = contacts.filter(c => c.ruc === ruc)[0]
+        let provider = providers.filter(c => c.identication === ruc)[0]
 
         if (provider === undefined) {
             alert('No esta registrado el proveedor: ' + this._getTag(xmlDoc, "razonSocial"))
         } else {
-            selectContact(provider.id)
+            selectProvider(provider.id)
             selectDocXml(xmlDoc)
         }
     }

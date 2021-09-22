@@ -1,31 +1,23 @@
 import React, { Component, Fragment } from 'react'
-import '../scrollmodal.css'
 import {
     Button, Modal, ModalHeader, ModalBody,
     InputGroup, Input, InputGroupAddon, Table
 } from 'reactstrap'
 
-class SelectRetention extends Component {
+class SelectProvider extends Component {
 
     state = { modal: false }
 
-    componentDidMount() {
-        this.setState((state, props) => ({
-            item: (props.retentions.lenght !== 0 && props.tax_code > 0) ? props.retentions.filter(retention => retention.code === props.tax_code)[0].conception : ''
-        }))
-    }
-
     componentDidUpdate(prevProps) {
-        if (this.props.tax_code !== prevProps.tax_code) {
+        if (this.props.id !== prevProps.id && this.props.id > 0) {
             this.setState((state, props) => ({
-                item: (props.tax_code !== '') ? props.retentions.filter(retention => retention.code === props.tax_code)[0].conception : ''
+                item: (props.providers.lenght !== 0) ? props.providers.filter(provider => provider.id === props.id)[0].name : ''
             }))
         }
     }
 
-    selectRetention = (retention) => {
-        let { index, selectRetention } = this.props
-        selectRetention(retention, index)
+    selectProvider = (item) => {
+        this.props.selectProvider(item.id)
         this.toggle()
     }
 
@@ -33,13 +25,7 @@ class SelectRetention extends Component {
     toggle = () => this.setState(state => ({ modal: !state.modal }))
 
     render = () => {
-        let { retentions, code } = this.props
-        let items = null
-
-        if (code !== null) {
-            items = retentions.filter(retention => Number(code) === 2 ? retention.type === 'iva' : retention.type === 'renta')
-        }
-
+        let { providers } = this.props
         return (
             <Fragment>
                 <InputGroup size="sm">
@@ -56,22 +42,22 @@ class SelectRetention extends Component {
                     className={this.props.className}
                     size={this.props.size ? this.props.size : 'lg'}
                 >
-                    <ModalHeader toggle={this.toggle}>Seleccionar cuenta</ModalHeader>
+                    <ModalHeader toggle={this.toggle}>Seleccionar providero</ModalHeader>
                     <ModalBody>
-                        {items === null ? '' :
+                        {providers === null ? null :
                             (<Table className="mb-0" bordered>
                                 <thead>
                                     <tr>
-                                        <th>Código</th>
-                                        <th>Cuenta</th>
+                                        <th>identicación</th>
+                                        <th>Razón social</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {items.map((retention, index) => (
+                                    {providers.map((item, index) => (
                                         <tr key={index}>
-                                            <td scope="row">{retention.code}</td>
-                                            <td onClick={() => this.selectRetention(retention)}>
-                                                <a href="javascript:void(0);" className="alert-link">{retention.conception}</a>
+                                            <td scope="row">{item.identication}</td>
+                                            <td onClick={() => this.selectProvider(item)}>
+                                                <a href="javascript:void(0);" className="alert-link">{item.name}</a>
                                             </td>
                                         </tr>
                                     ))}
@@ -84,4 +70,4 @@ class SelectRetention extends Component {
     }
 }
 
-export default SelectRetention
+export default SelectProvider

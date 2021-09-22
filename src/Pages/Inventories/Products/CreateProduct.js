@@ -20,7 +20,7 @@ class CreateProduct extends Component {
         unities: [],
         categories: [],
         accounts: [],
-        form: { code: null, type_product: null, name: null, unity_id: null, iva: null },
+        form: { code: null, type_product: 1, name: null, unity_id: null, iva: null },
         entry: false,
         active: false,
         inventory: false,

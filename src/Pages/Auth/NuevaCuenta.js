@@ -116,8 +116,10 @@ const NuevaCuenta = () => {
         data.append('company', company);
         if (logo) { data.append('logo', logo) }
         data.append('economic_activity', economic_activity);
-        data.append('accounting', accounting);
-        if (micro_business) { data.append('micro_business', micro_business) }
+        data.append('accounting', accounting)
+        data.append('micro_business', micro_business)
+        // if (accounting) { data.append('accounting', true) }
+        // if (micro_business) { data.append('micro_business', true) }
         if (retention_agent) { data.append('retention_agent', retention_agent) }
         if (phone) { data.append('logo', phone) }
         if (cert) { data.append('cert', cert) }

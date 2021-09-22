@@ -10,6 +10,9 @@ class InfoDocument extends Component {
 
         let { form, handleChange, customers, selectCustomer } = this.props
 
+        let date = new Date()
+        date.setMonth(date.getMonth() - 3)
+
         return (
             <Row form>
                 <Col md={6}>
@@ -17,7 +20,8 @@ class InfoDocument extends Component {
                         <Label style={{ 'font-weight': 'bold' }} for="date" sm={4}>Fecha emisión</Label>
                         <Col sm={6}>
                             <Input bsSize="sm" onChange={handleChange} value={form.date} type="date"
-                                id="date" name="date" />
+                                id="date" name="date" max={new Date().toISOString().substring(0, 10)}
+                                min={date.toISOString().substring(0, 10)} />
                         </Col>
                     </FormGroup>
                     <FormGroup className="mb-1" row>

@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import MetisMenu from 'react-metismenu';
 
 import {
-    ProfileNav, InventoriesNav, InvoicesNav, ContactsNav, AccountingNav, OrdersNav,
+    ProfileNav, InventoriesNav, InvoicesNav, ContactsNav, AccountingNav, OrdersNav, ShopsNav,
 } from './NavItems';
 
 class Nav extends Component {
@@ -32,11 +32,13 @@ class Nav extends Component {
                 {/* <h5 className="app-sidebar__heading">Facturación</h5> */}
                 <MetisMenu content={OrdersNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down" />
                 {/* <h5 className="app-sidebar__heading">Facturación</h5> */}
-                <MetisMenu content={InvoicesNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down" />
+                <MetisMenu content={ShopsNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down" />
+                {/* <h5 className="app-sidebar__heading">Facturación</h5> */}
+                {/* <MetisMenu content={InvoicesNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down" /> */}
                 {/* <h5 className="app-sidebar__heading">Contactos</h5> */}
                 <MetisMenu content={ContactsNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down" />
                 {/* <h5 className="app-sidebar__heading">Contabilidad</h5> */}
-                <MetisMenu content={AccountingNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down" />
+                {/* <MetisMenu content={AccountingNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down" /> */}
                 {/* <h5 className="app-sidebar__heading">Tributación</h5> */}
                 {/* <MetisMenu content={TaxationNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down" /> */}
             </Fragment>

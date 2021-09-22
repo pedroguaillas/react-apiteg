@@ -1,6 +1,7 @@
 import React, { Suspense, lazy, Fragment } from 'react';
 import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
+import Shops from '../../Pages/Shops';
 import PrivateRoute from './PrivateRoute';
 
 const Login = lazy(() => import('../../Pages/Auth/Login'));
@@ -65,7 +66,7 @@ const AppMain = () => {
                 <Route path="/ventas" component={Orders} />
             </Suspense>
 
-            {/* Invoices */}
+            {/* Shops */}
             <Suspense fallback={
                 <div className="loader-container">
                     <div className="loader-container-inner">
@@ -76,8 +77,22 @@ const AppMain = () => {
                     </div>
                 </div>
             }>
-                <Route path="/facturacion" component={Invoices} />
+                <Route path="/compras" component={Shops} />
             </Suspense>
+
+            {/* Invoices */}
+            {/* <Suspense fallback={
+                <div className="loader-container">
+                    <div className="loader-container-inner">
+                        <h6 className="mt-5">
+                            Please wait while we load all the Components examples
+                            <small>Because this is a demonstration we load at once all the Components examples. This wouldn't happen in a real live app!</small>
+                        </h6>
+                    </div>
+                </div>
+            }>
+                <Route path="/facturacion" component={Invoices} />
+            </Suspense> */}
 
             {/* Contacts */}
 
@@ -96,7 +111,7 @@ const AppMain = () => {
 
             {/* ChartOfAccountsNav */}
 
-            <Suspense fallback={
+            {/* <Suspense fallback={
                 <div className="loader-container">
                     <div className="loader-container-inner">
                         <h6 className="mt-5">
@@ -107,7 +122,7 @@ const AppMain = () => {
                 </div>
             }>
                 <Route path="/contabilidad" component={Accounting} />
-            </Suspense>
+            </Suspense> */}
 
             {/* Components */}
 

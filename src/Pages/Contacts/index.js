@@ -9,12 +9,10 @@ import AppFooter from '../../Layout/AppFooter/';
 //Products
 import ListContact from "./Contact";
 import Customers from "./Customers";
-import CreateCustomer from './Customers/CreateCustomer';
 import Providers from "./Providers";
-import Transportistas from "./Dispatcher";
-import CreateContact from './Contact/CreateContact';
 import EditContact from './Contact/EditContact';
-import EditCustomer from './Customers/EditCustomer';
+import FormProvider from './Providers/FormProvider';
+import FormCustomer from './Customers/FormCustomer';
 
 const Contacts = ({ match }) => (
     <Fragment>
@@ -26,14 +24,16 @@ const Contacts = ({ match }) => (
 
                     {/*Load table products*/}
                     <Route path={`${match.url}/contactos`} component={ListContact} />
-                    <Route path={`${match.url}/nuevocontacto`} component={CreateContact} />
+                    <Route path={`${match.url}/nuevocontacto`} component={FormCustomer} />
                     <Route path={`${match.url}/contacto/:id`} component={EditContact} />
 
                     <Route path={`${match.url}/clientes`} component={Customers} />
-                    <Route path={`${match.url}/nuevocliente`} component={CreateCustomer} />
-                    <Route path={`${match.url}/cliente/:id`} component={EditCustomer} />
+                    <Route path={`${match.url}/nuevocliente`} component={FormCustomer} />
+                    <Route path={`${match.url}/cliente/:id`} component={FormCustomer} />
+
                     <Route path={`${match.url}/proveedores`} component={Providers} />
-                    <Route path={`${match.url}/transportistas`} component={Transportistas} />
+                    <Route path={`${match.url}/nuevoproveedor`} component={FormProvider} />
+                    <Route path={`${match.url}/proveedor/:id`} component={FormProvider} />
                 </div>
                 <AppFooter />
             </div>

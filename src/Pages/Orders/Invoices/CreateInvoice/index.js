@@ -17,10 +17,15 @@ class CreateInvoice extends Component {
 
     constructor() {
         super()
+
+        let date = new Date()
+        date.setHours(date.getHours() - 5)
+        date = date.toISOString().substring(0, 10)
+
         this.state = {
             form: {
                 serie: '001-001-000000001',
-                date: new Date().toISOString().substring(0, 10),
+                date,
                 expiration_days: 0,
                 no_iva: 0,
                 base0: 0,
@@ -71,12 +76,13 @@ class CreateInvoice extends Component {
         const { match: { params } } = this.props
         if (params.id) {
             try {
-                await clienteAxios.get(`orders/${params.id}/edit`)
+                await clienteAxios.get(`orders/${params.id}`)
                     .then(res => {
                         let { data } = res
                         let { series } = data
                         this.setState({
                             productinputs: data.products,
+                            productouts: data.order_items,
                             customers: data.customers,
                             form: data.order,
                             series
@@ -92,7 +98,7 @@ class CreateInvoice extends Component {
                         let { data } = res
                         let { series } = data
                         this.setState({
-                            productouts: data.order_items,
+                            productinputs: data.products,
                             customers: data.customers,
                             taxes_request: data.taxes,
                             form: {
@@ -118,8 +124,13 @@ class CreateInvoice extends Component {
 
             tokenAuth(this.props.token);
             try {
-                await clienteAxios.post('orders', form)
-                    .then(res => this.props.history.push('/ventas/facturas'))
+                if (form.id) {
+                    await clienteAxios.put(`orders/${form.id}`, form)
+                        .then(res => this.props.history.push('/ventas/facturas'))
+                } else {
+                    await clienteAxios.post('orders', form)
+                        .then(res => this.props.history.push('/ventas/facturas'))
+                }
             } catch (error) {
                 console.log(error)
             }
@@ -291,7 +302,7 @@ class CreateInvoice extends Component {
         let discount = 0
 
         productouts.forEach(item => {
-            let sub_total = item.quantity * parseFloat(item.price)
+            let sub_total = parseFloat(item.quantity) * parseFloat(item.price)
             let dis = item.discount > 0 ? sub_total * item.discount * .01 : 0
             let total = sub_total - dis
             discount += dis
@@ -430,10 +441,22 @@ class CreateInvoice extends Component {
         this.recalculate(productouts)
     }
 
+    // Create our number formatter.
+    formatter = new Intl.NumberFormat('es-EC', {
+        style: 'currency',
+        currency: 'USD',
+
+        //     // These options are needed to round to whole numbers if that's what you want.
+        minimumFractionDigits: 2, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+        maximumFractionDigits: 2, // (causes 2500.99 to be printed as $2,501)
+    })
+
     //...............Layout
     render = () => {
 
         let { form } = this.state
+
+        let { format } = this.formatter
 
         return (
             <Fragment>
@@ -487,6 +510,7 @@ class CreateInvoice extends Component {
                                             selectProduct={this.selectProduct}
                                             deleteProduct={this.deleteProduct}
                                             handleChangeItem={this.handleChangeItem}
+                                            format={format}
                                         />
                                     </Form>
 
@@ -502,32 +526,32 @@ class CreateInvoice extends Component {
                                                         <th style={{ 'text-align': 'center' }}>Monto</th>
                                                     </tr>
                                                 </thead>
-                                                {/* <tbody>
+                                                <tbody>
                                                     <tr>
                                                         <td>Subtotal 12%</td>
-                                                        <td style={{ 'text-align': 'right' }}>${form.base12.toFixed(2)}</td>
+                                                        <td style={{ 'text-align': 'right' }}>{format(form.base12)}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>Subtotal 0%</td>
-                                                        <td style={{ 'text-align': 'right' }}>${form.base0.toFixed(2)}</td>
+                                                        <td style={{ 'text-align': 'right' }}>{format(form.base0)}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>IVA</td>
-                                                        <td style={{ 'text-align': 'right' }}>${form.iva.toFixed(2)}</td>
+                                                        <td style={{ 'text-align': 'right' }}>{format(form.iva)}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>No objeto de IVA</td>
-                                                        <td style={{ 'text-align': 'right' }}>${form.no_iva.toFixed(2)}</td>
+                                                        <td style={{ 'text-align': 'right' }}>{format(form.no_iva)}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>Descuento</td>
-                                                        <td style={{ 'text-align': 'right' }}>${form.discount.toFixed(2)}</td>
+                                                        <td style={{ 'text-align': 'right' }}>{format(form.discount)}</td>
                                                     </tr>
                                                     <tr>
                                                         <th style={{ 'text-align': 'center' }}>TOTAL</th>
-                                                        <th style={{ 'text-align': 'right' }}>${form.total.toFixed(2)}</th>
+                                                        <th style={{ 'text-align': 'right' }}>{format(form.total)}</th>
                                                     </tr>
-                                                </tbody> */}
+                                                </tbody>
                                             </Table>
                                             <Button color="secondary" onClick={() => this.submit(false)} className="mr-2 btn-transition">Guardar</Button>
                                             <Button color="success" onClick={() => this.submit(true)} className="mr-2 btn-transition">Guardar y procesar</Button>

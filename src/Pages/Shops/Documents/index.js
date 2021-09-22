@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import {
-    Row, Col, Card, CardBody, Table,
+    Row, Col, Card, CardBody, Table, Input,
     ButtonDropdown, DropdownMenu, DropdownItem, DropdownToggle
 } from 'reactstrap';
 
@@ -11,29 +11,29 @@ import PageTitle from '../../../Layout/AppMain/PageTitle';
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
 
-class Invoices extends Component {
+class Documents extends Component {
 
     state = {
-        orders: null,
+        shops: null,
         dropdowns: []
     }
 
     async componentDidMount() {
         tokenAuth(this.props.token);
         try {
-            await clienteAxios.get('orders')
-                .then(res => this.setState({ orders: res.data.orders }))
+            await clienteAxios.get('shops')
+                .then(res => this.setState({ shops: res.data.shops }))
         } catch (error) {
             console.log(error)
         }
     }
 
-    addDocument = () => this.props.history.push('/ventas/registrarfactura')
+    addDocument = () => this.props.history.push('/compras/registrardocumento')
 
     viewInvoicePdf = async (id) => {
         tokenAuth(this.props.token);
         try {
-            await clienteAxios.get(`orders/${id}/pdf`, { responseType: 'blob' })
+            await clienteAxios.get('retentions/pdf/' + id, { responseType: 'blob' })
                 .then(res => {
                     //Create a Blob from the PDF Stream
                     const file = new Blob([res.data], { type: 'application/pdf' });
@@ -64,64 +64,36 @@ class Invoices extends Component {
         return prefix
     }
 
-    renderproccess = ({ id, state, voucher_type }) => (
-        (voucher_type === 1 || voucher_type === 4 || voucher_type === 5) ?
+    renderproccess = ({ id, state_retencion, voucher_type, serie_retencion }) => (
+        (voucher_type < 4 && serie_retencion) ?
             <DropdownItem onClick={() =>
-            ((state === 'CREADO' || state === 'DEVUELTA') ? this.generateSign(id) :
-                (state === 'FIRMADO' ? this.sendToSri(id) :
-                    ((state === 'ENVIADO' || state === 'RECIBIDO') ? this.autorizedFromSri(id) : null)))
-            }>{this.renderSwith(state)}</DropdownItem>
+            ((state_retencion === null || state_retencion === 'CREADO' || state_retencion === 'DEVUELTA') ? this.generateSignRetention(id) :
+                (state_retencion === 'FIRMADO' ? this.sendToSriRetention(id) :
+                    ((state_retencion === 'ENVIADO' || state_retencion === 'RECIBIDO') ? this.autorizedFromSriRetention(id) : null)))
+            }>{this.renderSwith(state_retencion)}</DropdownItem>
             : null
     )
 
     renderSwith = (state) => {
         switch (state) {
+            case null: return 'Firmar enviar y procesar'
             case 'CREADO': return 'Firmar enviar y procesar'
             case 'FIRMADO': return 'Enviar y procesar'
+            case 'EN_PROCESO': return 'Autorizar'
             case 'ENVIADO': return 'Autorizar'
             case 'RECIBIDO': return 'Autorizar'
             case 'DEVUELTA': return 'Volver a procesar'
         }
     }
 
-    generateSign = async (id) => {
+    downloadXmlRetention = async (id) => {
         tokenAuth(this.props.token);
         try {
-            await clienteAxios.get('orders/xml/' + id)
-                .then(res => console.log(res.data))
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-    sendToSri = async (id) => {
-        tokenAuth(this.props.token);
-        try {
-            await clienteAxios.get('orders/sendsri/' + id)
-                .then(res => console.log(res.data))
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-    autorizedFromSri = async (id) => {
-        tokenAuth(this.props.token);
-        try {
-            await clienteAxios.get(`orders/authorize/${id}`)
-                .then(res => this.setState({ orders: res.data.orders }))
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-    downloadXml = async (id) => {
-        tokenAuth(this.props.token);
-        try {
-            await clienteAxios.get('orders/download/' + id)
+            await clienteAxios.get('retentions/download/' + id)
                 .then(res => {
                     var a = document.createElement("a"); //Create <a>
                     a.href = "data:text/xml;base64," + res.data.xml; //Image Base64 Goes here
-                    a.download = "Factura.xml"; //File name Here
+                    a.download = "Retención.xml"; //File name Here
                     a.click(); //Downloaded file
                 })
         } catch (error) {
@@ -129,19 +101,88 @@ class Invoices extends Component {
         }
     }
 
+    generateSignRetention = async (id) => {
+        tokenAuth(this.props.token);
+        try {
+            await clienteAxios.get('retentions/xml/' + id)
+                .then(res => console.log(res.data))
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    sendToSriRetention = async (id) => {
+        tokenAuth(this.props.token);
+        try {
+            await clienteAxios.get('retentions/sendsri/' + id)
+                .then(res => console.log(res.data))
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    autorizedFromSriRetention = async (id) => {
+        tokenAuth(this.props.token);
+        try {
+            await clienteAxios.get(`retentions/authorize/${id}`)
+                .then(res => console.log(res.data))
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    importFromTxt = () => document.getElementById('file_txt').click()
+
+    handleSelectFile = e => {
+        let input = e.target;
+
+        let reader = new FileReader();
+        reader.onload = () => this.uploadTxtReport(reader.result)
+        reader.readAsText(input.files[0])
+    }
+
+    uploadTxtReport = txt => {
+        let lines = txt.split(/\r\n|\n/)
+        let codekeys = []
+        let i = 0
+
+        for (let line in lines) {
+            if (i > 0 && i % 2 === 0 && i < lines.length - 1) {
+                let words = lines[line].split('\t')
+                if (words[9].length === 49 || words[9].length === 13) {
+                    codekeys.push(words[words[9].length === 49 ? 9 : 10])
+                }
+            }
+            i++
+        }
+        this.saveFromTxt(codekeys)
+    }
+
+    saveFromTxt = async (codekeys) => {
+        let data = { clave_accs: codekeys }
+        tokenAuth(this.props.token)
+        try {
+            await clienteAxios.post('shops/import', data)
+                .then(res => console.log(res))
+        } catch (error) {
+            alert('Por mal')
+        }
+    }
+
     //Layout
     render = () => {
 
-        let { orders, dropdowns } = this.state
+        let { shops, dropdowns } = this.state
 
         return (
             <Fragment>
                 <PageTitle
                     options={[
+                        { type: 'button', id: 'tooltip-import-contact', action: this.importFromTxt, icon: 'import', msmTooltip: 'Importar desde .txt reporte SRI', color: 'success' },
                         { type: 'button', id: 'tooltip-add-document', action: this.addDocument, icon: 'plus', msmTooltip: 'Agregar documento', color: 'primary' },
                     ]}
-                    heading="Facturas"
-                    subheading="Todas las facturas registrados"
+                    heading="Compras"
+                    subheading="Lista de todas las compras"
                     icon="pe-7s-repeat icon-gradient bg-mean-fruit"
                 />
                 <ReactCSSTransitionGroup
@@ -152,9 +193,11 @@ class Invoices extends Component {
                     transitionEnter={false}
                     transitionLeave={false}>
 
+
+                    <Input onChange={this.handleSelectFile} style={{ 'display': 'none' }} type="file" name="invoicestxt" id="file_txt" accept=".txt" />
                     {
-                        (orders === null) ? (<p>Cargando ...</p>) :
-                            (orders.length === 0) ? (<p>No existe facturas registradas</p>) :
+                        (shops === null) ? (<p>Cargando ...</p>) :
+                            (shops.length === 0) ? (<p>No existe documentos registrados</p>) :
                                 (<Row>
                                     <Col lg="12">
                                         <Card className="main-card mb-3">
@@ -162,9 +205,9 @@ class Invoices extends Component {
                                                 <Table striped>
                                                     <thead>
                                                         <tr>
-                                                            <th style={{ width: '7em' }}>Emisión</th>
+                                                            <th>Emisión</th>
                                                             <th>Documento</th>
-                                                            <th>Cliente / Razón social</th>
+                                                            <th>Persona</th>
                                                             <th>Estado</th>
                                                             <th>Total</th>
                                                             <th style={{ width: '1em' }}></th>
@@ -172,29 +215,28 @@ class Invoices extends Component {
                                                     </thead>
                                                     <tbody>
                                                         {
-                                                            orders.map((order, index) => (
+                                                            shops.map((voucher, index) => (
                                                                 <tr key={index}>
-                                                                    <td>{order.date}</td>
+                                                                    <td>{voucher.date}</td>
                                                                     <td>
-                                                                        <Link to={'/ventas/factura/' + order.id}>
-                                                                            {`${this.cal_prefix(order.voucher_type)} ${order.serie}`}
+                                                                        <Link to={'/compras/documento/' + voucher.id}>
+                                                                            {`${this.cal_prefix(voucher.voucher_type)} ${voucher.serie}`}
                                                                         </Link>
                                                                     </td>
-                                                                    <td>{order.name}</td>
-                                                                    <td>{order.state}</td>
-                                                                    <td>${order.total}</td>
+                                                                    <td>{voucher.name}</td>
+                                                                    <td>{voucher.state_retencion}</td>
+                                                                    <td>${voucher.total}</td>
                                                                     <td>
                                                                         <ButtonDropdown direction="left" isOpen={dropdowns[index]} toggle={() => this.handleDrops(index)}>
                                                                             <DropdownToggle caret>
                                                                             </DropdownToggle>
                                                                             <DropdownMenu>
-                                                                                <DropdownItem onClick={() => this.viewInvoicePdf(order.id)}>Ver Pdf</DropdownItem>
-                                                                                {this.renderproccess(order)}
+                                                                                <DropdownItem onClick={() => this.viewInvoicePdf(voucher.id)}>Ver Pdf</DropdownItem>
+                                                                                {this.renderproccess(voucher)}
                                                                                 {
-                                                                                    order.xml ?
-                                                                                        <DropdownItem onClick={() => this.downloadXml(order.id)}>Descargar XML</DropdownItem>
-                                                                                        :
-                                                                                        <DropdownItem onClick={() => this.generateSign(order.id)}>Generar XML</DropdownItem>
+                                                                                    voucher.xml_retention ?
+                                                                                        <DropdownItem onClick={() => this.downloadXmlRetention(voucher.id)}>Descargar XML</DropdownItem>
+                                                                                        : null
                                                                                 }
                                                                             </DropdownMenu>
                                                                         </ButtonDropdown>
@@ -219,4 +261,4 @@ const mapStateToProps = state => ({
     token: state.AuthReducer.token
 });
 
-export default connect(mapStateToProps)(Invoices);
+export default connect(mapStateToProps)(Documents);

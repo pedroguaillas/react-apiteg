@@ -7,7 +7,7 @@ class ItemProduct extends Component {
     render() {
 
         let { edit, index, product, handleChangeItem,
-            productinputs, selectProduct
+            productinputs, selectProduct, deleteProduct, format
         } = this.props
 
         let sub_total = product.quantity * product.price
@@ -35,8 +35,13 @@ class ItemProduct extends Component {
                     <Input size="sm" onChange={handleChangeItem(index)} name="discount" className="form-control" type="number"
                         value={product.discount} min={0} max={100} required />
                 </td>
-                <td>${discount.toFixed(2)}</td>
-                <td>${(sub_total - discount).toFixed(2)}</td>
+                <td>{format(discount)}</td>
+                <td>{format(sub_total - discount)}</td>
+                <td>
+                    <Button size="sm" onClick={() => deleteProduct(index)} className="mr-2 btn-transition" color="danger">
+                        <i className="nav-link-icon lnr-trash"></i>
+                    </Button>
+                </td>
             </tr>
         )
     }

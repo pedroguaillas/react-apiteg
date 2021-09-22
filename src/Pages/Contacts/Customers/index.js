@@ -8,7 +8,7 @@ import { Link } from 'react-router-dom';
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
 
-class ListContacts extends Component {
+class Customers extends Component {
 
     state = { customers: null }
 
@@ -145,4 +145,4 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = () => ({});
 
-export default connect(mapStateToProps, mapDispatchToProps)(ListContacts);
+export default connect(mapStateToProps, mapDispatchToProps)(Customers);

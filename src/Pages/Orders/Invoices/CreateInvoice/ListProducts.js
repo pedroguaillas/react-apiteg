@@ -17,10 +17,11 @@ class ListProducts extends React.Component {
                         <tr style={{ 'textAlign': 'center' }}>
                             <th style={{ 'width': '9em' }}>Cantidad</th>
                             <th>Nombre</th>
-                            <th style={{ 'width': '9em' }}>Costo unitario</th>
+                            <th style={{ 'width': '9em' }}>Precio unitario</th>
                             <th style={{ 'width': '9em' }}>Descuento (%)</th>
                             <th style={{ 'width': '9em' }}>Descuento ($)</th>
-                            <th style={{ 'width': '9em' }}>Costo total</th>
+                            <th style={{ 'width': '9em' }}>Total</th>
+                            <th style={{ 'width': '1em' }}></th>
                         </tr>
                     </thead>
                     <tbody>

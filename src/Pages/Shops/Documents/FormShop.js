@@ -1,27 +1,36 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import {
-    Row, Col, Card, CardBody, Table, Form, Button, Input
+    Row, Col, Card, CardBody, Table, Form, Button, FormGroup, Label, CustomInput, Input
 } from 'reactstrap';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
-import PageTitle from '../../../../Layout/AppMain/PageTitle';
+import PageTitle from '../../../Layout/AppMain/PageTitle';
 
 import ListProducts from './ListProducts';
+import RetentionForm from './RetentionForm';
+import ListRetention from './ListRetention';
 import InfoDocument from './InfoDocument';
 
-import clienteAxios from '../../../../config/axios';
-import tokenAuth from '../../../../config/token';
+import clienteAxios from '../../../config/axios';
+import tokenAuth from '../../../config/token';
+import Description from './Description';
 
-class CreateInvoice extends Component {
+class FormShop extends Component {
 
     constructor() {
         super()
+
+        let date = new Date()
+        date.setHours(date.getHours() - 5)
+        date = date.toISOString().substring(0, 10)
+
         this.state = {
             form: {
                 serie: '001-001-000000001',
-                date: new Date().toISOString().substring(0, 10),
+                date,
                 expiration_days: 0,
+                voucher_type: 1,
                 no_iva: 0,
                 base0: 0,
                 base12: 0,
@@ -30,19 +39,18 @@ class CreateInvoice extends Component {
                 discount: 0,
                 total: 0,
                 description: null,
-                customer_id: 0,
-                received: 0,
-                doc_realeted: 0
+                provider_id: 0,
+                doc_realeted: 0,
+
+                // Retencion
+                serie_retencion: '001-001-000000001',
+                date_retention: date
             },
-            customers: [],
+            providers: [],
             productinputs: [],
             productouts: [
-                { product_id: 0, price: 0, quantity: 1, stock: 1, discount: 0 }
+                { product_id: 0, price: 0, quantity: 1, stock: 1, discount: 0, inventory_account_id: null }
             ],
-            form_retention: {
-                serie: '001-001-000000001',
-                date: new Date().toISOString().substring(0, 10)
-            },
             taxes_request: [],
             taxes: [{ code: null, tax_code: null, base: null, porcentage: null, value: 0, editable_porcentage: false }],
             pay_methods: [
@@ -52,6 +60,7 @@ class CreateInvoice extends Component {
             redirect: false,
             hiddenreceived: true,
             series: {},
+            edit: false
         }
     }
 
@@ -71,45 +80,77 @@ class CreateInvoice extends Component {
 
     async componentDidMount() {
         tokenAuth(this.props.token)
-        try {
-            await clienteAxios.get('orders/create')
-                .then(res => {
-                    let { data } = res
-                    let { series } = data
-                    this.setState({
-                        productinputs: data.products,
-                        customers: data.customers,
-                        taxes_request: data.taxes,
-                        form: {
-                            ...this.state.form,
-                            serie: series.invoice
-                        },
-                        form_retention: {
-                            ...this.state.form_retention,
-                            serie: series.retention
-                        },
-                        series
+        const { match: { params } } = this.props
+        if (params.id) {
+            try {
+                await clienteAxios.get(`shops/${params.id}`)
+                    .then(res => {
+                        let { data } = res
+                        let { series } = data
+                        this.setState({
+                            productinputs: data.products,
+                            productouts: data.shopitems,
+                            taxes_request: data.taxes,
+                            taxes: data.shopretentionitems,
+                            providers: data.providers,
+                            form: data.shop,
+                            series,
+                            app_retention: data.taxes.length > 0
+                        })
                     })
-                })
-        } catch (error) {
-            console.log(error)
+            } catch (error) {
+                console.log(error)
+            }
+        } else {
+            try {
+                await clienteAxios.get('shops/create')
+                    .then(res => {
+                        let { data } = res
+                        let { series } = data
+                        this.setState({
+                            productinputs: data.products,
+                            providers: data.providers,
+                            taxes_request: data.taxes,
+                            form: {
+                                ...this.state.form,
+                                serie_retencion: series.retention
+                            },
+                            series
+                        })
+                    })
+            } catch (error) {
+                console.log(error)
+            }
         }
     }
 
     //Save sale
     submit = async (send) => {
         if (this.validate()) {
-            let { form, productouts } = this.state
-            form.products = productouts.length > 0 ? productouts.filter(product => product.product_id !== 0) : []
-
+            let { form, productouts, taxes, pay_methods, app_retention } = this.state
+            // form.products = productouts.length > 0 ? productouts.filter(product => product.product_id !== 0) : []
+            if (taxes.length > 0) {
+                form.taxes = taxes.filter(tax => tax.tax_code !== null)
+            }
+            form.pay_methods = pay_methods
+            form.app_retention = app_retention
             form.send = send
 
             tokenAuth(this.props.token);
-            try {
-                await clienteAxios.post('orders', form)
-                    .then(res => this.props.history.push('/ventas/facturas'))
-            } catch (error) {
-                console.log(error)
+            if (form.id) {
+                try {
+                    await clienteAxios.put(`shops/${form.id}`, form)
+                        .then(res => this.props.history.push('/compras/facturas'))
+                } catch (error) {
+                    console.log(error)
+                }
+            } else {
+                try {
+                    await clienteAxios.post('shops', form)
+                        .then(res => this.props.history.push('/compras/facturas'))
+                } catch (error) {
+                    console.log(error)
+                }
             }
         }
     }
@@ -120,32 +161,24 @@ class CreateInvoice extends Component {
         let { form, productouts, taxes } = this.state
         let valid = true
 
-        // Validar que se la serie contenga 17 caracteres
-        if (form.customer_id === 0) {
-            alert('La seriel de la factura debe tener 15 digitos')
+        // Validar que se selecciono un contacto
+        if (form.provider_id === 0) {
+            alert('Debe seleccionar el prvoeedor')
             valid = false
         }
 
-        // Validar que se selecciono un cliente
-        if (form.customer_id === 0) {
-            alert('Debe seleccionar un cliente')
-            valid = false
-        }
-        // Validar que se registren productos
-        if (productouts.length === 0) {
-            alert('Debe seleccionar almenos un producto')
-            valid = false
-        }
-
-        let i = 0
-        // Products length siempre va ser mayor a cero por que se valido en la condicion anterior
-        while (i < productouts.length && valid) {
-            let p = productouts[i]
-            valid = (p.product_id === 0 && p.price === 0) || (p.product_id > 0 && p.price > 0)
-            i++
-        }
-        if (!valid) {
-            alert('Si seleccionas un producto debes aplicar el costo unitario')
+        // Validar que se registren productos solo cuando es una venta
+        if (valid) {
+            let i = 0
+            // Products length siempre va ser mayor a cero por que se valido en la condicion anterior
+            while (i < productouts.length && valid) {
+                let p = productouts[i]
+                valid = (p.product_id === 0 && p.price === 0) || (p.product_id > 0 && p.price > 0)
+                i++
+            }
+            if (!valid) {
+                alert('Si seleccionas un producto debes aplicar el costo unitario')
+            }
         }
 
         if (valid) {
@@ -166,21 +199,17 @@ class CreateInvoice extends Component {
 
     //Info sale handle
     handleChange = e => {
+
         let { name, value } = e.target
+
         if (name === 'voucher_type') {
             let voucher_type = Number(value)
             let { series } = this.state
             let serie = '000-000-000000000'
 
-            switch (voucher_type) {
-                case 1: serie = series.invoice
-                    break
-                case 4: serie = series.cn
-                    break
-                case 5: serie = series.dn
-                    break
+            if (voucher_type === 3) {
+                serie = series.set_purchase
             }
-
             this.setState({
                 form: {
                     ...this.state.form,
@@ -211,12 +240,12 @@ class CreateInvoice extends Component {
         })
     }
 
-    //Add customer
-    selectCustomer = (customer_id) => {
+    //Add Contact
+    selectProvider = (provider_id) => {
         this.setState({
             form: {
                 ...this.state.form,
-                customer_id
+                provider_id
             }
         })
     }
@@ -238,6 +267,7 @@ class CreateInvoice extends Component {
                 item.quantity = 1
                 item.iva = product.iva
                 item.stock = product.stock > 0 ? product.stock : 1
+                item.inventory_account_id = product.inventory_account_id
             }
             return item
         })
@@ -305,17 +335,6 @@ class CreateInvoice extends Component {
             form: {
                 ...this.state.form,
                 no_iva, base0, base12, iva, sub_total, discount, total
-            }
-        })
-    }
-
-    //.................Retentions
-    //Info retention (serie, date) handle
-    handleChangeRetention = e => {
-        this.setState({
-            form_retention: {
-                ...this.state.form_retention,
-                [e.target.name]: e.target.value
             }
         })
     }
@@ -429,16 +448,28 @@ class CreateInvoice extends Component {
         this.recalculate(productouts)
     }
 
+    // Create our number formatter.
+    formatter = new Intl.NumberFormat('es-EC', {
+        style: 'currency',
+        currency: 'USD',
+
+        //     // These options are needed to round to whole numbers if that's what you want.
+        minimumFractionDigits: 2, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+        maximumFractionDigits: 2, // (causes 2500.99 to be printed as $2,501)
+    })
+
     //...............Layout
     render = () => {
 
-        let { form } = this.state
+        let { form, providers, edit, app_retention } = this.state
+
+        let { format } = this.formatter
 
         return (
             <Fragment>
                 <PageTitle
-                    heading="Documento"
-                    subheading="Registrar un nuevo documento"
+                    heading="Factura"
+                    subheading="Registrar una nueva factura"
                     icon="pe-7s-news-paper icon-gradient bg-mean-fruit"
                 />
                 <ReactCSSTransitionGroup
@@ -449,7 +480,7 @@ class CreateInvoice extends Component {
                     transitionEnter={false}
                     transitionLeave={false}>
 
-                    <Input onChange={this.handleSelectFile} style={{ 'display': 'none' }} type="file" name="customerscsv" id="file_csv" accept=".csv" />
+                    <Input onChange={this.handleSelectFile} style={{ 'display': 'none' }} type="file" name="contactscsv" id="file_csv" accept=".csv" />
                     <Row>
                         <Col lg="12">
                             <Card className="main-card mb-3">
@@ -464,22 +495,26 @@ class CreateInvoice extends Component {
                                             <strong className='mt-2'>Datos generales</strong>
                                         </Row>
                                         <InfoDocument
+                                            edit={edit}
                                             form={form}
                                             handleChange={this.handleChange}
-                                            customers={this.state.customers}
-                                            selectCustomer={this.selectCustomer}
+                                            providers={providers}
+                                            selectProvider={this.selectProvider}
+                                            selectDocRelated={this.selectDocRelated}
+                                            selectDocXml={this.selectDocXml}
                                         />
 
                                         <Row form className="my-3 pt-2" style={{ 'border-top': '1px solid #ced4da' }}>
-                                            <div className="col-sm-1 text-left">
-                                                <strong>Productos</strong>
+                                            <div className="col-sm-6 text-left">
+                                                <strong>Productos / Servicios</strong>
                                             </div>
-                                            <div className="col-sm-11">
+                                            <div className="col-sm-6">
                                                 <Button onClick={this.importFromCsv}>Importar</Button>
                                             </div>
                                         </Row>
 
                                         <ListProducts
+                                            edit={edit}
                                             productinputs={this.state.productinputs}
                                             productouts={this.state.productouts}
                                             addProduct={this.addProduct}
@@ -487,6 +522,55 @@ class CreateInvoice extends Component {
                                             deleteProduct={this.deleteProduct}
                                             handleChangeItem={this.handleChangeItem}
                                         />
+
+                                        <Row hidden={Number(form.voucher_type) > 3} form className="my-3" style={{ 'border-top': '1px solid #ced4da' }}>
+                                            <strong className='mt-2'>Retención</strong>
+                                        </Row>
+                                        <Row hidden={Number(form.voucher_type) > 3}>
+                                            <Col md={3}>
+                                                <FormGroup>
+                                                    <Label>
+                                                        <CustomInput onChange={this.handleChangeCheck} checked={app_retention} type="checkbox"
+                                                            id="accounting" name="accounting" label="Aplicar retención" />
+                                                    </Label>
+                                                </FormGroup>
+                                            </Col>
+                                        </Row>
+                                        <Row form hidden={!app_retention || Number(form.voucher_type) > 3}>
+                                            <RetentionForm
+                                                form={form}
+                                                handleChange={this.handleChange}
+                                            />
+                                            <ListRetention
+                                                edit={edit}
+                                                taxes={this.state.taxes}
+                                                deleteTax={this.deleteTax}
+                                                handleChangeTax={this.handleChangeTax}
+                                                retentions={this.state.taxes_request}
+                                                selectRetention={this.selectRetention}
+                                                handleChangeOthersTax={this.handleChangeOthersTax}
+                                            />
+                                        </Row>
+                                        <Button hidden={!app_retention || Number(form.voucher_type) > 3} color="primary" onClick={this.addTax} className="mr-2 btn-transition">
+                                            Añadir impuesto
+                                        </Button>
+
+                                        <Row form className="my-3" style={{ 'border-top': '1px solid #ced4da' }}>
+                                            {/* <strong className='mt-2'>Formas de pago</strong> */}
+                                        </Row>
+
+                                        <Description
+                                            edit={edit}
+                                            form={form}
+                                            handleChange={this.handleChange}
+                                        />
+
+                                        {/* <PayMethod
+                                            pay_methods={this.state.pay_methods}
+                                            handleChangePay={this.handleChangePay}
+                                            handleDeletePay={this.handleDeletePay}
+                                            handleAddPay={this.handleAddPay}
+                                        /> */}
                                     </Form>
 
                                     <Row form className="my-3" style={{ 'border-top': '1px solid #ced4da' }}>
@@ -504,27 +588,27 @@ class CreateInvoice extends Component {
                                                 <tbody>
                                                     <tr>
                                                         <td>Subtotal 12%</td>
-                                                        <td style={{ 'text-align': 'right' }}>${form.base12.toFixed(2)}</td>
+                                                        <td style={{ 'text-align': 'right' }}>{format(form.base12)}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>Subtotal 0%</td>
-                                                        <td style={{ 'text-align': 'right' }}>${form.base0.toFixed(2)}</td>
+                                                        <td style={{ 'text-align': 'right' }}>{format(form.base0)}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>IVA</td>
-                                                        <td style={{ 'text-align': 'right' }}>${form.iva.toFixed(2)}</td>
+                                                        <td style={{ 'text-align': 'right' }}>{format(form.iva)}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>No objeto de IVA</td>
-                                                        <td style={{ 'text-align': 'right' }}>${form.no_iva.toFixed(2)}</td>
+                                                        <td style={{ 'text-align': 'right' }}>{format(form.no_iva)}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>Descuento</td>
-                                                        <td style={{ 'text-align': 'right' }}>${form.discount.toFixed(2)}</td>
+                                                        <td style={{ 'text-align': 'right' }}>{format(form.discount)}</td>
                                                     </tr>
                                                     <tr>
                                                         <th style={{ 'text-align': 'center' }}>TOTAL</th>
-                                                        <th style={{ 'text-align': 'right' }}>${form.total.toFixed(2)}</th>
+                                                        <th style={{ 'text-align': 'right' }}>{format(form.total)}</th>
                                                     </tr>
                                                 </tbody>
                                             </Table>
@@ -546,4 +630,4 @@ const mapStateToProps = state => ({
     token: state.AuthReducer.token
 });
 
-export default connect(mapStateToProps)(CreateInvoice);
+export default connect(mapStateToProps)(FormShop);

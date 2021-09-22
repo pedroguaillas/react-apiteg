@@ -21,12 +21,14 @@ class ListProducts extends React.Component {
                             <th style={{ 'width': '9em' }}>Descuento (%)</th>
                             <th style={{ 'width': '9em' }}>Descuento ($)</th>
                             <th style={{ 'width': '9em' }}>Costo total</th>
+                            <th style={{ 'width': '2em' }} hidden={edit}></th>
                         </tr>
                     </thead>
                     <tbody>
                         {
                             (productouts.length > 0) ? (productouts.map((product, i) => (
                                 <ItemProduct
+                                    edit={edit}
                                     index={i}
                                     product={product}
                                     productinputs={productinputs}
@@ -37,9 +39,13 @@ class ListProducts extends React.Component {
                         }
                     </tbody>
                 </Table>
-                <Button onClick={addProduct} className="btn-transition" color="primary">
-                    Añadir producto
-                </Button>
+                {
+                    (edit === false) ?
+                        (<Button onClick={addProduct} className="btn-transition" color="primary">
+                            Añadir producto
+                        </Button>)
+                        : null
+                }
             </Fragment>
         )
     }

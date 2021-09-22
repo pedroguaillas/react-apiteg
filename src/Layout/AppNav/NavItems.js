@@ -23,18 +23,18 @@ export const InventoriesNav = [
                 label: 'Productos',
                 to: '#/inventarios/productos',
             },
-            {
-                label: 'Movimientos',
-                to: '#/inventarios/movimientos',
-            },
-            {
-                label: 'Categorias',
-                to: '#/inventarios/categorias',
-            },
-            {
-                label: 'Unidades',
-                to: '#/inventarios/unidades',
-            }
+            // {
+            //     label: 'Movimientos',
+            //     to: '#/inventarios/movimientos',
+            // },
+            // {
+            //     label: 'Categorias',
+            //     to: '#/inventarios/categorias',
+            // },
+            // {
+            //     label: 'Unidades',
+            //     to: '#/inventarios/unidades',
+            // }
         ],
     },
 ];
@@ -52,7 +52,7 @@ export const InvoicesNav = [
 ];
 export const OrdersNav = [
     {
-        icon: 'pe-7s-news-paper',
+        icon: 'pe-7s-ticket',
         label: 'Ventas',
         content: [
             {
@@ -62,18 +62,34 @@ export const OrdersNav = [
         ],
     },
 ];
+export const ShopsNav = [
+    {
+        icon: 'pe-7s-cart',
+        label: 'Compras',
+        content: [
+            {
+                label: 'Facturas',
+                to: '#/compras/facturas',
+            }
+        ],
+    },
+];
 export const ContactsNav = [
     {
         icon: 'pe-7s-users',
         label: 'Contactos',
         content: [
+            // {
+            //     label: 'Lista de contactos',
+            //     to: '#/contactos/contactos',
+            // },
             {
-                label: 'Lista de contactos',
-                to: '#/contactos/contactos',
+                label: 'Clientes',
+                to: '#/contactos/clientes',
             },
             {
-                label: 'Lista de clientes',
-                to: '#/contactos/clientes',
+                label: 'Proveedores',
+                to: '#/contactos/proveedores',
             }
         ],
     },
