@@ -54,24 +54,14 @@ export const OrdersNav = [
     {
         icon: 'pe-7s-ticket',
         label: 'Ventas',
-        content: [
-            {
-                label: 'Facturas',
-                to: '#/ventas/facturas',
-            }
-        ],
+        to: '#/ventas/facturas'
     },
 ];
 export const ShopsNav = [
     {
         icon: 'pe-7s-cart',
         label: 'Compras',
-        content: [
-            {
-                label: 'Facturas',
-                to: '#/compras/facturas',
-            }
-        ],
+        to: '#/compras/facturas',
     },
 ];
 export const ContactsNav = [

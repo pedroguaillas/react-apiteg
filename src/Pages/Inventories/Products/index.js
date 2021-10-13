@@ -8,22 +8,51 @@ import PageTitle from '../../../Layout/AppMain/PageTitle';
 
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
+import Paginate from '../../Components/Paginate/Index';
 
 class Products extends Component {
 
     state = {
-        products: null
+        products: null,
+        links: null,
+        meta: null
     }
 
     async componentDidMount() {
         tokenAuth(this.props.token);
         try {
             await clienteAxios.get('products')
-                .then(response => this.setState({
-                    products: response.data.data
-                }))
+                .then(res => {
+                    let { data, links, meta } = res.data
+                    this.setState({
+                        products: data,
+                        links,
+                        meta,
+                    })
+                })
         } catch (error) {
             console.log(error)
+        }
+    }
+
+    reqNewPage = async (e, page) => {
+        e.preventDefault();
+
+        if (page !== null) {
+            tokenAuth(this.props.token);
+            try {
+                await clienteAxios.get(`products?page=${page.substring((page.indexOf('=')) + 1)}`)
+                    .then(res => {
+                        let { data, links, meta } = res.data
+                        this.setState({
+                            products: data,
+                            links,
+                            meta,
+                        })
+                    })
+            } catch (error) {
+                console.log(error)
+            }
         }
     }
 
@@ -79,7 +108,7 @@ class Products extends Component {
 
     render() {
 
-        let { products } = this.state
+        let { products, links, meta } = this.state
 
         return (
             <Fragment>
@@ -144,6 +173,12 @@ class Products extends Component {
                                                         }
                                                     </tbody>
                                                 </Table>
+
+                                                <Paginate
+                                                    links={links}
+                                                    meta={meta}
+                                                    reqNewPage={this.reqNewPage}
+                                                />
                                             </CardBody>
                                         </Card>
                                     </Col>

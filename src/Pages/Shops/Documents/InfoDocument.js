@@ -10,7 +10,7 @@ class InfoDocument extends Component {
 
     render() {
 
-        let { form, handleChange, providers, selectProvider, selectDocRelated, selectDocXml } = this.props
+        let { form, handleChange, providers, selectProvider, selectDocRelated, selectDocXml, registerProvider } = this.props
 
         let type_vouchers = [
             { code: 1, description: 'Factura' },
@@ -60,6 +60,13 @@ class InfoDocument extends Component {
                         </Col>
                     </FormGroup>
                     <FormGroup className="mb-1" row>
+                        <Label style={{ 'font-weight': 'bold' }} for="authorization" sm={4}>Autorización</Label>
+                        <Col sm={8}>
+                            <Input bsSize="sm" onChange={handleChange} value={form.authorization} type="text"
+                                id="authorization" name="authorization" maxlength={49} />
+                        </Col>
+                    </FormGroup>
+                    <FormGroup className="mb-1" row>
                         <Label style={{ 'font-weight': 'bold' }} for="expiration_date" sm={4}>Vencimiento</Label>
                         <Col sm={2}>
                             <Input bsSize="sm" onChange={handleChange} value={form.expiration_days} type="number"
@@ -85,6 +92,7 @@ class InfoDocument extends Component {
                                 providers={providers}
                                 selectProvider={selectProvider}
                                 selectDocXml={selectDocXml}
+                                registerProvider={registerProvider}
                             />
                         </Col>
                     </FormGroup>

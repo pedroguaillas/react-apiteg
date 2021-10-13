@@ -553,6 +553,7 @@ class CreateInvoice extends Component {
                                                     </tr>
                                                 </tbody>
                                             </Table>
+                                            
                                             <Button color="secondary" onClick={() => this.submit(false)} className="mr-2 btn-transition">Guardar</Button>
                                             <Button color="success" onClick={() => this.submit(true)} className="mr-2 btn-transition">Guardar y procesar</Button>
                                         </Col>

@@ -29,9 +29,81 @@ class Profile extends Component {
     }
 
     //Info seller handle
-    handleChange = e => this.setState({ [e.target.name]: e.target.value })
+    handleChange = e => {
+        this.setState({
+            ...this.state.form,
+            form: {
+                [e.target.name]: e.target.value
+            }
+        })
+    }
 
-    handleChangeCheck = e => this.setState({ [e.target.name]: e.target.checked })
+    handleChangeCheck = e => {
+        this.setState({
+            form: {
+                ...this.state.form,
+                [e.target.name]: e.target.checked
+            }
+        })
+    }
+
+    loadFile = e => {
+        let files = e.target.files || e.dataTransfer.files;
+
+        if (!files.length)
+            return;
+
+        let file = files[0]
+        let { name, name: { length } } = file
+
+        this.setState({
+            form: {
+                ...this.state.form,
+                [e.target.name]: file,
+                extention_cert: name.substring(length - 4, length),
+            }
+        })
+        // createImage(files[0], e.target.name);
+    }
+
+    onSubmit = async e => {
+        e.preventDefault()
+
+        // Validate empty field
+        let { id, ruc, company, economic_activity, accounting, micro_business, retention_agent,
+            logo, cert, extention_cert, pass_cert } = this.state.form
+        if (ruc.trim() === '' ||
+            company.trim() === '') {
+            alert('Los campos con * son obligatorios')
+            return;
+        }
+
+        let data = new FormData()
+        data.append('id', id)
+        data.append('ruc', ruc)
+        data.append('company', company)
+        if (logo) { data.append('logo', logo) }
+        data.append('economic_activity', economic_activity)
+        data.append('accounting', accounting)
+        data.append('micro_business', micro_business)
+        if (retention_agent) { data.append('retention_agent', retention_agent) }
+        if (cert) { data.append('cert', cert) }
+        if (extention_cert) { data.append('extention_cert', extention_cert) }
+        if (pass_cert) { data.append('pass_cert', pass_cert) }
+
+        // Send
+        tokenAuth(this.props.token)
+
+        try {
+            await clienteAxios.post('company_update', data,
+                {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                })
+                .then(res => alert('Editado correctamente'))
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     render() {
 
@@ -40,8 +112,8 @@ class Profile extends Component {
         return (
             <Fragment>
                 <PageTitle
-                    heading={form.company}
-                    subheading={form.company}
+                    heading="Información de la empresa"
+                    subheading="Info"
                     icon="pe-7s-id icon-gradient bg-mean-fruit"
                 />
                 <ReactCSSTransitionGroup
@@ -55,7 +127,7 @@ class Profile extends Component {
                         <Col lg="12">
                             <Card className="main-card mb-3">
                                 <CardBody>
-                                    <Form>
+                                    <Form onSubmit={this.onSubmit}>
                                         <Row form>
                                             <p className='mt-2'><strong>Nota:</strong> Los campos marcados con * son obligatorios</p>
                                         </Row>
@@ -81,22 +153,6 @@ class Profile extends Component {
                                         <Row>
                                             <Col md={6}>
                                                 <FormGroup>
-                                                    <Label>Tipo de contribuyente</Label>
-                                                    <Input onChange={this.handleChange} value={form.ruc !== undefined ? (form.ruc.substr(2, 1) === '6' || form.ruc.substr(2, 1) === '9' ? 'Jurídica' : 'Persona Natural') : ''}
-                                                        type="text" id="type" name="type" maxLength="300" />
-                                                </FormGroup>
-                                            </Col>
-                                            <Col md={6}>
-                                                <FormGroup>
-                                                    <Label>Teléfono</Label>
-                                                    <Input onChange={this.handleChange} value={form.phone}
-                                                        type="text" id="phone" name="phone" maxLength="13" />
-                                                </FormGroup>
-                                            </Col>
-                                        </Row>
-                                        <Row>
-                                            <Col md={6}>
-                                                <FormGroup>
                                                     <Label>Actividad económica</Label>
                                                     <Input onChange={this.handleChange} value={form.economic_activity}
                                                         type="text" id="economic_activity" name="economic_activity" />
@@ -112,24 +168,74 @@ class Profile extends Component {
                                         </Row>
                                         <Row>
                                             <Col md={6}>
-                                                <FormGroup>
-                                                    <Label>
+                                                <FormGroup row>
+                                                    <Col sm={{ size: 10 }}>
+                                                        <FormGroup check>
+                                                            <Label check>
+                                                                <Input type="checkbox" checked={form.accounting} id="accounting"
+                                                                    onChange={this.handleChangeCheck} name="accounting" />{' '}
+                                                                Obligado llevar contabilidad
+                                                            </Label>
+                                                        </FormGroup>
+                                                    </Col>
+                                                </FormGroup>
+                                                {/* <FormGroup>
+                                                    <Label for="accounting">
                                                         <CustomInput onChange={this.handleChangeCheck} checked={form.accounting} type="checkbox"
                                                             id="accounting" name="accounting" label="Obligado llevar contabilidad" />
                                                     </Label>
+                                                </FormGroup> */}
+                                            </Col>
+                                            <Col md={6}>
+                                                <FormGroup row>
+                                                    <Col sm={{ size: 10 }}>
+                                                        <FormGroup check>
+                                                            <Label check>
+                                                                <Input type="checkbox" id="micro_business" checked={form.micro_business}
+                                                                    onChange={this.handleChangeCheck} name="micro_business" />{' '}
+                                                                Microempresa
+                                                            </Label>
+                                                        </FormGroup>
+                                                    </Col>
+                                                </FormGroup>
+                                                {/* <FormGroup>
+                                                    <Label for="micro_business">
+                                                        <CustomInput onChange={this.handleChangeCheck} checked={form.micro_business} type="checkbox"
+                                                            id="micro_business" name="micro_business" label="Microempresa" />
+                                                    </Label>
+                                                </FormGroup> */}
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            <Col md={6}>
+                                                <FormGroup>
+                                                    <Label>Logo</Label>
+                                                    <Input type="file" name="logo" id="input-file-logo"
+                                                        onChange={this.loadFile} accept="image/*" />
                                                 </FormGroup>
                                             </Col>
                                             <Col md={6}>
                                                 <FormGroup>
-                                                    <Label>
-                                                        <CustomInput onChange={this.handleChangeCheck} checked={form.micro_business} type="checkbox"
-                                                            id="micro_business" name="micro_business" label="Microempresa" />
-                                                    </Label>
+                                                    <Label>Certificado de firma electrónica</Label>
+                                                    <Input type="file" name="cert" id="input-file-cert"
+                                                        onChange={this.loadFile} accept=".p12, .pfx" />
+                                                </FormGroup>
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            <Col md={6}>
+                                            </Col>
+                                            <Col md={6}>
+                                                <FormGroup>
+                                                    <Label>Contraseña certificado</Label>
+                                                    <Input type="password" name="pass_cert" id="pass_cert" />
                                                 </FormGroup>
                                             </Col>
                                         </Row>
 
-                                        <Button color="primary" className="mt-2">Guardar</Button>
+                                        <Button type="submit" color="primary" className="mt-2">
+                                            Guarda
+                                        </Button>
                                     </Form>
                                 </CardBody>
                             </Card>
@@ -145,6 +251,4 @@ const mapStateToProps = state => ({
     token: state.AuthReducer.token
 });
 
-const mapDispatchToProps = () => ({});
-
-export default connect(mapStateToProps, mapDispatchToProps)(Profile);
+export default connect(mapStateToProps)(Profile);

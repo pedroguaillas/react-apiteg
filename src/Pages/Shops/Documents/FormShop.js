@@ -37,6 +37,7 @@ class FormShop extends Component {
                 iva: 0,
                 sub_total: 0,
                 discount: 0,
+                ice: 0,
                 total: 0,
                 description: null,
                 provider_id: 0,
@@ -64,14 +65,41 @@ class FormShop extends Component {
         }
     }
 
-    selectDocXml = xmlDoc => {
+    selectDocXml = (xmlDoc, authorization) => {
         let date = this._getTag(xmlDoc, "fechaEmision")
         let newdate = new Date(parseInt(date.substring(6)), parseInt(date.substring(3, 5)), parseInt(date.substring(0, 2))).toISOString().substring(0, 10)
+
+        let no_iva = 0
+        let base0 = 0
+        let base12 = 0
+        let ice = 0
+        let discount = parseFloat(this._getTag(xmlDoc, 'totalDescuento'))
+
+        let impuestos = xmlDoc.getElementsByTagName('totalImpuesto')
+
+        for (let i = 0; i < impuestos.length; i++) {
+            switch (parseInt(this._getTag(impuestos[i], 'codigoPorcentaje'))) {
+                case 0: base0 += parseFloat(this._getTag(impuestos[i], 'baseImponible')); break;
+                case 2: base12 += parseFloat(this._getTag(impuestos[i], 'baseImponible')); break;
+                case 3: base12 += parseFloat(this._getTag(impuestos[i], 'baseImponible')); break;
+                case 6: no_iva += parseFloat(this._getTag(impuestos[i], 'baseImponible')); break;
+                default: if (parseInt(this._getTag(impuestos[i], 'codigo')) === 3) {
+                    ice += parseFloat(this._getTag(impuestos[i], 'valor'))
+                }
+            }
+        }
+
+        let iva = base12 * .12
+        let sub_total = no_iva + base0 + base12
+        let total = parseFloat(this._getTag(xmlDoc, 'importeTotal'))
+
         this.setState({
             form: {
                 ...this.state.form,
                 serie: this._getTag(xmlDoc, "estab") + '-' + this._getTag(xmlDoc, "ptoEmi") + '-' + this._getTag(xmlDoc, "secuencial"),
-                date: newdate
+                date: newdate,
+                authorization,
+                no_iva, base0, base12, iva, sub_total, discount, ice, total
             }
         })
     }
@@ -458,6 +486,24 @@ class FormShop extends Component {
         maximumFractionDigits: 2, // (causes 2500.99 to be printed as $2,501)
     })
 
+    registerProvider = async (provider) => {
+        await clienteAxios.post('providers', provider)
+            .then(res => {
+                let { provider } = res.data
+                let { providers } = this.state
+
+                providers.push(provider)
+
+                this.setState({ providers })
+                this.setState({
+                    form: {
+                        ...this.state.form,
+                        provider_id: provider.id
+                    }
+                })
+            })
+    }
+
     //...............Layout
     render = () => {
 
@@ -502,6 +548,7 @@ class FormShop extends Component {
                                             selectProvider={this.selectProvider}
                                             selectDocRelated={this.selectDocRelated}
                                             selectDocXml={this.selectDocXml}
+                                            registerProvider={this.registerProvider}
                                         />
 
                                         <Row form className="my-3 pt-2" style={{ 'border-top': '1px solid #ced4da' }}>
@@ -595,12 +642,16 @@ class FormShop extends Component {
                                                         <td style={{ 'text-align': 'right' }}>{format(form.base0)}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td>IVA</td>
+                                                        <td>Monto IVA</td>
                                                         <td style={{ 'text-align': 'right' }}>{format(form.iva)}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>No objeto de IVA</td>
                                                         <td style={{ 'text-align': 'right' }}>{format(form.no_iva)}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Monto ICE</td>
+                                                        <td style={{ 'text-align': 'right' }}>{format(form.ice)}</td>
                                                     </tr>
                                                     <tr>
                                                         <td>Descuento</td>
