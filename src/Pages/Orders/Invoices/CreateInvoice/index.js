@@ -116,6 +116,7 @@ class CreateInvoice extends Component {
 
     //Save sale
     submit = async (send) => {
+
         if (this.validate()) {
             let { form, productouts } = this.state
             form.products = productouts.length > 0 ? productouts.filter(product => product.product_id !== 0) : []
@@ -124,6 +125,8 @@ class CreateInvoice extends Component {
 
             tokenAuth(this.props.token);
             try {
+                document.getElementById("btn-save").disabled = true
+                document.getElementById("btn-save-send").disabled = true
                 if (form.id) {
                     await clienteAxios.put(`orders/${form.id}`, form)
                         .then(res => this.props.history.push('/ventas/facturas'))
@@ -553,9 +556,9 @@ class CreateInvoice extends Component {
                                                     </tr>
                                                 </tbody>
                                             </Table>
-                                            
-                                            <Button color="secondary" onClick={() => this.submit(false)} className="mr-2 btn-transition">Guardar</Button>
-                                            <Button color="success" onClick={() => this.submit(true)} className="mr-2 btn-transition">Guardar y procesar</Button>
+
+                                            <Button color="secondary" id="btn-save" onClick={() => this.submit(false)} className="mr-2 btn-transition" disable>Guardar</Button>
+                                            <Button color="success" id="btn-save-send" onClick={() => this.submit(true)} className="mr-2 btn-transition">Guardar y procesar</Button>
                                         </Col>
                                     </Row>
                                 </CardBody>

@@ -10,21 +10,52 @@ import {
 import PageTitle from '../../../Layout/AppMain/PageTitle';
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
+import Paginate from '../../Components/Paginate/Index';
 
 class Invoices extends Component {
 
     state = {
+        dropdowns: [],
         orders: null,
-        dropdowns: []
+        links: null,
+        meta: null
     }
 
     async componentDidMount() {
         tokenAuth(this.props.token);
         try {
             await clienteAxios.get('orders')
-                .then(res => this.setState({ orders: res.data.orders }))
+                .then(res => {
+                    let { data, links, meta } = res.data
+                    this.setState({
+                        orders: data,
+                        links,
+                        meta,
+                    })
+                })
         } catch (error) {
             console.log(error)
+        }
+    }
+
+    reqNewPage = async (e, page) => {
+        e.preventDefault();
+
+        if (page !== null) {
+            tokenAuth(this.props.token);
+            try {
+                await clienteAxios.get(`orders?page=${page.substring((page.indexOf('=')) + 1)}`)
+                    .then(res => {
+                        let { data, links, meta } = res.data
+                        this.setState({
+                            orders: data,
+                            links,
+                            meta,
+                        })
+                    })
+            } catch (error) {
+                console.log(error)
+            }
         }
     }
 
@@ -132,7 +163,7 @@ class Invoices extends Component {
     //Layout
     render = () => {
 
-        let { orders, dropdowns } = this.state
+        let { orders, dropdowns, links, meta } = this.state
 
         return (
             <Fragment>
@@ -174,15 +205,15 @@ class Invoices extends Component {
                                                         {
                                                             orders.map((order, index) => (
                                                                 <tr key={index}>
-                                                                    <td>{order.date}</td>
+                                                                    <td>{order.atts.date}</td>
                                                                     <td>
                                                                         <Link to={'/ventas/factura/' + order.id}>
-                                                                            {`${this.cal_prefix(order.voucher_type)} ${order.serie}`}
+                                                                            {`${this.cal_prefix(order.atts.voucher_type)} ${order.atts.serie}`}
                                                                         </Link>
                                                                     </td>
-                                                                    <td>{order.name}</td>
-                                                                    <td>{order.state}</td>
-                                                                    <td>${order.total}</td>
+                                                                    <td>{order.customer.name}</td>
+                                                                    <td>{order.atts.state}</td>
+                                                                    <td>${order.atts.total}</td>
                                                                     <td>
                                                                         <ButtonDropdown direction="left" isOpen={dropdowns[index]} toggle={() => this.handleDrops(index)}>
                                                                             <DropdownToggle caret>
@@ -204,6 +235,12 @@ class Invoices extends Component {
                                                         }
                                                     </tbody>
                                                 </Table>
+
+                                                <Paginate
+                                                    links={links}
+                                                    meta={meta}
+                                                    reqNewPage={this.reqNewPage}
+                                                />
                                             </CardBody>
                                         </Card>
                                     </Col>

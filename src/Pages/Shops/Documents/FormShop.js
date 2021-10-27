@@ -167,6 +167,8 @@ class FormShop extends Component {
             tokenAuth(this.props.token);
             if (form.id) {
                 try {
+                    document.getElementById("btn-save").disabled = true
+                    document.getElementById("btn-save-send").disabled = true
                     await clienteAxios.put(`shops/${form.id}`, form)
                         .then(res => this.props.history.push('/compras/facturas'))
                 } catch (error) {
@@ -663,8 +665,8 @@ class FormShop extends Component {
                                                     </tr>
                                                 </tbody>
                                             </Table>
-                                            <Button color="secondary" onClick={() => this.submit(false)} className="mr-2 btn-transition">Guardar</Button>
-                                            <Button color="success" onClick={() => this.submit(true)} className="mr-2 btn-transition">Guardar y enviar</Button>
+                                            <Button color="secondary" id="btn-save" onClick={() => this.submit(false)} className="mr-2 btn-transition" disable>Guardar</Button>
+                                            <Button color="success" id="btn-save-send" onClick={() => this.submit(true)} className="mr-2 btn-transition">Guardar y procesar</Button>
                                         </Col>
                                     </Row>
                                 </CardBody>

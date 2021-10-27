@@ -3,7 +3,7 @@ import { Pagination, PaginationItem, PaginationLink } from 'reactstrap';
 
 const Paginate = ({ meta, links, reqNewPage }) => {
 
-    if (meta === null) return null;
+    if (meta === null || meta.last_page < 2) return null;
 
     return (
         <Pagination aria-label="Page navigation example">

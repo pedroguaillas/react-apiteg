@@ -7,18 +7,51 @@ import { Link } from 'react-router-dom';
 
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
+import Paginate from '../../Components/Paginate/Index';
 
 class Providers extends Component {
 
-    state = { providers: null }
+    state = {
+        providers: null,
+        links: null,
+        meta: null
+    }
 
     async componentDidMount() {
         tokenAuth(this.props.token);
         try {
             await clienteAxios.get('providers')
-                .then(res => this.setState({ providers: res.data.providers }))
+                .then(res => {
+                    let { data, links, meta } = res.data
+                    this.setState({
+                        providers: data,
+                        links,
+                        meta,
+                    })
+                })
         } catch (error) {
             console.log(error)
+        }
+    }
+
+    reqNewPage = async (e, page) => {
+        e.preventDefault();
+
+        if (page !== null) {
+            tokenAuth(this.props.token);
+            try {
+                await clienteAxios.get(`providers?page=${page.substring((page.indexOf('=')) + 1)}`)
+                    .then(res => {
+                        let { data, links, meta } = res.data
+                        this.setState({
+                            providers: data,
+                            links,
+                            meta,
+                        })
+                    })
+            } catch (error) {
+                console.log(error)
+            }
         }
     }
 
@@ -70,7 +103,7 @@ class Providers extends Component {
 
     render() {
 
-        let { providers } = this.state
+        let { providers, links, meta } = this.state
 
         return (
             <Fragment>
@@ -112,9 +145,9 @@ class Providers extends Component {
                                                         {
                                                             providers.map((provider, index) => (
                                                                 <tr key={index}>
-                                                                    <td>{provider.identication}</td>
-                                                                    <td>{provider.name}</td>
-                                                                    <td>{provider.address}</td>
+                                                                    <td>{provider.atts.identication}</td>
+                                                                    <td>{provider.atts.name}</td>
+                                                                    <td>{provider.atts.address}</td>
                                                                     <td>
                                                                         <Link to={'/contactos/proveedor/' + provider.id}>
                                                                             <Button size='sm' color="primary">
@@ -127,6 +160,12 @@ class Providers extends Component {
                                                         }
                                                     </tbody>
                                                 </Table>
+
+                                                <Paginate
+                                                    links={links}
+                                                    meta={meta}
+                                                    reqNewPage={this.reqNewPage}
+                                                />
                                             </CardBody>
                                         </Card>
                                     </Col>

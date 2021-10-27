@@ -234,7 +234,7 @@ class Profile extends Component {
                                         </Row>
 
                                         <Button type="submit" color="primary" className="mt-2">
-                                            Guarda
+                                            Guardar
                                         </Button>
                                     </Form>
                                 </CardBody>

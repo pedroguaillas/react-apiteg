@@ -7,18 +7,51 @@ import { Link } from 'react-router-dom';
 
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
+import Paginate from '../../Components/Paginate/Index';
 
 class Customers extends Component {
 
-    state = { customers: null }
+    state = {
+        customers: null,
+        links: null,
+        meta: null
+    }
 
     async componentDidMount() {
         tokenAuth(this.props.token);
         try {
             await clienteAxios.get('customers')
-                .then(res => this.setState({ customers: res.data.customers }))
+                .then(res => {
+                    let { data, links, meta } = res.data
+                    this.setState({
+                        customers: data,
+                        links,
+                        meta,
+                    })
+                })
         } catch (error) {
             console.log(error)
+        }
+    }
+
+    reqNewPage = async (e, page) => {
+        e.preventDefault();
+
+        if (page !== null) {
+            tokenAuth(this.props.token);
+            try {
+                await clienteAxios.get(`customers?page=${page.substring((page.indexOf('=')) + 1)}`)
+                    .then(res => {
+                        let { data, links, meta } = res.data
+                        this.setState({
+                            customers: data,
+                            links,
+                            meta,
+                        })
+                    })
+            } catch (error) {
+                console.log(error)
+            }
         }
     }
 
@@ -70,7 +103,7 @@ class Customers extends Component {
 
     render() {
 
-        let { customers } = this.state
+        let { customers, links, meta } = this.state
 
         return (
             <Fragment>
@@ -112,9 +145,9 @@ class Customers extends Component {
                                                         {
                                                             customers.map((customer, index) => (
                                                                 <tr key={index}>
-                                                                    <td>{customer.identication}</td>
-                                                                    <td>{customer.name}</td>
-                                                                    <td>{customer.address}</td>
+                                                                    <td>{customer.atts.identication}</td>
+                                                                    <td>{customer.atts.name}</td>
+                                                                    <td>{customer.atts.address}</td>
                                                                     <td>
                                                                         <Link to={'/contactos/cliente/' + customer.id}>
                                                                             <Button size='sm' color="primary">
@@ -127,6 +160,12 @@ class Customers extends Component {
                                                         }
                                                     </tbody>
                                                 </Table>
+
+                                                <Paginate
+                                                    links={links}
+                                                    meta={meta}
+                                                    reqNewPage={this.reqNewPage}
+                                                />
                                             </CardBody>
                                         </Card>
                                     </Col>
@@ -143,6 +182,4 @@ const mapStateToProps = state => ({
     token: state.AuthReducer.token
 });
 
-const mapDispatchToProps = () => ({});
-
-export default connect(mapStateToProps, mapDispatchToProps)(Customers);
+export default connect(mapStateToProps)(Customers);

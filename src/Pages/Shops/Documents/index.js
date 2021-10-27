@@ -10,25 +10,71 @@ import {
 import PageTitle from '../../../Layout/AppMain/PageTitle';
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
+import Paginate from '../../Components/Paginate/Index';
 
 class Documents extends Component {
 
     state = {
+        dropdowns: [],
         shops: null,
-        dropdowns: []
+        links: null,
+        meta: null
     }
 
     async componentDidMount() {
         tokenAuth(this.props.token);
         try {
             await clienteAxios.get('shops')
-                .then(res => this.setState({ shops: res.data.shops }))
+                .then(res => {
+                    let { data, links, meta } = res.data
+                    this.setState({
+                        shops: data,
+                        links,
+                        meta,
+                    })
+                })
         } catch (error) {
             console.log(error)
         }
     }
 
+    reqNewPage = async (e, page) => {
+        e.preventDefault();
+
+        if (page !== null) {
+            tokenAuth(this.props.token);
+            try {
+                await clienteAxios.get(`shops?page=${page.substring((page.indexOf('=')) + 1)}`)
+                    .then(res => {
+                        let { data, links, meta } = res.data
+                        this.setState({
+                            shops: data,
+                            links,
+                            meta,
+                        })
+                    })
+            } catch (error) {
+                console.log(error)
+            }
+        }
+    }
+
     addDocument = () => this.props.history.push('/compras/registrardocumento')
+
+    duplicate = async (id) => {
+        tokenAuth(this.props.token);
+        try {
+            await clienteAxios.get('shops/duplicate/' + id)
+                .then(res => {
+                    // let { data, links, meta } = res.data
+                    this.setState({
+                        shops: res.data.shops
+                    })
+                })
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     viewInvoicePdf = async (id) => {
         tokenAuth(this.props.token);
@@ -172,7 +218,7 @@ class Documents extends Component {
     //Layout
     render = () => {
 
-        let { shops, dropdowns } = this.state
+        let { shops, links, meta, dropdowns } = this.state
 
         return (
             <Fragment>
@@ -208,7 +254,7 @@ class Documents extends Component {
                                                             <th>Emisión</th>
                                                             <th>Documento</th>
                                                             <th>Persona</th>
-                                                            <th>Estado</th>
+                                                            <th>Estado Ret Elec</th>
                                                             <th>Total</th>
                                                             <th style={{ width: '1em' }}></th>
                                                         </tr>
@@ -217,15 +263,15 @@ class Documents extends Component {
                                                         {
                                                             shops.map((voucher, index) => (
                                                                 <tr key={index}>
-                                                                    <td>{voucher.date}</td>
+                                                                    <td>{voucher.atts.date}</td>
                                                                     <td>
                                                                         <Link to={'/compras/documento/' + voucher.id}>
-                                                                            {`${this.cal_prefix(voucher.voucher_type)} ${voucher.serie}`}
+                                                                            {`${this.cal_prefix(voucher.atts.voucher_type)} ${voucher.atts.serie}`}
                                                                         </Link>
                                                                     </td>
-                                                                    <td>{voucher.name}</td>
-                                                                    <td>{voucher.state_retencion}</td>
-                                                                    <td>${voucher.total}</td>
+                                                                    <td>{voucher.provider.name}</td>
+                                                                    <td>{voucher.atts.state_retencion}</td>
+                                                                    <td>${voucher.atts.total}</td>
                                                                     <td>
                                                                         <ButtonDropdown direction="left" isOpen={dropdowns[index]} toggle={() => this.handleDrops(index)}>
                                                                             <DropdownToggle caret>
@@ -234,10 +280,11 @@ class Documents extends Component {
                                                                                 <DropdownItem onClick={() => this.viewInvoicePdf(voucher.id)}>Ver Pdf</DropdownItem>
                                                                                 {this.renderproccess(voucher)}
                                                                                 {
-                                                                                    voucher.xml_retention ?
+                                                                                    voucher.atts.xml_retention ?
                                                                                         <DropdownItem onClick={() => this.downloadXmlRetention(voucher.id)}>Descargar XML</DropdownItem>
                                                                                         : null
                                                                                 }
+                                                                                <DropdownItem onClick={() => this.duplicate(voucher.id)}>Duplicar</DropdownItem>
                                                                             </DropdownMenu>
                                                                         </ButtonDropdown>
                                                                     </td>
@@ -246,6 +293,11 @@ class Documents extends Component {
                                                         }
                                                     </tbody>
                                                 </Table>
+                                                <Paginate
+                                                    links={links}
+                                                    meta={meta}
+                                                    reqNewPage={this.reqNewPage}
+                                                />
                                             </CardBody>
                                         </Card>
                                     </Col>
