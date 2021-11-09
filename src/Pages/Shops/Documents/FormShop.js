@@ -156,7 +156,7 @@ class FormShop extends Component {
     submit = async (send) => {
         if (this.validate()) {
             let { form, productouts, taxes, pay_methods, app_retention } = this.state
-            // form.products = productouts.length > 0 ? productouts.filter(product => product.product_id !== 0) : []
+            form.products = productouts.length > 0 ? productouts.filter(product => product.product_id !== 0) : []
             if (taxes.length > 0) {
                 form.taxes = taxes.filter(tax => tax.tax_code !== null)
             }
