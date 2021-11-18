@@ -127,6 +127,7 @@ class CreateInvoice extends Component {
             try {
                 document.getElementById("btn-save").disabled = true
                 document.getElementById("btn-save-send").disabled = true
+
                 if (form.id) {
                     await clienteAxios.put(`orders/${form.id}`, form)
                         .then(res => this.props.history.push('/ventas/facturas'))

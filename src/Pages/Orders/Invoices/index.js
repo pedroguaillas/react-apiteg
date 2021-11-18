@@ -59,6 +59,26 @@ class Invoices extends Component {
         }
     }
 
+    reloadPage = async () => {
+        let { current_page } = this.state.meta
+        if (current_page !== null) {
+            tokenAuth(this.props.token);
+            try {
+                await clienteAxios.get(`orders?page=${current_page}`)
+                    .then(res => {
+                        let { data, links, meta } = res.data
+                        this.setState({
+                            orders: data,
+                            links,
+                            meta,
+                        })
+                    })
+            } catch (error) {
+                console.log(error)
+            }
+        }
+    }
+
     addDocument = () => this.props.history.push('/ventas/registrarfactura')
 
     viewInvoicePdf = async (id) => {
@@ -119,7 +139,7 @@ class Invoices extends Component {
         tokenAuth(this.props.token);
         try {
             await clienteAxios.get('orders/xml/' + id)
-                .then(res => console.log(res.data))
+                .then(res => this.reloadPage())
         } catch (error) {
             console.log(error)
         }
@@ -129,7 +149,7 @@ class Invoices extends Component {
         tokenAuth(this.props.token);
         try {
             await clienteAxios.get('orders/sendsri/' + id)
-                .then(res => console.log(res.data))
+                .then(res => this.reloadPage())
         } catch (error) {
             console.log(error)
         }
@@ -137,9 +157,10 @@ class Invoices extends Component {
 
     autorizedFromSri = async (id) => {
         tokenAuth(this.props.token);
+        // Recargar la pagina actual .......................
         try {
             await clienteAxios.get(`orders/authorize/${id}`)
-                .then(res => this.setState({ orders: res.data.orders }))
+                .then(res => this.reloadPage())
         } catch (error) {
             console.log(error)
         }

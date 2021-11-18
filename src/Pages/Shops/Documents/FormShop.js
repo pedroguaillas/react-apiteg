@@ -176,6 +176,8 @@ class FormShop extends Component {
                 }
             } else {
                 try {
+                    document.getElementById("btn-save").disabled = true
+                    document.getElementById("btn-save-send").disabled = true
                     await clienteAxios.post('shops', form)
                         .then(res => this.props.history.push('/compras/facturas'))
                 } catch (error) {

@@ -182,13 +182,13 @@ class CreateProduct extends Component {
                                             </Col>
                                             <Col md={6}>
                                                 <FormGroup className="mb-1" row>
-                                                    <Label for="price1" sm={4}>Precio venta</Label>
+                                                    <Label for="price1" sm={4}>Precio</Label>
                                                     <Col sm={6}>
                                                         <Input bsSize="sm" onChange={this.handleChange} value={form.price1} type="text"
                                                             name="price1" id="price1" />
                                                     </Col>
                                                 </FormGroup>
-                                                <FormGroup className="mb-1" row>
+                                                {/* <FormGroup className="mb-1" row>
                                                     <Label for="price2" sm={4}>Precio compra</Label>
                                                     <Col sm={6}>
                                                         <Input bsSize="sm" onChange={this.handleChange} value={form.price2} type="text"
@@ -201,7 +201,7 @@ class CreateProduct extends Component {
                                                         <Input bsSize="sm" onChange={this.handleChange} value={form.price3} type="text"
                                                             name="price3" id="price3" />
                                                     </Col>
-                                                </FormGroup>
+                                                </FormGroup> */}
                                             </Col>
                                         </Row>
                                         <Row form style={{ 'border-top': '1px solid #ced4da' }}>
@@ -222,7 +222,7 @@ class CreateProduct extends Component {
                                                     </Col>
                                                 </FormGroup>
                                             </Col>
-                                            <Col md={4}>
+                                            {/* <Col md={4}>
                                                 <FormGroup row>
                                                     <Label for="ice" sm={4}>Imp. al Cons Esp</Label>
                                                     <Col sm={7}>
@@ -244,9 +244,9 @@ class CreateProduct extends Component {
                                                         </CustomInput>
                                                     </Col>
                                                 </FormGroup>
-                                            </Col>
+                                            </Col> */}
                                         </Row>
-                                        <Row form style={{ 'border-top': '1px solid #ced4da' }}>
+                                        {/* <Row form style={{ 'border-top': '1px solid #ced4da' }}>
                                             <strong className='mt-2'>Contabilidad</strong>
                                         </Row>
                                         <Row form>
@@ -307,7 +307,7 @@ class CreateProduct extends Component {
                                                     </Col>
                                                 </FormGroup>
                                             </Col>
-                                        </Row>
+                                        </Row> */}
                                         <Button onClick={this.submit} color="primary" type="button">Agregar producto</Button>
                                     </Form>
                                 </CardBody>

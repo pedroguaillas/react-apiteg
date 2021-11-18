@@ -59,6 +59,26 @@ class Documents extends Component {
         }
     }
 
+    reloadPage = async () => {
+        let { current_page } = this.state.meta
+        if (current_page !== null) {
+            tokenAuth(this.props.token);
+            try {
+                await clienteAxios.get(`shops?page=${current_page}`)
+                    .then(res => {
+                        let { data, links, meta } = res.data
+                        this.setState({
+                            shops: data,
+                            links,
+                            meta,
+                        })
+                    })
+            } catch (error) {
+                console.log(error)
+            }
+        }
+    }
+
     addDocument = () => this.props.history.push('/compras/registrardocumento')
 
     duplicate = async (id) => {
@@ -70,23 +90,6 @@ class Documents extends Component {
                     this.setState({
                         shops: res.data.shops
                     })
-                })
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-    viewInvoicePdf = async (id) => {
-        tokenAuth(this.props.token);
-        try {
-            await clienteAxios.get('retentions/pdf/' + id, { responseType: 'blob' })
-                .then(res => {
-                    //Create a Blob from the PDF Stream
-                    const file = new Blob([res.data], { type: 'application/pdf' });
-                    //Build a URL from the file
-                    const fileURL = URL.createObjectURL(file);
-                    //Open the URL on new Window
-                    window.open(fileURL);
                 })
         } catch (error) {
             console.log(error)
@@ -110,25 +113,72 @@ class Documents extends Component {
         return prefix
     }
 
-    renderproccess = ({ id, state_retencion, voucher_type, serie_retencion }) => (
+    // Inicio Retencion
+    renderRetention = ({ id, atts: { state_retencion, voucher_type, serie_retencion, xml_retention } }) => (
         (voucher_type < 4 && serie_retencion) ?
-            <DropdownItem onClick={() =>
-            ((state_retencion === null || state_retencion === 'CREADO' || state_retencion === 'DEVUELTA') ? this.generateSignRetention(id) :
-                (state_retencion === 'FIRMADO' ? this.sendToSriRetention(id) :
-                    ((state_retencion === 'ENVIADO' || state_retencion === 'RECIBIDO') ? this.autorizedFromSriRetention(id) : null)))
-            }>{this.renderSwith(state_retencion)}</DropdownItem>
+            <Fragment>
+                <DropdownItem header>
+                    Retención
+                </DropdownItem>
+                <DropdownItem onClick={() => this.viewRetentionPdf(id)}>Ver Pdf</DropdownItem>
+                <DropdownItem onClick={() =>
+                ((state_retencion === null || state_retencion === 'CREADO' || state_retencion === 'DEVUELTA') ? this.generateSignRetention(id) :
+                    (state_retencion === 'FIRMADO' ? this.sendToSriRetention(id) :
+                        ((state_retencion === 'ENVIADO' || state_retencion === 'RECIBIDO') ? this.autorizedFromSriRetention(id) : null)))
+                }>{this.renderSwith(state_retencion)}</DropdownItem>
+                {
+                    xml_retention ?
+                        <DropdownItem onClick={() => this.downloadXmlRetention(id)}>Descargar XML</DropdownItem>
+                        : null
+                }
+            </Fragment>
             : null
     )
 
-    renderSwith = (state) => {
-        switch (state) {
-            case null: return 'Firmar enviar y procesar'
-            case 'CREADO': return 'Firmar enviar y procesar'
-            case 'FIRMADO': return 'Enviar y procesar'
-            case 'EN_PROCESO': return 'Autorizar'
-            case 'ENVIADO': return 'Autorizar'
-            case 'RECIBIDO': return 'Autorizar'
-            case 'DEVUELTA': return 'Volver a procesar'
+    viewRetentionPdf = async (id) => {
+        tokenAuth(this.props.token);
+        try {
+            await clienteAxios.get('retentions/pdf/' + id, { responseType: 'blob' })
+                .then(res => {
+                    //Create a Blob from the PDF Stream
+                    const file = new Blob([res.data], { type: 'application/pdf' });
+                    //Build a URL from the file
+                    const fileURL = URL.createObjectURL(file);
+                    //Open the URL on new Window
+                    window.open(fileURL);
+                })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    generateSignRetention = async (id) => {
+        tokenAuth(this.props.token);
+        try {
+            await clienteAxios.get('retentions/xml/' + id)
+                .then(res => this.reloadPage())
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    sendToSriRetention = async (id) => {
+        tokenAuth(this.props.token);
+        try {
+            await clienteAxios.get('retentions/sendsri/' + id)
+                .then(res => this.reloadPage())
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    autorizedFromSriRetention = async (id) => {
+        tokenAuth(this.props.token);
+        try {
+            await clienteAxios.get(`retentions/authorize/${id}`)
+                .then(res => this.reloadPage())
+        } catch (error) {
+            console.log(error)
         }
     }
 
@@ -146,36 +196,105 @@ class Documents extends Component {
             console.log(error)
         }
     }
+    // Fin Retencion
 
-    generateSignRetention = async (id) => {
+    renderSwith = (state) => {
+        switch (state) {
+            case null: return 'Firmar enviar y procesar'
+            case 'CREADO': return 'Firmar enviar y procesar'
+            case 'FIRMADO': return 'Enviar y procesar'
+            case 'EN_PROCESO': return 'Autorizar'
+            case 'ENVIADO': return 'Autorizar'
+            case 'RECIBIDO': return 'Autorizar'
+            case 'DEVUELTA': return 'Volver a procesar'
+        }
+    }
+
+    // Inicio liquidación en compra
+    renderSetPurchase = ({ id, atts: { state, voucher_type, serie, xml } }) => (
+        (voucher_type === 3 && serie) ?
+            <Fragment>
+                <DropdownItem divider />
+                <DropdownItem header>
+                    Liquidación en compra
+                </DropdownItem>
+                <DropdownItem onClick={() => this.viewSetPurchasePdf(id)}>Ver Pdf</DropdownItem>
+                <DropdownItem onClick={() =>
+                ((state === null || state === 'CREADO' || state === 'DEVUELTA') ? this.generateSignSetPurchase(id) :
+                    (state === 'FIRMADO' ? this.sendToSriSetPurchase(id) :
+                        ((state === 'ENVIADO' || state === 'RECIBIDO') ? this.autorizedFromSriSetPurchase(id) : null)))
+                }>{this.renderSwith(state)}</DropdownItem>
+                {
+                    xml ?
+                        <DropdownItem onClick={() => this.downloadXmlSetPurchase(id)}>Descargar XML</DropdownItem>
+                        : null
+                }
+            </Fragment>
+            : null
+    )
+
+    viewSetPurchasePdf = async (id) => {
         tokenAuth(this.props.token);
         try {
-            await clienteAxios.get('retentions/xml/' + id)
-                .then(res => console.log(res.data))
+            await clienteAxios.get(`shops/${id}/pdf`, { responseType: 'blob' })
+                .then(res => {
+                    //Create a Blob from the PDF Stream
+                    const file = new Blob([res.data], { type: 'application/pdf' });
+                    //Build a URL from the file
+                    const fileURL = URL.createObjectURL(file);
+                    //Open the URL on new Window
+                    window.open(fileURL);
+                })
         } catch (error) {
             console.log(error)
         }
     }
 
-    sendToSriRetention = async (id) => {
+    generateSignSetPurchase = async (id) => {
         tokenAuth(this.props.token);
         try {
-            await clienteAxios.get('retentions/sendsri/' + id)
-                .then(res => console.log(res.data))
+            await clienteAxios.get(`shops/${id}/xml`)
+                .then(res => this.reloadPage())
         } catch (error) {
             console.log(error)
         }
     }
 
-    autorizedFromSriRetention = async (id) => {
+    sendToSriSetPurchase = async (id) => {
         tokenAuth(this.props.token);
         try {
-            await clienteAxios.get(`retentions/authorize/${id}`)
-                .then(res => console.log(res.data))
+            await clienteAxios.get(`shops/${id}/sendsri`)
+                .then(res => this.reloadPage())
         } catch (error) {
             console.log(error)
         }
     }
+
+    autorizedFromSriSetPurchase = async (id) => {
+        tokenAuth(this.props.token);
+        try {
+            await clienteAxios.get(`shops/${id}/authorize`)
+                .then(res => this.reloadPage())
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    downloadXmlSetPurchase = async (id) => {
+        tokenAuth(this.props.token);
+        try {
+            await clienteAxios.get(`shops/${id}/download`)
+                .then(res => {
+                    var a = document.createElement("a"); //Create <a>
+                    a.href = "data:text/xml;base64," + res.data.xml; //Image Base64 Goes here
+                    a.download = "LC.xml"; //File name Here
+                    a.click(); //Downloaded file
+                })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    // Fin liquidación en compra
 
     importFromTxt = () => document.getElementById('file_txt').click()
 
@@ -209,7 +328,7 @@ class Documents extends Component {
         tokenAuth(this.props.token)
         try {
             await clienteAxios.post('shops/import', data)
-                .then(res => console.log(res))
+                .then(res => this.reloadPage())
         } catch (error) {
             alert('Por mal')
         }
@@ -277,13 +396,15 @@ class Documents extends Component {
                                                                             <DropdownToggle caret>
                                                                             </DropdownToggle>
                                                                             <DropdownMenu>
-                                                                                <DropdownItem onClick={() => this.viewInvoicePdf(voucher.id)}>Ver Pdf</DropdownItem>
-                                                                                {this.renderproccess(voucher)}
-                                                                                {
-                                                                                    voucher.atts.xml_retention ?
-                                                                                        <DropdownItem onClick={() => this.downloadXmlRetention(voucher.id)}>Descargar XML</DropdownItem>
-                                                                                        : null
-                                                                                }
+                                                                                {/* Inicio Retención */}
+                                                                                {this.renderRetention(voucher)}
+                                                                                {/* Fin Retención */}
+
+                                                                                {/* Inicio Liquidación en compra */}
+                                                                                {this.renderSetPurchase(voucher)}
+                                                                                {/* Fin Liquidación en compra */}
+
+                                                                                <DropdownItem divider />
                                                                                 <DropdownItem onClick={() => this.duplicate(voucher.id)}>Duplicar</DropdownItem>
                                                                             </DropdownMenu>
                                                                         </ButtonDropdown>
