@@ -188,14 +188,14 @@ class CreateProduct extends Component {
                                                             name="price1" id="price1" />
                                                     </Col>
                                                 </FormGroup>
-                                                {/* <FormGroup className="mb-1" row>
+                                                <FormGroup className="mb-1" row>
                                                     <Label for="price2" sm={4}>Precio compra</Label>
                                                     <Col sm={6}>
                                                         <Input bsSize="sm" onChange={this.handleChange} value={form.price2} type="text"
                                                             name="price2" id="price2" />
                                                     </Col>
                                                 </FormGroup>
-                                                <FormGroup className="mb-1" row>
+                                                {/* <FormGroup className="mb-1" row>
                                                     <Label for="price3" sm={4}>Precio alternativo</Label>
                                                     <Col sm={6}>
                                                         <Input bsSize="sm" onChange={this.handleChange} value={form.price3} type="text"
