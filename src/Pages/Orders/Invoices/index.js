@@ -115,7 +115,7 @@ class Invoices extends Component {
         return prefix
     }
 
-    renderproccess = ({ id, state, voucher_type }) => (
+    renderproccess = ({ id, atts: { state, voucher_type } }) => (
         (voucher_type === 1 || voucher_type === 4 || voucher_type === 5) ?
             <DropdownItem onClick={() =>
             ((state === 'CREADO' || state === 'DEVUELTA') ? this.generateSign(id) :
@@ -243,10 +243,10 @@ class Invoices extends Component {
                                                                                 <DropdownItem onClick={() => this.viewInvoicePdf(order.id)}>Ver Pdf</DropdownItem>
                                                                                 {this.renderproccess(order)}
                                                                                 {
-                                                                                    order.xml ?
+                                                                                    order.atts.xml ?
                                                                                         <DropdownItem onClick={() => this.downloadXml(order.id)}>Descargar XML</DropdownItem>
                                                                                         :
-                                                                                        <DropdownItem onClick={() => this.generateSign(order.id)}>Generar XML</DropdownItem>
+                                                                                        null
                                                                                 }
                                                                             </DropdownMenu>
                                                                         </ButtonDropdown>
