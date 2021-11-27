@@ -7,11 +7,10 @@ import AppSidebar from '../../Layout/AppSidebar/';
 import AppFooter from '../../Layout/AppFooter/';
 
 //Import Local
-import Documents from './Documents';
-import CreateDocument from './Documents/CreateDocument'
-import EditDocument from './Documents/EditDocument'
+import Invoices from './Invoices';
+import CreateInvoice from './Invoices/CreateInvoice/index';
 
-const Invoices = ({ match }) => (
+const ReferralGuides = ({ match }) => (
     <Fragment>
         <AppHeader />
         <div className="app-main">
@@ -19,11 +18,10 @@ const Invoices = ({ match }) => (
             <div className="app-main__outer">
                 <div className="app-main__inner">
 
-                    {/*Load table products*/}
-                    <Route path={`${match.url}/documentos`} component={Documents} />
-                    <Route path={`${match.url}/registrardocumento`} component={CreateDocument} />
-                    <Route path={`${match.url}/documento/:id`} component={EditDocument} />
-
+                    {/*Load table facturas*/}
+                    <Route path={`${match.url}/index`} component={Invoices} />
+                    <Route path={`${match.url}/nuevo`} component={CreateInvoice} />
+                    <Route path={`${match.url}/editar/:id`} component={CreateInvoice} />
                 </div>
                 <AppFooter />
             </div>
@@ -31,4 +29,4 @@ const Invoices = ({ match }) => (
     </Fragment>
 )
 
-export default Invoices
+export default ReferralGuides

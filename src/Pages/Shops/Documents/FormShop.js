@@ -67,7 +67,9 @@ class FormShop extends Component {
 
     selectDocXml = (xmlDoc, authorization) => {
         let date = this._getTag(xmlDoc, "fechaEmision")
-        let newdate = new Date(parseInt(date.substring(6)), parseInt(date.substring(3, 5)), parseInt(date.substring(0, 2))).toISOString().substring(0, 10)
+        let date_v = date.split('/')
+        date_v.reverse()
+        let newdate = date_v.join('-')
 
         let no_iva = 0
         let base0 = 0

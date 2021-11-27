@@ -16,7 +16,7 @@ class Invoices extends Component {
 
     state = {
         dropdowns: [],
-        orders: null,
+        referralguides: null,
         links: null,
         meta: null
     }
@@ -24,11 +24,11 @@ class Invoices extends Component {
     async componentDidMount() {
         tokenAuth(this.props.token);
         try {
-            await clienteAxios.get('orders')
+            await clienteAxios.get('referralguides')
                 .then(res => {
                     let { data, links, meta } = res.data
                     this.setState({
-                        orders: data,
+                        referralguides: data,
                         links,
                         meta,
                     })
@@ -44,11 +44,11 @@ class Invoices extends Component {
         if (page !== null) {
             tokenAuth(this.props.token);
             try {
-                await clienteAxios.get(`orders?page=${page.substring((page.indexOf('=')) + 1)}`)
+                await clienteAxios.get(`referralguides?page=${page.substring((page.indexOf('=')) + 1)}`)
                     .then(res => {
                         let { data, links, meta } = res.data
                         this.setState({
-                            orders: data,
+                            referralguides: data,
                             links,
                             meta,
                         })
@@ -64,11 +64,11 @@ class Invoices extends Component {
         if (current_page !== null) {
             tokenAuth(this.props.token);
             try {
-                await clienteAxios.get(`orders?page=${current_page}`)
+                await clienteAxios.get(`referralguides?page=${current_page}`)
                     .then(res => {
                         let { data, links, meta } = res.data
                         this.setState({
-                            orders: data,
+                            referralguides: data,
                             links,
                             meta,
                         })
@@ -79,12 +79,12 @@ class Invoices extends Component {
         }
     }
 
-    addDocument = () => this.props.history.push('/ventas/registrarfactura')
+    addDocument = () => this.props.history.push('/guiasremision/nuevo')
 
     viewInvoicePdf = async (id) => {
         tokenAuth(this.props.token);
         try {
-            await clienteAxios.get(`orders/${id}/pdf`, { responseType: 'blob' })
+            await clienteAxios.get(`referralguides/${id}/pdf`, { responseType: 'blob' })
                 .then(res => {
                     //Create a Blob from the PDF Stream
                     const file = new Blob([res.data], { type: 'application/pdf' });
@@ -104,25 +104,12 @@ class Invoices extends Component {
         this.setState({ dropdowns })
     }
 
-    cal_prefix = (type) => {
-        let prefix = null
-        switch (Number(type)) {
-            case 1: prefix = 'FAC'; break;
-            case 3: prefix = 'L/C'; break;
-            case 4: prefix = 'N/C'; break;
-            case 5: prefix = 'N/D'; break;
-        }
-        return prefix
-    }
-
-    renderproccess = ({ id, atts: { state, voucher_type } }) => (
-        (voucher_type === 1 || voucher_type === 4 || voucher_type === 5) ?
-            <DropdownItem onClick={() =>
-            ((state === 'CREADO' || state === 'DEVUELTA') ? this.generateSign(id) :
-                (state === 'FIRMADO' ? this.sendToSri(id) :
-                    ((state === 'ENVIADO' || state === 'RECIBIDA' || state === 'EN_PROCESO') ? this.autorizedFromSri(id) : null)))
-            }>{this.renderSwith(state)}</DropdownItem>
-            : null
+    renderproccess = ({ id, atts: { state } }) => (
+        <DropdownItem onClick={() =>
+        ((state === 'CREADO' || state === 'DEVUELTA') ? this.generateSign(id) :
+            (state === 'FIRMADO' ? this.sendToSri(id) :
+                ((state === 'ENVIADO' || state === 'RECIBIDA' || state === 'EN_PROCESO') ? this.autorizedFromSri(id) : null)))
+        }>{this.renderSwith(state)}</DropdownItem>
     )
 
     renderSwith = (state) => {
@@ -139,7 +126,7 @@ class Invoices extends Component {
     generateSign = async (id) => {
         tokenAuth(this.props.token);
         try {
-            await clienteAxios.get('orders/xml/' + id)
+            await clienteAxios.get('referralguides/xml/' + id)
                 .then(res => this.reloadPage())
         } catch (error) {
             console.log(error)
@@ -149,7 +136,7 @@ class Invoices extends Component {
     sendToSri = async (id) => {
         tokenAuth(this.props.token);
         try {
-            await clienteAxios.get('orders/sendsri/' + id)
+            await clienteAxios.get('referralguides/sendsri/' + id)
                 .then(res => this.reloadPage())
         } catch (error) {
             console.log(error)
@@ -160,7 +147,7 @@ class Invoices extends Component {
         tokenAuth(this.props.token);
         // Recargar la pagina actual .......................
         try {
-            await clienteAxios.get(`orders/authorize/${id}`)
+            await clienteAxios.get(`referralguides/authorize/${id}`)
                 .then(res => this.reloadPage())
         } catch (error) {
             console.log(error)
@@ -170,11 +157,11 @@ class Invoices extends Component {
     downloadXml = async (id) => {
         tokenAuth(this.props.token);
         try {
-            await clienteAxios.get('orders/download/' + id)
+            await clienteAxios.get('referralguides/download/' + id)
                 .then(res => {
                     var a = document.createElement("a"); //Create <a>
                     a.href = "data:text/xml;base64," + res.data.xml; //Image Base64 Goes here
-                    a.download = "Factura.xml"; //File name Here
+                    a.download = "Guia de remision.xml"; //File name Here
                     a.click(); //Downloaded file
                 })
         } catch (error) {
@@ -185,16 +172,16 @@ class Invoices extends Component {
     //Layout
     render = () => {
 
-        let { orders, dropdowns, links, meta } = this.state
+        let { referralguides, dropdowns, links, meta } = this.state
 
         return (
             <Fragment>
                 <PageTitle
                     options={[
-                        { type: 'button', id: 'tooltip-add-document', action: this.addDocument, icon: 'plus', msmTooltip: 'Agregar documento', color: 'primary' },
+                        { type: 'button', id: 'tooltip-add-document', action: this.addDocument, icon: 'plus', msmTooltip: 'Agregar guia de remisión', color: 'primary' },
                     ]}
-                    heading="Facturas"
-                    subheading="Todas las facturas registrados"
+                    heading="Guias de remisión"
+                    subheading="Todas las guias de remisión registradas"
                     icon="pe-7s-repeat icon-gradient bg-mean-fruit"
                 />
                 <ReactCSSTransitionGroup
@@ -206,8 +193,8 @@ class Invoices extends Component {
                     transitionLeave={false}>
 
                     {
-                        (orders === null) ? (<p>Cargando ...</p>) :
-                            (orders.length === 0) ? (<p>No existe facturas registradas</p>) :
+                        (referralguides === null) ? (<p>Cargando ...</p>) :
+                            (referralguides.length === 0) ? (<p>No existe guias de remsión registradas</p>) :
                                 (<Row>
                                     <Col lg="12">
                                         <Card className="main-card mb-3">
@@ -215,37 +202,37 @@ class Invoices extends Component {
                                                 <Table striped>
                                                     <thead>
                                                         <tr>
-                                                            <th style={{ width: '7em' }}>Emisión</th>
-                                                            <th>Documento</th>
-                                                            <th>Cliente / Razón social</th>
+                                                            <th style={{ width: '15em' }}>Período ruta</th>
+                                                            <th>Serie</th>
+                                                            <th>Cliente / Destinatario</th>
                                                             <th>Estado</th>
-                                                            <th>Total</th>
+                                                            <th>Transportista</th>
                                                             <th style={{ width: '1em' }}></th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         {
-                                                            orders.map((order, index) => (
+                                                            referralguides.map((referralguide, index) => (
                                                                 <tr key={index}>
-                                                                    <td>{order.atts.date}</td>
+                                                                    <td>{`${referralguide.atts.date_start} - ${referralguide.atts.date_end}`}</td>
                                                                     <td>
-                                                                        <Link to={'/ventas/factura/' + order.id}>
-                                                                            {`${this.cal_prefix(order.atts.voucher_type)} ${order.atts.serie}`}
+                                                                        <Link to={'/guiasremision/editar/' + referralguide.id}>
+                                                                            {referralguide.atts.serie}
                                                                         </Link>
                                                                     </td>
-                                                                    <td>{order.customer.name}</td>
-                                                                    <td>{order.atts.state}</td>
-                                                                    <td>${order.atts.total}</td>
+                                                                    <td>{referralguide.customer.name}</td>
+                                                                    <td>{referralguide.atts.state}</td>
+                                                                    <td>{referralguide.carrier.name}</td>
                                                                     <td>
                                                                         <ButtonDropdown direction="left" isOpen={dropdowns[index]} toggle={() => this.handleDrops(index)}>
                                                                             <DropdownToggle caret>
                                                                             </DropdownToggle>
                                                                             <DropdownMenu>
-                                                                                <DropdownItem onClick={() => this.viewInvoicePdf(order.id)}>Ver Pdf</DropdownItem>
-                                                                                {this.renderproccess(order)}
+                                                                                <DropdownItem onClick={() => this.viewInvoicePdf(referralguide.id)}>Ver Pdf</DropdownItem>
+                                                                                {this.renderproccess(referralguide)}
                                                                                 {
-                                                                                    order.atts.xml ?
-                                                                                        <DropdownItem onClick={() => this.downloadXml(order.id)}>Descargar XML</DropdownItem>
+                                                                                    referralguide.atts.xml ?
+                                                                                        <DropdownItem onClick={() => this.downloadXml(referralguide.id)}>Descargar XML</DropdownItem>
                                                                                         :
                                                                                         null
                                                                                 }

@@ -17,18 +17,13 @@ class ListProducts extends React.Component {
                         <tr style={{ 'textAlign': 'center' }}>
                             <th style={{ 'width': '9em' }}>Cantidad</th>
                             <th>Nombre</th>
-                            <th style={{ 'width': '9em' }}>Costo unitario</th>
-                            <th style={{ 'width': '9em' }}>Descuento (%)</th>
-                            <th style={{ 'width': '9em' }}>Descuento ($)</th>
-                            <th style={{ 'width': '9em' }}>Costo total</th>
-                            <th style={{ 'width': '2em' }} hidden={edit}></th>
+                            <th style={{ 'width': '1em' }}></th>
                         </tr>
                     </thead>
                     <tbody>
                         {
                             (productouts.length > 0) ? (productouts.map((product, i) => (
                                 <ItemProduct
-                                    edit={edit}
                                     index={i}
                                     product={product}
                                     productinputs={productinputs}
@@ -39,13 +34,9 @@ class ListProducts extends React.Component {
                         }
                     </tbody>
                 </Table>
-                {
-                    (edit === false) ?
-                        (<Button onClick={addProduct} className="btn-transition" color="primary">
-                            Añadir producto
-                        </Button>)
-                        : null
-                }
+                <Button onClick={addProduct} className="btn-transition" color="primary">
+                    Añadir producto
+                </Button>
             </Fragment>
         )
     }

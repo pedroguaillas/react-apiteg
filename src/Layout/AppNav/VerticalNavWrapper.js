@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import MetisMenu from 'react-metismenu';
 
 import {
-    ProfileNav, InventoriesNav, InvoicesNav, ContactsNav, AccountingNav, OrdersNav, ShopsNav,
+    ProfileNav, InventoriesNav, ContactsNav, OrdersNav, ShopsNav, ReferralGuidesNav,
 } from './NavItems';
 
 class Nav extends Component {
@@ -33,10 +33,10 @@ class Nav extends Component {
                 <MetisMenu content={OrdersNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down" />
                 {/* <h5 className="app-sidebar__heading">Facturación</h5> */}
                 <MetisMenu content={ShopsNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down" />
-                {/* <h5 className="app-sidebar__heading">Facturación</h5> */}
-                {/* <MetisMenu content={InvoicesNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down" /> */}
                 {/* <h5 className="app-sidebar__heading">Contactos</h5> */}
                 <MetisMenu content={ContactsNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down" />
+                {/* <h5 className="app-sidebar__heading">Guias de Remisión</h5> */}
+                <MetisMenu content={ReferralGuidesNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down" />
                 {/* <h5 className="app-sidebar__heading">Contabilidad</h5> */}
                 {/* <MetisMenu content={AccountingNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down" /> */}
                 {/* <h5 className="app-sidebar__heading">Tributación</h5> */}

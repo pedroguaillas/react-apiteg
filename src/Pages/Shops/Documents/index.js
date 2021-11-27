@@ -121,11 +121,13 @@ class Documents extends Component {
                     Retención
                 </DropdownItem>
                 <DropdownItem onClick={() => this.viewRetentionPdf(id)}>Ver Pdf</DropdownItem>
-                <DropdownItem onClick={() =>
-                ((state_retencion === null || state_retencion === 'CREADO' || state_retencion === 'DEVUELTA') ? this.generateSignRetention(id) :
-                    (state_retencion === 'FIRMADO' ? this.sendToSriRetention(id) :
-                        ((state_retencion === 'ENVIADO' || state_retencion === 'RECIBIDO') ? this.autorizedFromSriRetention(id) : null)))
-                }>{this.renderSwith(state_retencion)}</DropdownItem>
+                {state_retencion !== 'AUTORIZADO' ?
+                    <DropdownItem onClick={() =>
+                    ((state_retencion === null || state_retencion === 'CREADO' || state_retencion === 'DEVUELTA') ? this.generateSignRetention(id) :
+                        (state_retencion === 'FIRMADO' ? this.sendToSriRetention(id) :
+                            ((state_retencion === 'ENVIADO' || state_retencion === 'RECIBIDO') ? this.autorizedFromSriRetention(id) : null)))
+                    }>{this.renderSwith(state_retencion)}</DropdownItem>
+                    : null}
                 {
                     xml_retention ?
                         <DropdownItem onClick={() => this.downloadXmlRetention(id)}>Descargar XML</DropdownItem>

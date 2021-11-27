@@ -10,9 +10,8 @@ const NuevaCuenta = lazy(() => import('../../Pages/Auth/NuevaCuenta'));
 const Business = lazy(() => import('../../Pages/Business'));
 const Inventories = lazy(() => import('../../Pages/Inventories'));
 const Orders = lazy(() => import('../../Pages/Orders'));
-const Invoices = lazy(() => import('../../Pages/Invoices'));
 const Contacts = lazy(() => import('../../Pages/Contacts'));
-const Accounting = lazy(() => import('../../Pages/Accounting'));
+const ReferralGuides = lazy(() => import('../../Pages/ReferralGuides'));
 
 const Components = lazy(() => import('../../Pages/Components'));
 
@@ -81,7 +80,7 @@ const AppMain = () => {
             </Suspense>
 
             {/* Invoices */}
-            {/* <Suspense fallback={
+            <Suspense fallback={
                 <div className="loader-container">
                     <div className="loader-container-inner">
                         <h6 className="mt-5">
@@ -91,8 +90,8 @@ const AppMain = () => {
                     </div>
                 </div>
             }>
-                <Route path="/facturacion" component={Invoices} />
-            </Suspense> */}
+                <Route path="/guiasremision" component={ReferralGuides} />
+            </Suspense>
 
             {/* Contacts */}
 

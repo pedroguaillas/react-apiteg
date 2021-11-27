@@ -64,15 +64,18 @@ export const ShopsNav = [
         to: '#/compras/facturas',
     },
 ];
+export const ReferralGuidesNav = [
+    {
+        icon: 'pe-7s-news-paper',
+        label: 'Guias de remisión',
+        to: '#/guiasremision/index',
+    },
+];
 export const ContactsNav = [
     {
         icon: 'pe-7s-users',
         label: 'Contactos',
         content: [
-            // {
-            //     label: 'Lista de contactos',
-            //     to: '#/contactos/contactos',
-            // },
             {
                 label: 'Clientes',
                 to: '#/contactos/clientes',
@@ -80,6 +83,10 @@ export const ContactsNav = [
             {
                 label: 'Proveedores',
                 to: '#/contactos/proveedores',
+            },
+            {
+                label: 'Transportistas',
+                to: '#/contactos/transportistas',
             }
         ],
     },

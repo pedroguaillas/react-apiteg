@@ -5,21 +5,53 @@ import PageTitle from '../../../Layout/AppMain/PageTitle'
 import ReactCSSTransitionGroup from "react-addons-css-transition-group"
 import { Link } from 'react-router-dom';
 
-import Pagination from './Pagination'
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
+import Paginate from '../../Components/Paginate/Index';
 
-class ListContacts extends Component {
+class Carriers extends Component {
 
-    state = { contacts: null }
+    state = {
+        carriers: null,
+        links: null,
+        meta: null
+    }
 
     async componentDidMount() {
         tokenAuth(this.props.token);
         try {
-            await clienteAxios.get('contacts')
-                .then(res => this.setState({ contacts: res.data.contacts }))
+            await clienteAxios.get('carriers')
+                .then(res => {
+                    let { data, links, meta } = res.data
+                    this.setState({
+                        carriers: data,
+                        links,
+                        meta,
+                    })
+                })
         } catch (error) {
             console.log(error)
+        }
+    }
+
+    reqNewPage = async (e, page) => {
+        e.preventDefault();
+
+        if (page !== null) {
+            tokenAuth(this.props.token);
+            try {
+                await clienteAxios.get(`carriers?page=${page.substring((page.indexOf('=')) + 1)}`)
+                    .then(res => {
+                        let { data, links, meta } = res.data
+                        this.setState({
+                            carriers: data,
+                            links,
+                            meta,
+                        })
+                    })
+            } catch (error) {
+                console.log(error)
+            }
         }
     }
 
@@ -35,54 +67,53 @@ class ListContacts extends Component {
 
     uploadCsv = csv => {
         let lines = csv.split(/\r\n|\n/)
-        let contacts = []
+        let carriers = []
         let i = 0
 
         for (let line in lines) {
             if (i > 0 && lines[line].length > 0) {
                 let words = lines[line].split(';')
                 let object = {
-                    identication_card: words[0].trim(),
-                    ruc: words[1].trim(),
-                    company: words[2].trim(),
+                    type_identication: words[0].trim(),
+                    identication: words[0].trim(),
+                    name: words[2].trim(),
                     address: words[3].trim()
                 }
-                contacts.push(object)
+                carriers.push(object)
             }
             i++
         }
-        this.saveContactsFromCsv(contacts)
+        this.saveContactsFromCsv(carriers)
     }
 
-    saveContactsFromCsv = async (contacts) => {
+    saveContactsFromCsv = async (carriers) => {
 
-        let data = { contacts }
+        let data = { carriers }
 
         tokenAuth(this.props.token)
         try {
-            await clienteAxios.post('contacts_import', data)
-                .then(res => this.setState({ contacts: res.data.contacts }))
-            // .then(res => this.props.history.push('/facturacion/documentos'))
+            await clienteAxios.post('carriers_import', data)
+                .then(res => this.setState({ carriers: res.data.carriers }))
         } catch (error) {
             alert('Por mal')
         }
     }
 
-    addContact = () => this.props.history.push("/contactos/nuevocontacto")
+    addCustomer = () => this.props.history.push("/contactos/nuevotransportista")
 
     render() {
 
-        let { contacts } = this.state
+        let { carriers, links, meta } = this.state
 
         return (
             <Fragment>
                 <PageTitle
                     options={[
                         { type: 'button', id: 'tooltip-import-contact', action: this.importContacts, icon: 'import', msmTooltip: 'Importar contactos', color: 'success' },
-                        { type: 'button', id: 'tooltip-add-contact', action: this.addContact, icon: 'plus', msmTooltip: 'Agregar contacto', color: 'primary' }
+                        { type: 'button', id: 'tooltip-add-contact', action: this.addCustomer, icon: 'plus', msmTooltip: 'Agregar cliente', color: 'primary' }
                     ]}
-                    heading="Contactos"
-                    subheading="Lista de todos los contactos"
+                    heading="Transportistas"
+                    subheading="Lista de transportistas"
                     icon="pe-7s-users icon-gradient bg-mean-fruit"
                 />
                 <ReactCSSTransitionGroup
@@ -95,8 +126,8 @@ class ListContacts extends Component {
 
                     <Input onChange={this.handleSelectFile} style={{ 'display': 'none' }} type="file" name="contactscsv" id="file_csv" accept=".csv" />
                     {
-                        (contacts === null) ? (<p>Cargando ...</p>) :
-                            (contacts.length < 1) ? (<p>No existe registro de documentos</p>) :
+                        (carriers === null) ? (<p>Cargando ...</p>) :
+                            (carriers.length < 1) ? (<p>No existe registro de transportistas</p>) :
                                 (<Row>
                                     <Col lg="12">
                                         <Card className="main-card mb-3">
@@ -106,19 +137,19 @@ class ListContacts extends Component {
                                                         <tr>
                                                             <th>Identificación</th>
                                                             <th>Nombre</th>
-                                                            <th>Nombre comercial</th>
+                                                            <th>Placa</th>
                                                             <th style={{ width: '1em' }}></th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         {
-                                                            contacts.map((contact, index) => (
+                                                            carriers.map((carrier, index) => (
                                                                 <tr key={index}>
-                                                                    <td>{contact.ruc ? contact.ruc : contact.identication_card}</td>
-                                                                    <td>{contact.company}</td>
-                                                                    <td>{contact.name}</td>
+                                                                    <td>{carrier.atts.identication}</td>
+                                                                    <td>{carrier.atts.name}</td>
+                                                                    <td>{carrier.atts.license_plate}</td>
                                                                     <td>
-                                                                        <Link to={'/contactos/contacto/' + contact.id}>
+                                                                        <Link to={'/contactos/transportista/' + carrier.id}>
                                                                             <Button size='sm' color="primary">
                                                                                 <i className='nav-link-icon lnr-pencil'></i>
                                                                             </Button>
@@ -130,9 +161,11 @@ class ListContacts extends Component {
                                                     </tbody>
                                                 </Table>
 
-                                                {/* <Pagination
-                                                    len={contacts.length}
-                                                /> */}
+                                                <Paginate
+                                                    links={links}
+                                                    meta={meta}
+                                                    reqNewPage={this.reqNewPage}
+                                                />
                                             </CardBody>
                                         </Card>
                                     </Col>
@@ -149,6 +182,4 @@ const mapStateToProps = state => ({
     token: state.AuthReducer.token
 });
 
-const mapDispatchToProps = () => ({});
-
-export default connect(mapStateToProps, mapDispatchToProps)(ListContacts);
+export default connect(mapStateToProps)(Carriers);

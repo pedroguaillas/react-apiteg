@@ -7,12 +7,12 @@ import AppSidebar from '../../Layout/AppSidebar/';
 import AppFooter from '../../Layout/AppFooter/';
 
 //Products
-import ListContact from "./Contact";
+import Carriers from "./Carriers";
 import Customers from "./Customers";
 import Providers from "./Providers";
-import EditContact from './Contact/EditContact';
 import FormProvider from './Providers/FormProvider';
 import FormCustomer from './Customers/FormCustomer';
+import FormCarrier from './Carriers/FormCarrier';
 
 const Contacts = ({ match }) => (
     <Fragment>
@@ -22,11 +22,6 @@ const Contacts = ({ match }) => (
             <div className="app-main__outer">
                 <div className="app-main__inner">
 
-                    {/*Load table products*/}
-                    <Route path={`${match.url}/contactos`} component={ListContact} />
-                    <Route path={`${match.url}/nuevocontacto`} component={FormCustomer} />
-                    <Route path={`${match.url}/contacto/:id`} component={EditContact} />
-
                     <Route path={`${match.url}/clientes`} component={Customers} />
                     <Route path={`${match.url}/nuevocliente`} component={FormCustomer} />
                     <Route path={`${match.url}/cliente/:id`} component={FormCustomer} />
@@ -34,6 +29,11 @@ const Contacts = ({ match }) => (
                     <Route path={`${match.url}/proveedores`} component={Providers} />
                     <Route path={`${match.url}/nuevoproveedor`} component={FormProvider} />
                     <Route path={`${match.url}/proveedor/:id`} component={FormProvider} />
+
+                    <Route path={`${match.url}/transportistas`} component={Carriers} />
+                    <Route path={`${match.url}/nuevotransportista`} component={FormCarrier} />
+                    <Route path={`${match.url}/transportista/:id`} component={FormCarrier} />
+
                 </div>
                 <AppFooter />
             </div>
