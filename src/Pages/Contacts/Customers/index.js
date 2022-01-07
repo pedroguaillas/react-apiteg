@@ -132,7 +132,7 @@ class Customers extends Component {
                                     <Col lg="12">
                                         <Card className="main-card mb-3">
                                             <CardBody>
-                                                <Table striped>
+                                                <Table striped size="sm" responsive>
                                                     <thead>
                                                         <tr>
                                                             <th>Identificación</th>

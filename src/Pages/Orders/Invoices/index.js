@@ -212,7 +212,7 @@ class Invoices extends Component {
                                     <Col lg="12">
                                         <Card className="main-card mb-3">
                                             <CardBody>
-                                                <Table striped>
+                                                <Table striped size="sm" responsive>
                                                     <thead>
                                                         <tr>
                                                             <th style={{ width: '7em' }}>Emisión</th>

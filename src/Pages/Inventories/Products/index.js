@@ -63,7 +63,7 @@ class Products extends Component {
 
         let reader = new FileReader()
         reader.onload = () => this.uploadCsv(reader.result)
-        reader.readAsText(input.files[0])
+        reader.readAsText(input.files[0], 'ISO-8859-1')
     }
 
     uploadCsv = csv => {
@@ -138,13 +138,13 @@ class Products extends Component {
                                     <Col lg="12">
                                         <Card className="main-card mb-3">
                                             <CardBody>
-                                                <Table striped>
+                                                <Table striped size="sm" responsive>
                                                     <thead>
                                                         <tr>
                                                             <th>Código</th>
                                                             <th>Nombre</th>
-                                                            <th>Categoría</th>
-                                                            <th>Unidad</th>
+                                                            {/* <th>Categoría</th> */}
+                                                            {/* <th>Unidad</th> */}
                                                             <th>Precio</th>
                                                             <th>iva</th>
                                                             <th style={{ width: '1em' }}></th>
@@ -157,8 +157,8 @@ class Products extends Component {
                                                                 <tr key={index}>
                                                                     <td>{product.atts.code}</td>
                                                                     <td>{product.atts.name}</td>
-                                                                    <td>{product.category.category}</td>
-                                                                    <td>{product.unity.unity}</td>
+                                                                    {/* <td>{product.category.category}</td> */}
+                                                                    {/* <td>{product.unity.unity}</td> */}
                                                                     <td>${Number(product.atts.price1 !== null ? product.atts.price1 : 0).toFixed(2)}</td>
                                                                     <td>{product.atts.iva == 0 ? '0%' : (product.atts.iva == 2 ? '12%' : 'no iva')}</td>
                                                                     <td>

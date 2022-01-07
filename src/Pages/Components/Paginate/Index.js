@@ -14,13 +14,24 @@ const Paginate = ({ meta, links, reqNewPage }) => {
                 <PaginationLink onClick={e => reqNewPage(e, links.prev)} previous href="#" />
             </PaginationItem>
             {
-                [...Array(meta.last_page)].map((a, i) => (
-                    <PaginationItem>
-                        <PaginationLink onClick={e => reqNewPage(e, `${meta.path}?page=${(1 + i)}`)} href="#">
-                            {(1 + i)}
-                        </PaginationLink>
-                    </PaginationItem>
-                ))
+                (meta.last_page > 10) ?
+                    [...Array(meta.last_page)].map((a, i) => (
+                        (i > meta.current_page - 5 && i < meta.current_page + 5) ?
+                            <PaginationItem>
+                                <PaginationLink onClick={e => reqNewPage(e, `${meta.path}?page=${(1 + i)}`)} href="#">
+                                    {(1 + i)}
+                                </PaginationLink>
+                            </PaginationItem>
+                            : null
+                    ))
+                    :
+                    [...Array(meta.last_page)].map((a, i) => (
+                        <PaginationItem>
+                            <PaginationLink onClick={e => reqNewPage(e, `${meta.path}?page=${(1 + i)}`)} href="#">
+                                {(1 + i)}
+                            </PaginationLink>
+                        </PaginationItem>
+                    ))
             }
             <PaginationItem>
                 <PaginationLink onClick={e => reqNewPage(e, links.next)} next href="#" />
