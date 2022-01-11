@@ -207,7 +207,7 @@ class Documents extends Component {
             case 'FIRMADO': return 'Enviar y procesar'
             case 'EN_PROCESO': return 'Autorizar'
             case 'ENVIADO': return 'Autorizar'
-            case 'RECIBIDO': return 'Autorizar'
+            case 'RECIBIDA': return 'Autorizar'
             case 'DEVUELTA': return 'Volver a procesar'
         }
     }
@@ -224,7 +224,7 @@ class Documents extends Component {
                 <DropdownItem onClick={() =>
                 ((state === null || state === 'CREADO' || state === 'DEVUELTA') ? this.generateSignSetPurchase(id) :
                     (state === 'FIRMADO' ? this.sendToSriSetPurchase(id) :
-                        ((state === 'ENVIADO' || state === 'RECIBIDO') ? this.autorizedFromSriSetPurchase(id) : null)))
+                        ((state === 'ENVIADO' || state === 'RECIBIDA') ? this.autorizedFromSriSetPurchase(id) : null)))
                 }>{this.renderSwith(state)}</DropdownItem>
                 {
                     xml ?
