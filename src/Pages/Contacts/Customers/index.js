@@ -62,7 +62,7 @@ class Customers extends Component {
 
         let reader = new FileReader();
         reader.onload = () => this.uploadCsv(reader.result)
-        reader.readAsText(input.files[0])
+        reader.readAsText(input.files[0], 'ISO-8859-1')
     }
 
     uploadCsv = csv => {
@@ -74,8 +74,8 @@ class Customers extends Component {
             if (i > 0 && lines[line].length > 0) {
                 let words = lines[line].split(';')
                 let object = {
-                    type_identication: words[0].trim(),
-                    identication: words[0].trim(),
+                    type_identification: words[0].trim(),
+                    identication: words[1].trim(),
                     name: words[2].trim(),
                     address: words[3].trim()
                 }
@@ -92,8 +92,15 @@ class Customers extends Component {
 
         tokenAuth(this.props.token)
         try {
-            await clienteAxios.post('customers_import', data)
-                .then(res => this.setState({ customers: res.data.customers }))
+            await clienteAxios.post('customers_import_csv', data)
+                .then(res => {
+                    let { data, links, meta } = res.data
+                    this.setState({
+                        customers: data,
+                        links,
+                        meta,
+                    })
+                })
         } catch (error) {
             alert('Por mal')
         }

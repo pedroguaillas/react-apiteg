@@ -97,8 +97,14 @@ class Products extends Component {
         tokenAuth(this.props.token)
         try {
             await clienteAxios.post('products_import', data)
-                .then(res => this.setState({ products: res.data.products }))
-            // .then(res => this.props.history.push('/facturacion/documentos'))
+                .then(res => {
+                    let { data, links, meta } = res.data
+                    this.setState({
+                        products: data,
+                        links,
+                        meta,
+                    })
+                })
         } catch (error) {
             alert('Por mal')
         }
