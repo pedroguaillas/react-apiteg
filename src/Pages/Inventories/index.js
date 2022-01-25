@@ -4,7 +4,6 @@ import { Route } from 'react-router-dom';
 // Layout
 import AppHeader from '../../Layout/AppHeader/';
 import AppSidebar from '../../Layout/AppSidebar/';
-import AppFooter from '../../Layout/AppFooter/';
 
 //Products
 import Products from "./Products";
@@ -36,7 +35,6 @@ const Inventories = ({ match }) => (
                     <Route path={`${match.url}/nuevaunidad`} component={CreateUnity} />
                     <Route path={`${match.url}/kardex`} component={Kardex} />
                 </div>
-                <AppFooter />
             </div>
         </div>
     </Fragment>

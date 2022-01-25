@@ -4,7 +4,6 @@ import { Route } from 'react-router-dom';
 // Layout
 import AppHeader from '../../Layout/AppHeader/';
 import AppSidebar from '../../Layout/AppSidebar/';
-import AppFooter from '../../Layout/AppFooter/';
 
 import Profile from "./Profile";
 import Branch from "./Branch";
@@ -21,7 +20,6 @@ const Business = ({ match }) => (
                     <Route path={`${match.url}/establecimientos`} component={Branch} />
                     <Route path={`${match.url}/nuevo-establecimiento`} component={CreateBranch} />
                 </div>
-                <AppFooter />
             </div>
         </div>
     </Fragment>

@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import MetisMenu from 'react-metismenu';
 
 import {
-    ProfileNav, InventoriesNav, ContactsNav, OrdersNav, ShopsNav, ReferralGuidesNav,
+    ProfileNav, InventoriesNav, ContactsNav, OrdersNav, ShopsNav, ReferralGuidesNav, MainNav,
 } from './NavItems';
 
 class Nav extends Component {
@@ -25,7 +25,8 @@ class Nav extends Component {
                     </ul>
                 </div> */}
 
-
+                <MetisMenu content={MainNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down" />
+                {/* <h5 className="app-sidebar__heading">Inventario</h5> */}
                 <MetisMenu content={ProfileNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down" />
                 {/* <h5 className="app-sidebar__heading">Inventario</h5> */}
                 <MetisMenu content={InventoriesNav} activeLinkFromLocation className="vertical-nav-menu" iconNamePrefix="" classNameStateIcon="pe-7s-angle-down" />

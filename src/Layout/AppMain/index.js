@@ -1,15 +1,16 @@
 import React, { Suspense, lazy, Fragment } from 'react';
 import { BrowserRouter as Router, Route, Redirect } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import Shops from '../../Pages/Shops';
 import PrivateRoute from './PrivateRoute';
 
 const Login = lazy(() => import('../../Pages/Auth/Login'));
 const NuevaCuenta = lazy(() => import('../../Pages/Auth/NuevaCuenta'));
 
+const Dashboard = lazy(() => import('../../Pages/Dashboard'));
 const Business = lazy(() => import('../../Pages/Business'));
 const Inventories = lazy(() => import('../../Pages/Inventories'));
 const Orders = lazy(() => import('../../Pages/Orders'));
+const Shops = lazy(() => import('../../Pages/Shops'));
 const Contacts = lazy(() => import('../../Pages/Contacts'));
 const ReferralGuides = lazy(() => import('../../Pages/ReferralGuides'));
 
@@ -21,14 +22,29 @@ const AppMain = () => {
     return (
         <Fragment>
 
+            {/* Dashboard */}
+
+            <Suspense fallback={
+                <div className="loader-container">
+                    <div className="loader-container-inner">
+                        <h6 className="mt-5">
+                            Espere
+                            <small>Se encuetra cargando ...!</small>
+                        </h6>
+                    </div>
+                </div>
+            }>
+                <PrivateRoute path="/dashboard" component={Dashboard} />
+            </Suspense>
+
             {/* Profile */}
 
             <Suspense fallback={
                 <div className="loader-container">
                     <div className="loader-container-inner">
                         <h6 className="mt-5">
-                            Please wait while we load all the Components examples
-                            <small>Because this is a demonstration we load at once all the Components examples. This wouldn't happen in a real live app!</small>
+                            Espere
+                            <small>Se encuetra cargando ...!</small>
                         </h6>
                     </div>
                 </div>
@@ -42,8 +58,8 @@ const AppMain = () => {
                 <div className="loader-container">
                     <div className="loader-container-inner">
                         <h6 className="mt-5">
-                            Please wait while we load all the Components examples
-                            <small>Because this is a demonstration we load at once all the Components examples. This wouldn't happen in a real live app!</small>
+                            Espere
+                            <small>Se encuetra cargando ...!</small>
                         </h6>
                     </div>
                 </div>
@@ -56,8 +72,8 @@ const AppMain = () => {
                 <div className="loader-container">
                     <div className="loader-container-inner">
                         <h6 className="mt-5">
-                            Please wait while we load all the Components examples
-                            <small>Because this is a demonstration we load at once all the Components examples. This wouldn't happen in a real live app!</small>
+                            Espere
+                            <small>Se encuetra cargando ...!</small>
                         </h6>
                     </div>
                 </div>
@@ -70,8 +86,8 @@ const AppMain = () => {
                 <div className="loader-container">
                     <div className="loader-container-inner">
                         <h6 className="mt-5">
-                            Please wait while we load all the Components examples
-                            <small>Because this is a demonstration we load at once all the Components examples. This wouldn't happen in a real live app!</small>
+                            Espere
+                            <small>Se encuetra cargando ...!</small>
                         </h6>
                     </div>
                 </div>
@@ -84,8 +100,8 @@ const AppMain = () => {
                 <div className="loader-container">
                     <div className="loader-container-inner">
                         <h6 className="mt-5">
-                            Please wait while we load all the Components examples
-                            <small>Because this is a demonstration we load at once all the Components examples. This wouldn't happen in a real live app!</small>
+                            Espere
+                            <small>Se encuetra cargando ...!</small>
                         </h6>
                     </div>
                 </div>
@@ -99,8 +115,8 @@ const AppMain = () => {
                 <div className="loader-container">
                     <div className="loader-container-inner">
                         <h6 className="mt-5">
-                            Please wait while we load all the Components examples
-                            <small>Because this is a demonstration we load at once all the Components examples. This wouldn't happen in a real live app!</small>
+                            Espere
+                            <small>Se encuetra cargando ...!</small>
                         </h6>
                     </div>
                 </div>
@@ -114,8 +130,8 @@ const AppMain = () => {
                 <div className="loader-container">
                     <div className="loader-container-inner">
                         <h6 className="mt-5">
-                            Please wait while we load all the Components examples
-                            <small>Because this is a demonstration we load at once all the Components examples. This wouldn't happen in a real live app!</small>
+                            Espere
+                            <small>Se encuetra cargando ...!</small>
                         </h6>
                     </div>
                 </div>
@@ -129,8 +145,8 @@ const AppMain = () => {
                 <div className="loader-container">
                     <div className="loader-container-inner">
                         <h6 className="mt-5">
-                            Please wait while we load all the Components examples
-                            <small>Because this is a demonstration we load at once all the Components examples. This wouldn't happen in a real live app!</small>
+                            Espere
+                            <small>Se encuetra cargando ...!</small>
                         </h6>
                     </div>
                 </div>
@@ -143,8 +159,8 @@ const AppMain = () => {
                 <div className="loader-container">
                     <div className="loader-container-inner">
                         <h6 className="mt-3">
-                            Please wait while we load all the Dashboards examples
-                            <small>Because this is a demonstration, we load at once all the Dashboards examples. This wouldn't happen in a real live app!</small>
+                            Espere
+                            <small>Se encuetra cargando ...!</small>
                         </h6>
                     </div>
                 </div>
@@ -157,8 +173,8 @@ const AppMain = () => {
                 <div className="loader-container">
                     <div className="loader-container-inner">
                         <h6 className="mt-3">
-                            Please wait while we load all the Dashboards examples
-                            <small>Because this is a demonstration, we load at once all the Dashboards examples. This wouldn't happen in a real live app!</small>
+                            Espere
+                            <small>Se encuetra cargando ...!</small>
                         </h6>
                     </div>
                 </div>

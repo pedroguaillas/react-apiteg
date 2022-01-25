@@ -4,7 +4,6 @@ import { Route } from 'react-router-dom';
 // Layout
 import AppHeader from '../../Layout/AppHeader/';
 import AppSidebar from '../../Layout/AppSidebar/';
-import AppFooter from '../../Layout/AppFooter/';
 
 //Import Local
 import Invoices from './Invoices';
@@ -23,7 +22,6 @@ const Orders = ({ match }) => (
                     <Route path={`${match.url}/registrarfactura`} component={CreateInvoice} />
                     <Route path={`${match.url}/factura/:id`} component={CreateInvoice} />
                 </div>
-                <AppFooter />
             </div>
         </div>
     </Fragment>

@@ -1,3 +1,10 @@
+export const MainNav = [
+    {
+        icon: 'pe-7s-rocket',
+        label: 'Dashboard',
+        to: '#/dashboard/dashboard',
+    },
+];
 export const ProfileNav = [
     {
         icon: 'pe-7s-id',

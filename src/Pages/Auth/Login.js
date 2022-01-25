@@ -41,7 +41,7 @@ class Login extends Component {
         let { authenticated } = this.props
 
         if (authenticated) {
-            return <Redirect to="/empresa/perfil" />
+            return <Redirect to="/dashboard/dashboard" />
         }
 
         let { user, password } = this.state

@@ -4,7 +4,6 @@ import { Route } from 'react-router-dom';
 // Layout
 import AppHeader from '../../Layout/AppHeader';
 import AppSidebar from '../../Layout/AppSidebar';
-import AppFooter from '../../Layout/AppFooter';
 
 //Import Local
 import Documents from './Documents';
@@ -24,7 +23,6 @@ const Shops = ({ match }) => (
                     <Route path={`${match.url}/documento/:id`} component={FormShop} />
 
                 </div>
-                <AppFooter />
             </div>
         </div>
     </Fragment>

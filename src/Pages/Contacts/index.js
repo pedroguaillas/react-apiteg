@@ -4,7 +4,6 @@ import { Route } from 'react-router-dom';
 // Layout
 import AppHeader from '../../Layout/AppHeader/';
 import AppSidebar from '../../Layout/AppSidebar/';
-import AppFooter from '../../Layout/AppFooter/';
 
 //Products
 import Carriers from "./Carriers";
@@ -35,7 +34,6 @@ const Contacts = ({ match }) => (
                     <Route path={`${match.url}/transportista/:id`} component={FormCarrier} />
 
                 </div>
-                <AppFooter />
             </div>
         </div>
     </Fragment>

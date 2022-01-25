@@ -4,7 +4,6 @@ import { Route } from 'react-router-dom';
 // Layout
 import AppHeader from '../../Layout/AppHeader';
 import AppSidebar from '../../Layout/AppSidebar';
-import AppFooter from '../../Layout/AppFooter';
 
 // Financial Statement
 import AccountSeat from './AccountSeat';
@@ -32,7 +31,6 @@ const Accounting = ({ match }) => (
                     <Route path={`${match.url}/balancegeneral`} component={BalanceSheet} />
 
                 </div>
-                <AppFooter />
             </div>
         </div>
     </Fragment>
