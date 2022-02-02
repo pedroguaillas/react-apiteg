@@ -72,11 +72,11 @@ class Profile extends Component {
         // Validate empty field
         let { id, ruc, company, economic_activity, accounting, micro_business, retention_agent,
             logo, cert, extention_cert, pass_cert } = this.state.form
-        if (ruc.trim() === '' ||
-            company.trim() === '') {
-            alert('Los campos con * son obligatorios')
-            return;
-        }
+        // if (ruc.trim() === '' ||
+        //     company.trim() === '') {
+        //     alert('Los campos con * son obligatorios')
+        //     return;
+        // }
 
         let data = new FormData()
         data.append('id', id)
@@ -139,14 +139,14 @@ class Profile extends Component {
                                                 <FormGroup>
                                                     <Label>RUC *</Label>
                                                     <Input onChange={this.handleChange} value={form.ruc}
-                                                        type="text" id="identification" name="identification" maxLength="13" />
+                                                        type="text" id="identification" name="identification" maxLength="13" />{' '}
                                                 </FormGroup>
                                             </Col>
                                             <Col md={6}>
                                                 <FormGroup>
                                                     <Label>Razon social *</Label>
                                                     <Input onChange={this.handleChange} value={form.company}
-                                                        type="text" id="company" name="company" maxLength="300" />
+                                                        type="text" id="company" name="company" maxLength="300" />{' '}
                                                 </FormGroup>
                                             </Col>
                                         </Row>
@@ -155,14 +155,14 @@ class Profile extends Component {
                                                 <FormGroup>
                                                     <Label>Actividad económica</Label>
                                                     <Input onChange={this.handleChange} value={form.economic_activity}
-                                                        type="text" id="economic_activity" name="economic_activity" />
+                                                        type="text" id="economic_activity" name="economic_activity" />{' '}
                                                 </FormGroup>
                                             </Col>
                                             <Col md={6}>
                                                 <FormGroup>
                                                     <Label>Agente de Retención. Nº Resolución</Label>
                                                     <Input onChange={this.handleChange} value={form.retention_agent}
-                                                        type="text" id="retention_agent" name="retention_agent" maxLength="13" />
+                                                        type="text" id="retention_agent" name="retention_agent" maxLength="13" />{' '}
                                                 </FormGroup>
                                             </Col>
                                         </Row>
@@ -211,14 +211,14 @@ class Profile extends Component {
                                                 <FormGroup>
                                                     <Label>Logo</Label>
                                                     <Input type="file" name="logo" id="input-file-logo"
-                                                        onChange={this.loadFile} accept="image/*" />
+                                                        onChange={this.loadFile} accept="image/*" />{' '}
                                                 </FormGroup>
                                             </Col>
                                             <Col md={6}>
                                                 <FormGroup>
                                                     <Label>Certificado de firma electrónica</Label>
                                                     <Input type="file" name="cert" id="input-file-cert"
-                                                        onChange={this.loadFile} accept=".p12, .pfx" />
+                                                        onChange={this.loadFile} accept=".p12, .pfx" />{' '}
                                                 </FormGroup>
                                             </Col>
                                         </Row>
@@ -228,7 +228,7 @@ class Profile extends Component {
                                             <Col md={6}>
                                                 <FormGroup>
                                                     <Label>Contraseña certificado</Label>
-                                                    <Input type="password" name="pass_cert" id="pass_cert" />
+                                                    <Input type="password" onChange={this.handleChange} value={form.pass_cert} name="pass_cert" id="pass_cert" />{' '}
                                                 </FormGroup>
                                             </Col>
                                         </Row>

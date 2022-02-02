@@ -15,7 +15,8 @@ class Products extends Component {
     state = {
         products: null,
         links: null,
-        meta: null
+        meta: null,
+        search: ''
     }
 
     async componentDidMount() {
@@ -38,13 +39,17 @@ class Products extends Component {
     reqNewPage = async (e, page) => {
         e.preventDefault();
 
+        let { search } = this.state
+
         if (page !== null) {
             tokenAuth(this.props.token);
             try {
+                // await clienteAxios.get(`products?page=${page.substring((page.indexOf('=')) + 1)}${search === '' ? null : '&search=' + search}`)
                 await clienteAxios.get(`products?page=${page.substring((page.indexOf('=')) + 1)}`)
                     .then(res => {
                         let { data, links, meta } = res.data
                         this.setState({
+                            ...this.state,
                             products: data,
                             links,
                             meta,
@@ -110,11 +115,33 @@ class Products extends Component {
         }
     }
 
+    onChangeSearch = async (e) => {
+        tokenAuth(this.props.token)
+        let {
+            value
+        } = e.target
+
+        try {
+            await clienteAxios.get(`products/search/${value}`)
+                .then(res => {
+                    let { data, links, meta } = res.data
+                    this.setState({
+                        search: value,
+                        products: data,
+                        links,
+                        meta,
+                    })
+                })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     addProduct = () => this.props.history.push("/inventarios/nuevoproducto")
 
     render() {
 
-        let { products, links, meta } = this.state
+        let { products, links, meta, search } = this.state
 
         return (
             <Fragment>
@@ -140,55 +167,75 @@ class Products extends Component {
                     {
                         (products === null) ? (<p>Cargando ...</p>) :
                             (products.length < 1) ? (<p>No existe productos empiece por agregar el primer producto</p>) :
-                                (<Row>
-                                    <Col lg="12">
-                                        <Card className="main-card mb-3">
-                                            <CardBody>
-                                                <Table striped size="sm" responsive>
-                                                    <thead>
-                                                        <tr>
-                                                            <th>Código</th>
-                                                            <th>Nombre</th>
-                                                            {/* <th>Categoría</th> */}
-                                                            {/* <th>Unidad</th> */}
-                                                            <th>Precio</th>
-                                                            <th>iva</th>
-                                                            <th style={{ width: '1em' }}></th>
-                                                        </tr>
-                                                    </thead>
+                                (
+                                    <Row>
 
-                                                    <tbody>
-                                                        {
-                                                            products.map((product, index) => (
-                                                                <tr key={index}>
-                                                                    <td>{product.atts.code}</td>
-                                                                    <td>{product.atts.name}</td>
-                                                                    {/* <td>{product.category.category}</td> */}
-                                                                    {/* <td>{product.unity.unity}</td> */}
-                                                                    <td>${Number(product.atts.price1 !== null ? product.atts.price1 : 0).toFixed(2)}</td>
-                                                                    <td>{product.atts.iva == 0 ? '0%' : (product.atts.iva == 2 ? '12%' : 'no iva')}</td>
-                                                                    <td>
-                                                                        <Link to={'/inventarios/producto/' + product.id}>
-                                                                            <Button size='sm' color="primary">
-                                                                                <i className='nav-link-icon lnr-pencil'></i>
-                                                                            </Button>
-                                                                        </Link>
-                                                                    </td>
-                                                                </tr>
-                                                            ))
-                                                        }
-                                                    </tbody>
-                                                </Table>
+                                        {/* <Col lg="12" className="mb-4">
+                                            <Card>
+                                                <CardBody>
+                                                    <CardTitle>Filtros</CardTitle>
+                                                    <Form className="text-right">
+                                                        <InputGroup size="sm">
+                                                            <Input value={search} onChange={this.onChangeSearch} placeholder="..." />
+                                                            <InputGroupAddon addonType="append">
+                                                                <Button color="secondary" onClick={this.toggle}>
+                                                                    <i className='nav-link-icon lnr-magnifier'></i>
+                                                                </Button>
+                                                            </InputGroupAddon>
+                                                        </InputGroup>
+                                                    </Form>
+                                                </CardBody>
+                                            </Card>
+                                        </Col> */}
 
-                                                <Paginate
-                                                    links={links}
-                                                    meta={meta}
-                                                    reqNewPage={this.reqNewPage}
-                                                />
-                                            </CardBody>
-                                        </Card>
-                                    </Col>
-                                </Row>
+                                        <Col lg="12">
+                                            <Card className="main-card mb-3">
+                                                <CardBody>
+                                                    <Table striped size="sm" responsive>
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Código</th>
+                                                                <th>Nombre</th>
+                                                                {/* <th>Categoría</th> */}
+                                                                {/* <th>Unidad</th> */}
+                                                                <th>Precio</th>
+                                                                <th>iva</th>
+                                                                <th style={{ width: '1em' }}></th>
+                                                            </tr>
+                                                        </thead>
+
+                                                        <tbody>
+                                                            {
+                                                                products.map((product, index) => (
+                                                                    <tr key={index}>
+                                                                        <td>{product.atts.code}</td>
+                                                                        <td>{product.atts.name}</td>
+                                                                        {/* <td>{product.category.category}</td> */}
+                                                                        {/* <td>{product.unity.unity}</td> */}
+                                                                        <td>${Number(product.atts.price1 !== null ? product.atts.price1 : 0).toFixed(2)}</td>
+                                                                        <td>{product.atts.iva == 0 ? '0%' : (product.atts.iva == 2 ? '12%' : 'no iva')}</td>
+                                                                        <td>
+                                                                            <Link to={'/inventarios/producto/' + product.id}>
+                                                                                <Button size='sm' color="primary">
+                                                                                    <i className='nav-link-icon lnr-pencil'></i>
+                                                                                </Button>
+                                                                            </Link>
+                                                                        </td>
+                                                                    </tr>
+                                                                ))
+                                                            }
+                                                        </tbody>
+                                                    </Table>
+
+                                                    <Paginate
+                                                        links={links}
+                                                        meta={meta}
+                                                        reqNewPage={this.reqNewPage}
+                                                    />
+                                                </CardBody>
+                                            </Card>
+                                        </Col>
+                                    </Row>
                                 )
                     }
                 </ReactCSSTransitionGroup>

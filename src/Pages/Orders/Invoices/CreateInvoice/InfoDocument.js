@@ -49,6 +49,13 @@ class InfoDocument extends Component {
                         </Col>
                         <Label style={{ 'text-align': 'left' }} sm={2}>días</Label>
                     </FormGroup>
+                    <FormGroup className="mb-1" row>
+                        <Label style={{ 'font-weight': 'bold' }} for="serie" sm={4}>Guia de Remisión</Label>
+                        <Col sm={6}>
+                            <Input bsSize="sm" onChange={handleChange} value={form.guia} type="text"
+                                id="guia" name="guia" maxlength={17} />
+                        </Col>
+                    </FormGroup>
                 </Col>
                 <Col md={6}></Col>
             </Row>

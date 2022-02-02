@@ -14,6 +14,7 @@ const NuevaCuenta = () => {
         special: null, //For bussiness requiere number if exist
         accounting: false,
         micro_business: false,
+        rimpe: false,
         retention_agent: null,
         phone: '',
         logo: null,
@@ -108,7 +109,7 @@ const NuevaCuenta = () => {
     // Save database
     const registrarCompany = async () => {
 
-        let { ruc, company, economic_activity, accounting, micro_business, retention_agent,
+        let { ruc, company, economic_activity, accounting, micro_business, rimpe, retention_agent,
             logo, phone, cert, extention_cert, pass_cert, user, password, email } = business
 
         let data = new FormData();
@@ -118,6 +119,7 @@ const NuevaCuenta = () => {
         data.append('economic_activity', economic_activity);
         data.append('accounting', accounting)
         data.append('micro_business', micro_business)
+        data.append('rimpe', rimpe)
         // if (accounting) { data.append('accounting', true) }
         // if (micro_business) { data.append('micro_business', true) }
         if (retention_agent) { data.append('retention_agent', retention_agent) }
@@ -186,6 +188,12 @@ const NuevaCuenta = () => {
                         <label htmlFor="micro_business">Microempresa</label>
                         <input type="checkbox" id="micro_business" name="micro_business"
                             checked={business.micro_business} onChange={onChangeCheckbox} />
+                    </div>
+
+                    <div className="campo-form">
+                        <label htmlFor="rimpe">Regimen RIMPE</label>
+                        <input type="checkbox" id="rimpe" name="rimpe"
+                            checked={business.rimpe} onChange={onChangeCheckbox} />
                     </div>
 
                     <div className="campo-form">

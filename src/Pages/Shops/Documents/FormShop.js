@@ -409,10 +409,21 @@ class FormShop extends Component {
     }
 
     handleChangeOthersTax = (index) => (e) => {
+
         let { taxes } = this.state
         let { name, value } = e.target
         taxes[index][name] = Number(value)
         taxes[index].value = (taxes[index].porcentage !== null && taxes[index].base !== null) ? taxes[index].porcentage * taxes[index].base * .01 : 0
+        this.setState({ taxes })
+    }
+
+    calTotalRetention = (taxes) => {
+
+        let total = 0
+        taxes.forEach(item => {
+            total += parseFloat(item.base)
+        })
+
         this.setState({ taxes })
     }
 
