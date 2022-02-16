@@ -108,7 +108,6 @@ class Invoices extends Component {
         let prefix = null
         switch (Number(type)) {
             case 1: prefix = 'FAC'; break;
-            case 3: prefix = 'L/C'; break;
             case 4: prefix = 'N/C'; break;
             case 5: prefix = 'N/D'; break;
         }

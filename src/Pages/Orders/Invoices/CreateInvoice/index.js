@@ -37,7 +37,8 @@ class CreateInvoice extends Component {
                 description: null,
                 customer_id: 0,
                 received: 0,
-                doc_realeted: 0
+                doc_realeted: 0,
+                voucher_type: 1
             },
             customers: [],
             productinputs: [],
