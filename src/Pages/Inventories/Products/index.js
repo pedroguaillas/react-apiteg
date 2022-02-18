@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Row, Col, Card, CardBody, Table, Button, Input } from 'reactstrap';
+import { Row, Col, Card, CardBody, Form, InputGroup, InputGroupAddon, Table, Button, Input } from 'reactstrap';
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 
 import PageTitle from '../../../Layout/AppMain/PageTitle';
@@ -21,8 +21,9 @@ class Products extends Component {
 
     async componentDidMount() {
         tokenAuth(this.props.token);
+        let { search } = this.state
         try {
-            await clienteAxios.get('products')
+            await clienteAxios.post('productlist', { search })
                 .then(res => {
                     let { data, links, meta } = res.data
                     this.setState({
@@ -31,10 +32,25 @@ class Products extends Component {
                         meta,
                     })
                 })
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
+
+    // async componentDidMount() {
+    //     tokenAuth(this.props.token);
+    //     try {
+    //         await clienteAxios.get('products')
+    //             .then(res => {
+    //                 let { data, links, meta } = res.data
+    //                 this.setState({
+    //                     products: data,
+    //                     links,
+    //                     meta,
+    //                 })
+    //             })
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
+    // }
 
     reqNewPage = async (e, page) => {
         e.preventDefault();
@@ -44,8 +60,7 @@ class Products extends Component {
         if (page !== null) {
             tokenAuth(this.props.token);
             try {
-                // await clienteAxios.get(`products?page=${page.substring((page.indexOf('=')) + 1)}${search === '' ? null : '&search=' + search}`)
-                await clienteAxios.get(`products?page=${page.substring((page.indexOf('=')) + 1)}`)
+                await clienteAxios.post(`productlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search })
                     .then(res => {
                         let { data, links, meta } = res.data
                         this.setState({
@@ -55,11 +70,34 @@ class Products extends Component {
                             meta,
                         })
                     })
-            } catch (error) {
-                console.log(error)
-            }
+            } catch (error) { console.log(error) }
         }
     }
+
+    // reqNewPage = async (e, page) => {
+    //     e.preventDefault();
+
+    //     let { search } = this.state
+
+    //     if (page !== null) {
+    //         tokenAuth(this.props.token);
+    //         try {
+    //             // await clienteAxios.get(`products?page=${page.substring((page.indexOf('=')) + 1)}${search === '' ? null : '&search=' + search}`)
+    //             await clienteAxios.get(`products?page=${page.substring((page.indexOf('=')) + 1)}`)
+    //                 .then(res => {
+    //                     let { data, links, meta } = res.data
+    //                     this.setState({
+    //                         ...this.state,
+    //                         products: data,
+    //                         links,
+    //                         meta,
+    //                     })
+    //                 })
+    //         } catch (error) {
+    //             console.log(error)
+    //         }
+    //     }
+    // }
 
     importProducts = () => document.getElementById('file_csv').click()
 
@@ -110,9 +148,7 @@ class Products extends Component {
                         meta,
                     })
                 })
-        } catch (error) {
-            alert('Por mal')
-        }
+        } catch (error) { console.log(error) }
     }
 
     onChangeSearch = async (e) => {
@@ -122,7 +158,7 @@ class Products extends Component {
         } = e.target
 
         try {
-            await clienteAxios.get(`products/search/${value}`)
+            await clienteAxios.post('productlist', { search: value })
                 .then(res => {
                     let { data, links, meta } = res.data
                     this.setState({
@@ -132,9 +168,7 @@ class Products extends Component {
                         meta,
                     })
                 })
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
 
     addProduct = () => this.props.history.push("/inventarios/nuevoproducto")
@@ -162,6 +196,22 @@ class Products extends Component {
                     transitionEnter={false}
                     transitionLeave={false}>
 
+                    <Row>
+                        <Col lg="12" className="mb-4">
+                            <Card>
+                                <div className="card-header">Busqueda
+                                    <div className="btn-actions-pane-right">
+                                        <Form className="text-right">
+                                            <InputGroup size="sm">
+                                                <Input value={search} onChange={this.onChangeSearch} placeholder="Buscar" className="search-input" />
+                                            </InputGroup>
+                                        </Form>
+                                    </div>
+                                </div>
+                            </Card>
+                        </Col>
+                    </Row>
+
                     <Input onChange={this.handleSelectFile} style={{ 'display': 'none' }} type="file" name="contactscsv" id="file_csv" accept=".csv" />
 
                     {
@@ -169,25 +219,6 @@ class Products extends Component {
                             (products.length < 1) ? (<p>No existe productos empiece por agregar el primer producto</p>) :
                                 (
                                     <Row>
-
-                                        {/* <Col lg="12" className="mb-4">
-                                            <Card>
-                                                <CardBody>
-                                                    <CardTitle>Filtros</CardTitle>
-                                                    <Form className="text-right">
-                                                        <InputGroup size="sm">
-                                                            <Input value={search} onChange={this.onChangeSearch} placeholder="..." />
-                                                            <InputGroupAddon addonType="append">
-                                                                <Button color="secondary" onClick={this.toggle}>
-                                                                    <i className='nav-link-icon lnr-magnifier'></i>
-                                                                </Button>
-                                                            </InputGroupAddon>
-                                                        </InputGroup>
-                                                    </Form>
-                                                </CardBody>
-                                            </Card>
-                                        </Col> */}
-
                                         <Col lg="12">
                                             <Card className="main-card mb-3">
                                                 <CardBody>
@@ -196,8 +227,6 @@ class Products extends Component {
                                                             <tr>
                                                                 <th>Código</th>
                                                                 <th>Nombre</th>
-                                                                {/* <th>Categoría</th> */}
-                                                                {/* <th>Unidad</th> */}
                                                                 <th>Precio</th>
                                                                 <th>iva</th>
                                                                 <th style={{ width: '1em' }}></th>
@@ -210,8 +239,6 @@ class Products extends Component {
                                                                     <tr key={index}>
                                                                         <td>{product.atts.code}</td>
                                                                         <td>{product.atts.name}</td>
-                                                                        {/* <td>{product.category.category}</td> */}
-                                                                        {/* <td>{product.unity.unity}</td> */}
                                                                         <td>${Number(product.atts.price1 !== null ? product.atts.price1 : 0).toFixed(2)}</td>
                                                                         <td>{product.atts.iva == 0 ? '0%' : (product.atts.iva == 2 ? '12%' : 'no iva')}</td>
                                                                         <td>

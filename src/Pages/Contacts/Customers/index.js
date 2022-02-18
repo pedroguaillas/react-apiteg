@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Row, Col, Card, CardBody, Table, Button, Input } from 'reactstrap'
+import { Row, Col, Card, CardBody, Table, Button, Input, Form, InputGroup } from 'reactstrap'
 import PageTitle from '../../../Layout/AppMain/PageTitle'
 import ReactCSSTransitionGroup from "react-addons-css-transition-group"
 import { Link } from 'react-router-dom';
@@ -14,13 +14,15 @@ class Customers extends Component {
     state = {
         customers: null,
         links: null,
-        meta: null
+        meta: null,
+        search: ''
     }
 
     async componentDidMount() {
         tokenAuth(this.props.token);
+        let { search } = this.state
         try {
-            await clienteAxios.get('customers')
+            await clienteAxios.post('customerlist', { search })
                 .then(res => {
                     let { data, links, meta } = res.data
                     this.setState({
@@ -29,9 +31,7 @@ class Customers extends Component {
                         meta,
                     })
                 })
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
 
     reqNewPage = async (e, page) => {
@@ -39,8 +39,9 @@ class Customers extends Component {
 
         if (page !== null) {
             tokenAuth(this.props.token);
+            let { search } = this.state
             try {
-                await clienteAxios.get(`customers?page=${page.substring((page.indexOf('=')) + 1)}`)
+                await clienteAxios.post(`customerlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search })
                     .then(res => {
                         let { data, links, meta } = res.data
                         this.setState({
@@ -49,10 +50,28 @@ class Customers extends Component {
                             meta,
                         })
                     })
-            } catch (error) {
-                console.log(error)
-            }
+            } catch (error) { console.log(error) }
         }
+    }
+
+    onChangeSearch = async (e) => {
+        tokenAuth(this.props.token)
+        let {
+            value
+        } = e.target
+
+        try {
+            await clienteAxios.post('customerlist', { search: value })
+                .then(res => {
+                    let { data, links, meta } = res.data
+                    this.setState({
+                        search: value,
+                        customers: data,
+                        links,
+                        meta,
+                    })
+                })
+        } catch (error) { console.log(error) }
     }
 
     importContacts = () => document.getElementById('file_csv').click()
@@ -101,16 +120,14 @@ class Customers extends Component {
                         meta,
                     })
                 })
-        } catch (error) {
-            alert('Por mal')
-        }
+        } catch (error) { console.log(error) }
     }
 
     addCustomer = () => this.props.history.push("/contactos/nuevocliente")
 
     render() {
 
-        let { customers, links, meta } = this.state
+        let { customers, links, meta, search } = this.state
 
         return (
             <Fragment>
@@ -130,6 +147,22 @@ class Customers extends Component {
                     transitionAppearTimeout={0}
                     transitionEnter={false}
                     transitionLeave={false}>
+
+                    <Row>
+                        <Col lg="12" className="mb-4">
+                            <Card>
+                                <div className="card-header">Busqueda
+                                    <div className="btn-actions-pane-right">
+                                        <Form className="text-right">
+                                            <InputGroup size="sm">
+                                                <Input value={search} onChange={this.onChangeSearch} placeholder="Buscar" className="search-input" />
+                                            </InputGroup>
+                                        </Form>
+                                    </div>
+                                </div>
+                            </Card>
+                        </Col>
+                    </Row>
 
                     <Input onChange={this.handleSelectFile} style={{ 'display': 'none' }} type="file" name="contactscsv" id="file_csv" accept=".csv" />
                     {

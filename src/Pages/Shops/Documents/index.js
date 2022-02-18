@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import {
-    Row, Col, Card, CardBody, Table, Input,
+    Row, Col, Card, CardBody, Table, Input, Form, InputGroup,
     ButtonDropdown, DropdownMenu, DropdownItem, DropdownToggle
 } from 'reactstrap';
 
@@ -18,13 +18,15 @@ class Documents extends Component {
         dropdowns: [],
         shops: null,
         links: null,
-        meta: null
+        meta: null,
+        search: ''
     }
 
     async componentDidMount() {
         tokenAuth(this.props.token);
+        let { search } = this.state
         try {
-            await clienteAxios.get('shops')
+            await clienteAxios.post('shoplist', { search })
                 .then(res => {
                     let { data, links, meta } = res.data
                     this.setState({
@@ -33,18 +35,32 @@ class Documents extends Component {
                         meta,
                     })
                 })
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
+
+    // async componentDidMount() {
+    //     tokenAuth(this.props.token);
+    //     try {
+    //         await clienteAxios.get('shops')
+    //             .then(res => {
+    //                 let { data, links, meta } = res.data
+    //                 this.setState({
+    //                     shops: data,
+    //                     links,
+    //                     meta,
+    //                 })
+    //             })
+    //     } catch (error) { console.log(error) }
+    // }
 
     reqNewPage = async (e, page) => {
         e.preventDefault();
 
         if (page !== null) {
             tokenAuth(this.props.token);
+            let { search } = this.state
             try {
-                await clienteAxios.get(`shops?page=${page.substring((page.indexOf('=')) + 1)}`)
+                await clienteAxios.post(`shoplist?page=${page.substring((page.indexOf('=')) + 1)}`, { search })
                     .then(res => {
                         let { data, links, meta } = res.data
                         this.setState({
@@ -53,18 +69,36 @@ class Documents extends Component {
                             meta,
                         })
                     })
-            } catch (error) {
-                console.log(error)
-            }
+            } catch (error) { console.log(error) }
         }
     }
+
+    // reqNewPage = async (e, page) => {
+    //     e.preventDefault();
+
+    //     if (page !== null) {
+    //         tokenAuth(this.props.token);
+    //         try {
+    //             await clienteAxios.get(`shops?page=${page.substring((page.indexOf('=')) + 1)}`)
+    //                 .then(res => {
+    //                     let { data, links, meta } = res.data
+    //                     this.setState({
+    //                         shops: data,
+    //                         links,
+    //                         meta,
+    //                     })
+    //                 })
+    //         } catch (error) { console.log(error) }
+    //     }
+    // }
 
     reloadPage = async () => {
         let { current_page } = this.state.meta
         if (current_page !== null) {
             tokenAuth(this.props.token);
+            let { search } = this.state
             try {
-                await clienteAxios.get(`shops?page=${current_page}`)
+                await clienteAxios.post(`shoplist?page=${current_page}`, { search })
                     .then(res => {
                         let { data, links, meta } = res.data
                         this.setState({
@@ -73,10 +107,28 @@ class Documents extends Component {
                             meta,
                         })
                     })
-            } catch (error) {
-                console.log(error)
-            }
+            } catch (error) { console.log(error) }
         }
+    }
+
+    onChangeSearch = async (e) => {
+        tokenAuth(this.props.token)
+        let {
+            value
+        } = e.target
+
+        try {
+            await clienteAxios.post('shoplist', { search: value })
+                .then(res => {
+                    let { data, links, meta } = res.data
+                    this.setState({
+                        search: value,
+                        shops: data,
+                        links,
+                        meta,
+                    })
+                })
+        } catch (error) { console.log(error) }
     }
 
     addDocument = () => this.props.history.push('/compras/registrardocumento')
@@ -91,9 +143,7 @@ class Documents extends Component {
                         shops: res.data.shops
                     })
                 })
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
 
     handleDrops = (index) => {
@@ -149,9 +199,7 @@ class Documents extends Component {
                     //Open the URL on new Window
                     window.open(fileURL);
                 })
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
 
     generateSignRetention = async (id) => {
@@ -159,9 +207,7 @@ class Documents extends Component {
         try {
             await clienteAxios.get('retentions/xml/' + id)
                 .then(res => this.reloadPage())
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
 
     sendToSriRetention = async (id) => {
@@ -169,9 +215,7 @@ class Documents extends Component {
         try {
             await clienteAxios.get('retentions/sendsri/' + id)
                 .then(res => this.reloadPage())
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
 
     autorizedFromSriRetention = async (id) => {
@@ -179,9 +223,7 @@ class Documents extends Component {
         try {
             await clienteAxios.get(`retentions/authorize/${id}`)
                 .then(res => this.reloadPage())
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
 
     downloadXmlRetention = async (id) => {
@@ -194,9 +236,7 @@ class Documents extends Component {
                     a.download = "Retención.xml"; //File name Here
                     a.click(); //Downloaded file
                 })
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
     // Fin Retencion
 
@@ -247,9 +287,7 @@ class Documents extends Component {
                     //Open the URL on new Window
                     window.open(fileURL);
                 })
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
 
     generateSignSetPurchase = async (id) => {
@@ -257,9 +295,7 @@ class Documents extends Component {
         try {
             await clienteAxios.get(`shops/${id}/xml`)
                 .then(res => this.reloadPage())
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
 
     sendToSriSetPurchase = async (id) => {
@@ -267,9 +303,7 @@ class Documents extends Component {
         try {
             await clienteAxios.get(`shops/${id}/sendsri`)
                 .then(res => this.reloadPage())
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
 
     autorizedFromSriSetPurchase = async (id) => {
@@ -277,9 +311,7 @@ class Documents extends Component {
         try {
             await clienteAxios.get(`shops/${id}/authorize`)
                 .then(res => this.reloadPage())
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
 
     downloadXmlSetPurchase = async (id) => {
@@ -292,9 +324,7 @@ class Documents extends Component {
                     a.download = "LC.xml"; //File name Here
                     a.click(); //Downloaded file
                 })
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
     // Fin liquidación en compra
 
@@ -331,15 +361,13 @@ class Documents extends Component {
         try {
             await clienteAxios.post('shops/import', data)
                 .then(res => this.reloadPage())
-        } catch (error) {
-            alert('Por mal')
-        }
+        } catch (error) { console.log(error) }
     }
 
     //Layout
     render = () => {
 
-        let { shops, links, meta, dropdowns } = this.state
+        let { shops, links, meta, dropdowns, search } = this.state
 
         return (
             <Fragment>
@@ -360,6 +388,21 @@ class Documents extends Component {
                     transitionEnter={false}
                     transitionLeave={false}>
 
+                    <Row>
+                        <Col lg="12" className="mb-4">
+                            <Card>
+                                <div className="card-header">Busqueda
+                                    <div className="btn-actions-pane-right">
+                                        <Form className="text-right">
+                                            <InputGroup size="sm">
+                                                <Input value={search} onChange={this.onChangeSearch} placeholder="Buscar" className="search-input" />
+                                            </InputGroup>
+                                        </Form>
+                                    </div>
+                                </div>
+                            </Card>
+                        </Col>
+                    </Row>
 
                     <Input onChange={this.handleSelectFile} style={{ 'display': 'none' }} type="file" name="invoicestxt" id="file_txt" accept=".txt" />
                     {

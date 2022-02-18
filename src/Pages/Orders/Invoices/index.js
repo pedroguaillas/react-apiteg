@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import {
-    Row, Col, Card, CardBody, Table,
+    Row, Col, Card, CardBody, Table, Form, InputGroup, Input, InputGroupAddon, Button,
     ButtonDropdown, DropdownMenu, DropdownItem, DropdownToggle
 } from 'reactstrap';
 
@@ -18,13 +18,15 @@ class Invoices extends Component {
         dropdowns: [],
         orders: null,
         links: null,
-        meta: null
+        meta: null,
+        search: ''
     }
 
     async componentDidMount() {
         tokenAuth(this.props.token);
+        let { search } = this.state
         try {
-            await clienteAxios.get('orders')
+            await clienteAxios.post('orderlist', { search })
                 .then(res => {
                     let { data, links, meta } = res.data
                     this.setState({
@@ -33,18 +35,34 @@ class Invoices extends Component {
                         meta,
                     })
                 })
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
+
+    // async componentDidMount() {
+    //     tokenAuth(this.props.token);
+    //     try {
+    //         await clienteAxios.get('orders')
+    //             .then(res => {
+    //                 let { data, links, meta } = res.data
+    //                 this.setState({
+    //                     orders: data,
+    //                     links,
+    //                     meta,
+    //                 })
+    //             })
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
+    // }
 
     reqNewPage = async (e, page) => {
         e.preventDefault();
 
         if (page !== null) {
             tokenAuth(this.props.token);
+            let { search } = this.state
             try {
-                await clienteAxios.get(`orders?page=${page.substring((page.indexOf('=')) + 1)}`)
+                await clienteAxios.post(`orderlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search })
                     .then(res => {
                         let { data, links, meta } = res.data
                         this.setState({
@@ -53,18 +71,38 @@ class Invoices extends Component {
                             meta,
                         })
                     })
-            } catch (error) {
-                console.log(error)
-            }
+            } catch (error) { console.log(error) }
         }
     }
+
+    // reqNewPage = async (e, page) => {
+    //     e.preventDefault();
+
+    //     if (page !== null) {
+    //         tokenAuth(this.props.token);
+    //         try {
+    //             await clienteAxios.get(`orders?page=${page.substring((page.indexOf('=')) + 1)}`)
+    //                 .then(res => {
+    //                     let { data, links, meta } = res.data
+    //                     this.setState({
+    //                         orders: data,
+    //                         links,
+    //                         meta,
+    //                     })
+    //                 })
+    //         } catch (error) {
+    //             console.log(error)
+    //         }
+    //     }
+    // }
 
     reloadPage = async () => {
         let { current_page } = this.state.meta
         if (current_page !== null) {
             tokenAuth(this.props.token);
+            let { search } = this.state
             try {
-                await clienteAxios.get(`orders?page=${current_page}`)
+                await clienteAxios.post(`orderlist?page=${current_page}`, { search })
                     .then(res => {
                         let { data, links, meta } = res.data
                         this.setState({
@@ -73,10 +111,28 @@ class Invoices extends Component {
                             meta,
                         })
                     })
-            } catch (error) {
-                console.log(error)
-            }
+            } catch (error) { console.log(error) }
         }
+    }
+
+    onChangeSearch = async (e) => {
+        tokenAuth(this.props.token)
+        let {
+            value
+        } = e.target
+
+        try {
+            await clienteAxios.post('orderlist', { search: value })
+                .then(res => {
+                    let { data, links, meta } = res.data
+                    this.setState({
+                        search: value,
+                        orders: data,
+                        links,
+                        meta,
+                    })
+                })
+        } catch (error) { console.log(error) }
     }
 
     addDocument = () => this.props.history.push('/ventas/registrarfactura')
@@ -93,9 +149,7 @@ class Invoices extends Component {
                     //Open the URL on new Window
                     window.open(fileURL);
                 })
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
 
     handleDrops = (index) => {
@@ -140,9 +194,7 @@ class Invoices extends Component {
         try {
             await clienteAxios.get('orders/xml/' + id)
                 .then(res => this.reloadPage())
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
 
     sendToSri = async (id) => {
@@ -150,9 +202,7 @@ class Invoices extends Component {
         try {
             await clienteAxios.get('orders/sendsri/' + id)
                 .then(res => this.reloadPage())
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
 
     autorizedFromSri = async (id) => {
@@ -161,9 +211,7 @@ class Invoices extends Component {
         try {
             await clienteAxios.get(`orders/authorize/${id}`)
                 .then(res => this.reloadPage())
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
 
     downloadXml = async (id) => {
@@ -176,15 +224,13 @@ class Invoices extends Component {
                     a.download = "Factura.xml"; //File name Here
                     a.click(); //Downloaded file
                 })
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
 
     //Layout
     render = () => {
 
-        let { orders, dropdowns, links, meta } = this.state
+        let { orders, dropdowns, links, meta, search } = this.state
 
         return (
             <Fragment>
@@ -203,6 +249,22 @@ class Invoices extends Component {
                     transitionAppearTimeout={0}
                     transitionEnter={false}
                     transitionLeave={false}>
+
+                    <Row>
+                        <Col lg="12" className="mb-4">
+                            <Card>
+                                <div className="card-header">Busqueda
+                                    <div className="btn-actions-pane-right">
+                                        <Form className="text-right">
+                                            <InputGroup size="sm">
+                                                <Input value={search} onChange={this.onChangeSearch} placeholder="Buscar" className="search-input" />
+                                            </InputGroup>
+                                        </Form>
+                                    </div>
+                                </div>
+                            </Card>
+                        </Col>
+                    </Row>
 
                     {
                         (orders === null) ? (<p>Cargando ...</p>) :

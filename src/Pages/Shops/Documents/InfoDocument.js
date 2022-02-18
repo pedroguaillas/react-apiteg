@@ -3,20 +3,19 @@ import {
     Row, Col, FormGroup, Label, Input, CustomInput
 } from 'reactstrap'
 import LoadFileXml from '../../Components/Modal/LoadFileXml'
-import SelectDocument from '../../Components/Modal/SelectDocument'
 import SelectProvider from '../../Components/Modal/SelectProvider'
 
 class InfoDocument extends Component {
 
     render() {
 
-        let { form, handleChange, providers, selectProvider, selectDocRelated, selectDocXml, registerProvider } = this.props
+        let { form, handleChange, providers, selectProvider, selectDocXml, registerProvider } = this.props
 
         let type_vouchers = [
             { code: 1, description: 'Factura' },
             { code: 3, description: 'Liquidación en Compra' },
-            { code: 4, description: 'Nota Crédito' },
-            { code: 5, description: 'Nota Débito' }
+            // { code: 4, description: 'Nota Crédito' },
+            // { code: 5, description: 'Nota Débito' }
         ]
 
         let date = new Date()
@@ -50,15 +49,6 @@ class InfoDocument extends Component {
                             />
                         </Col>
                     </FormGroup>
-                    <FormGroup className="mb-1" hidden={Number(form.voucher_type) < 4} row>
-                        <Label style={{ 'font-weight': 'bold' }} for="expiration_date" sm={4}>Doc relacionado *</Label>
-                        <Col sm={6}>
-                            <SelectDocument
-                                contact_id={form.contact_id}
-                                selectDocRelated={selectDocRelated}
-                            />
-                        </Col>
-                    </FormGroup>
                     <FormGroup className="mb-1" row>
                         <Label style={{ 'font-weight': 'bold' }} for="authorization" sm={4}>Autorización</Label>
                         <Col sm={8}>
@@ -66,14 +56,14 @@ class InfoDocument extends Component {
                                 id="authorization" name="authorization" maxlength={49} />
                         </Col>
                     </FormGroup>
-                    <FormGroup className="mb-1" row>
+                    {/* <FormGroup className="mb-1" row>
                         <Label style={{ 'font-weight': 'bold' }} for="expiration_date" sm={4}>Vencimiento</Label>
                         <Col sm={2}>
                             <Input bsSize="sm" onChange={handleChange} value={form.expiration_days} type="number"
                                 id="expiration_days" name="expiration_days" step={1} min={0} max={30} />
                         </Col>
                         <Label style={{ 'text-align': 'left' }} sm={2}>días</Label>
-                    </FormGroup>
+                    </FormGroup> */}
                 </Col>
                 <Col md={6}>
                     <FormGroup className="mt-3" row>

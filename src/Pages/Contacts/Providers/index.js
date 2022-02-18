@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Row, Col, Card, CardBody, Table, Button, Input } from 'reactstrap'
+import { Row, Col, Card, CardBody, Table, Button, Input, Form, InputGroup } from 'reactstrap'
 import PageTitle from '../../../Layout/AppMain/PageTitle'
 import ReactCSSTransitionGroup from "react-addons-css-transition-group"
 import { Link } from 'react-router-dom';
@@ -14,13 +14,15 @@ class Providers extends Component {
     state = {
         providers: null,
         links: null,
-        meta: null
+        meta: null,
+        search: ''
     }
 
     async componentDidMount() {
         tokenAuth(this.props.token);
+        let { search } = this.state
         try {
-            await clienteAxios.get('providers')
+            await clienteAxios.post('providerlist', { search })
                 .then(res => {
                     let { data, links, meta } = res.data
                     this.setState({
@@ -29,9 +31,7 @@ class Providers extends Component {
                         meta,
                     })
                 })
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
 
     reqNewPage = async (e, page) => {
@@ -39,8 +39,9 @@ class Providers extends Component {
 
         if (page !== null) {
             tokenAuth(this.props.token);
+            let { search } = this.state
             try {
-                await clienteAxios.get(`providers?page=${page.substring((page.indexOf('=')) + 1)}`)
+                await clienteAxios.post(`providerlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search })
                     .then(res => {
                         let { data, links, meta } = res.data
                         this.setState({
@@ -49,10 +50,28 @@ class Providers extends Component {
                             meta,
                         })
                     })
-            } catch (error) {
-                console.log(error)
-            }
+            } catch (error) { console.log(error) }
         }
+    }
+
+    onChangeSearch = async (e) => {
+        tokenAuth(this.props.token)
+        let {
+            value
+        } = e.target
+
+        try {
+            await clienteAxios.post('providerlist', { search: value })
+                .then(res => {
+                    let { data, links, meta } = res.data
+                    this.setState({
+                        search: value,
+                        providers: data,
+                        links,
+                        meta,
+                    })
+                })
+        } catch (error) { console.log(error) }
     }
 
     importContacts = () => document.getElementById('file_csv').click()
@@ -94,16 +113,14 @@ class Providers extends Component {
         try {
             await clienteAxios.post('providers_import', data)
                 .then(res => this.setState({ providers: res.data.providers }))
-        } catch (error) {
-            alert('Por mal')
-        }
+        } catch (error) { console.log(error) }
     }
 
     addProvider = () => this.props.history.push("/contactos/nuevoproveedor")
 
     render() {
 
-        let { providers, links, meta } = this.state
+        let { providers, links, meta, search } = this.state
 
         return (
             <Fragment>
@@ -123,6 +140,22 @@ class Providers extends Component {
                     transitionAppearTimeout={0}
                     transitionEnter={false}
                     transitionLeave={false}>
+
+                    <Row>
+                        <Col lg="12" className="mb-4">
+                            <Card>
+                                <div className="card-header">Busqueda
+                                    <div className="btn-actions-pane-right">
+                                        <Form className="text-right">
+                                            <InputGroup size="sm">
+                                                <Input value={search} onChange={this.onChangeSearch} placeholder="Buscar" className="search-input" />
+                                            </InputGroup>
+                                        </Form>
+                                    </div>
+                                </div>
+                            </Card>
+                        </Col>
+                    </Row>
 
                     <Input onChange={this.handleSelectFile} style={{ 'display': 'none' }} type="file" name="contactscsv" id="file_csv" accept=".csv" />
                     {
