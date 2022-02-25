@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Button, Input } from 'reactstrap'
-import SelectProduct from '../../../Components/Modal/SelectProduct'
+import SelectProduct1 from '../../../Components/Modal/SelectProduct1'
 
 class ItemProduct extends Component {
 
@@ -20,7 +20,7 @@ class ItemProduct extends Component {
                         value={product.quantity} min="0" required />
                 </td>
                 <td>
-                    <SelectProduct
+                    <SelectProduct1
                         index={index}
                         id={product.product_id}
                         products={productinputs}

@@ -24,7 +24,7 @@ class CreateInvoice extends Component {
 
         this.state = {
             form: {
-                serie: '001-001-000000001',
+                serie: '001-010-000000001',
                 date,
                 expiration_days: 0,
                 no_iva: 0,
@@ -89,9 +89,7 @@ class CreateInvoice extends Component {
                             series
                         })
                     })
-            } catch (error) {
-                console.log(error)
-            }
+            } catch (error) { console.log(error) }
         } else {
             try {
                 await clienteAxios.get('orders/create')
@@ -99,9 +97,6 @@ class CreateInvoice extends Component {
                         let { data } = res
                         let { series } = data
                         this.setState({
-                            productinputs: data.products,
-                            customers: data.customers,
-                            taxes_request: data.taxes,
                             form: {
                                 ...this.state.form,
                                 serie: series.invoice
@@ -109,9 +104,22 @@ class CreateInvoice extends Component {
                             series
                         })
                     })
-            } catch (error) {
-                console.log(error)
-            }
+                // await clienteAxios.get('orders/create')
+                //     .then(res => {
+                //         let { data } = res
+                //         let { series } = data
+                //         this.setState({
+                //             productinputs: data.products,
+                //             customers: data.customers,
+                //             taxes_request: data.taxes,
+                //             form: {
+                //                 ...this.state.form,
+                //                 serie: series.invoice
+                //             },
+                //             series
+                //         })
+                //     })
+            } catch (error) { console.log(error) }
         }
     }
 
@@ -136,9 +144,7 @@ class CreateInvoice extends Component {
                     await clienteAxios.post('orders', form)
                         .then(res => this.props.history.push('/ventas/facturas'))
                 }
-            } catch (error) {
-                console.log(error)
-            }
+            } catch (error) { console.log(error) }
         }
     }
 
@@ -148,32 +154,63 @@ class CreateInvoice extends Component {
         let { form, productouts, taxes } = this.state
         let valid = true
 
-        // Validar que se la serie contenga 17 caracteres
-        if (form.customer_id === 0) {
-            alert('La seriel de la factura debe tener 15 digitos')
+        // Validar que la serie contenga 17 caracteres
+        if (form.serie.length < 17) {
+            alert('La serie debe contener el siguiente formato 000-000-000000000')
             valid = false
+            return
         }
 
         // Validar que se selecciono un cliente
         if (form.customer_id === 0) {
-            alert('Debe seleccionar un cliente')
+            alert('Seleccione el cliente')
             valid = false
+            return
         }
+
+        // Validar cuando es factura
+        if (form.voucher_type === 1) {
+            if (form.guia && form.guia.length < 17) {
+                alert('La "Guia de Remisión" debe contener el siguiente formato 000-000-000000000')
+                valid = false
+                return
+            }
+        } else {
+            // Validar 3 campos que no sean nulos cuando es N/C
+            if (form.date_order === undefined) {
+                alert('Es obligatorio la "Emisión factura" para Nota de Crédito')
+                valid = false
+                return
+            }
+            if (form.serie_order === undefined || form.serie_order.length < 17) {
+                alert('Es obligatorio la "Serie factura" y debe tener el siguiente formato 000-000-000000000')
+                valid = false
+                return
+            }
+            if (form.reason === undefined || form.reason.length < 3) {
+                alert('Es obligatorio el "Motivo" y debe contener almenos 3 caracteres')
+                valid = false
+                return
+            }
+        }
+
         // Validar que se registren productos
         if (productouts.length === 0) {
             alert('Debe seleccionar almenos un producto')
             valid = false
+            return
         }
 
         let i = 0
         // Products length siempre va ser mayor a cero por que se valido en la condicion anterior
         while (i < productouts.length && valid) {
-            let p = productouts[i]
-            valid = (p.product_id === 0 && p.price === 0) || (p.product_id > 0 && p.price > 0)
+            valid = productouts[i].product_id !== 0
             i++
         }
+
         if (!valid) {
-            alert('Si seleccionas un producto debes aplicar el costo unitario')
+            alert('No puedes dejar un item vacio')
+            return
         }
 
         if (valid) {
@@ -186,6 +223,7 @@ class CreateInvoice extends Component {
             }
             if (!valid) {
                 alert('Si seleccionas una retención debes aplicar el porcentaje y la base imponible')
+                return
             }
         }
 
@@ -227,18 +265,6 @@ class CreateInvoice extends Component {
         }
     }
 
-    //Info sale handle Pay Method
-    handleChangePayMethod = e => {
-        let { name, value } = e.target
-        this.setState({
-            form: {
-                ...this.state.form,
-                [name]: value,
-            },
-            hiddenreceived: value === 'crédito'
-        })
-    }
-
     //Add customer
     selectCustomer = (customer_id) => {
         this.setState({
@@ -259,18 +285,22 @@ class CreateInvoice extends Component {
 
     //add product when select product from de list modal
     selectProduct = (product, index) => {
-        let productouts = this.state.productouts.map((item, i) => {
-            if (index === i) {
-                item.product_id = product.id
-                item.price = product.price1
-                item.quantity = 1
-                item.iva = product.iva
-                item.stock = product.stock > 0 ? product.stock : 1
-            }
-            return item
-        })
+        if (this.state.productouts.find(p => p.product_id === product.id) === undefined) {
+            let productouts = this.state.productouts.map((item, i) => {
+                if (index === i) {
+                    item.product_id = product.id
+                    item.price = product.atts.price1
+                    item.quantity = 1
+                    item.iva = product.atts.iva
+                    item.stock = product.stock > 0 ? product.stock : 1
+                }
+                return item
+            })
 
-        this.recalculate(productouts)
+            this.recalculate(productouts)
+        } else {
+            alert('Ya esta el producto en la lista')
+        }
     }
 
     //Delete product
@@ -337,78 +367,6 @@ class CreateInvoice extends Component {
         })
     }
 
-    addTax = () => {
-        let { taxes } = this.state
-        taxes.push({ code: null, tax_code: null, base: null, porcentage: null, value: 0, editable_porcentage: false });
-        this.setState({ taxes })
-    }
-
-    deleteTax = (index) => {
-        this.setState(prevState => ({
-            taxes: prevState.taxes.filter((tax, i) => i !== index)
-        }))
-    }
-
-    //Retention successs
-    handleChangeCheck = (e) => {
-        this.setState(state => ({ app_retention: !state.app_retention }))
-    }
-
-    // handle change first column retention
-    handleChangeTax = (index) => (e) => {
-        let { taxes } = this.state
-        // Change from taxes attr code the next line
-        taxes[index].code = Number(e.target.value)
-        // taxes[index].tax_code = null
-        this.setState({ taxes })
-    }
-
-    selectRetention = (retention, index) => {
-        let { taxes } = this.state
-        taxes[index].tax_code = retention.code
-        taxes[index].porcentage = retention.porcentage
-        taxes[index].editable_porcentage = retention.porcentage === null
-        taxes[index].value = (taxes[index].porcentage !== null && taxes[index].base !== null) ? taxes[index].porcentage * taxes[index].base * .01 : 0
-        this.setState({ taxes })
-    }
-
-    handleChangeOthersTax = (index) => (e) => {
-        let { taxes } = this.state
-        let { name, value } = e.target
-        taxes[index][name] = Number(value)
-        taxes[index].value = (taxes[index].porcentage !== null && taxes[index].base !== null) ? taxes[index].porcentage * taxes[index].base * .01 : 0
-        this.setState({ taxes })
-    }
-
-    //.................Pay Methods
-    handleChangePay = (index, e) => {
-        let { pay_methods } = this.state
-        let { name, value } = e.target
-        pay_methods[index][name] = value
-        this.setState({ pay_methods })
-    }
-
-    handleDeletePay = (index) => {
-        let { pay_methods } = this.state
-        pay_methods = pay_methods.filter((pay, i) => i !== index)
-        this.setState({ pay_methods })
-    }
-
-    handleAddPay = () => {
-        let { pay_methods } = this.state
-        pay_methods.push({ code: '01', value: '', term: 0, unit_time: '' })
-        this.setState({ pay_methods })
-    }
-
-    selectDocRelated = (item) => {
-        this.setState({
-            form: {
-                ...this.state.form,
-                doc_realeted: item.movement_id
-            }
-        })
-    }
-
     importFromCsv = () => document.getElementById('file_csv').click()
 
     handleSelectFile = e => {
@@ -459,7 +417,7 @@ class CreateInvoice extends Component {
     //...............Layout
     render = () => {
 
-        let { form } = this.state
+        let { form, customers } = this.state
 
         let { format } = this.formatter
 

@@ -40,9 +40,7 @@ class SelectDocument extends Component {
                         documents: response.data.documents
                     })
                 })
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
 
     render = () => {

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import {
-    Row, Col, Card, CardBody, Table, Form, InputGroup, Input, InputGroupAddon, Button,
+    Row, Col, Card, CardBody, Table, Form, InputGroup, Input,
     ButtonDropdown, DropdownMenu, DropdownItem, DropdownToggle
 } from 'reactstrap';
 

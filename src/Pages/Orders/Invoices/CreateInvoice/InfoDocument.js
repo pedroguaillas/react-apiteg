@@ -2,13 +2,13 @@ import React, { Component } from 'react'
 import {
     Row, Col, FormGroup, Label, Input, CustomInput
 } from 'reactstrap'
-import SelectCustomer from '../../../Components/Modal/SelectCustomer'
+import SelectCustomer1 from '../../../Components/Modal/SelectCustomer1'
 
 class InfoDocument extends Component {
 
     render() {
 
-        let { form, handleChange, customers, selectCustomer } = this.props
+        let { form, handleChange, selectCustomer, customers } = this.props
 
         let type_vouchers = [
             { code: 1, description: 'Factura' },
@@ -38,12 +38,17 @@ class InfoDocument extends Component {
                     </FormGroup>
                     <FormGroup className="mb-1" row>
                         <Label style={{ 'font-weight': 'bold' }} for="customer_id" sm={4}>Cliente *</Label>
-                        <Col sm={6}>
-                            <SelectCustomer
+                        <Col sm={8}>
+                            <SelectCustomer1
+                                id={form.customer_id}
+                                selectCustomer={selectCustomer}
+                                customers={customers}
+                            />
+                            {/* <SelectCustomer
                                 id={form.customer_id}
                                 customers={customers}
                                 selectCustomer={selectCustomer}
-                            />
+                            /> */}
                         </Col>
                     </FormGroup>
                     {/* <FormGroup className="mb-1" row>
@@ -80,7 +85,7 @@ class InfoDocument extends Component {
                         <Label style={{ 'font-weight': 'bold' }} for="date_order" sm={4}>Emisión factura *</Label>
                         <Col sm={6}>
                             <Input bsSize="sm" onChange={handleChange} value={form.date_order} type="date"
-                                id="date_order" name="date_order" />
+                                id="date_order" name="date_order" max={new Date().toISOString().substring(0, 10)} />
                         </Col>
                     </FormGroup>
                     <FormGroup className="mb-1" row hidden={form.voucher_type !== 4}>
