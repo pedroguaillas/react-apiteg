@@ -12,6 +12,7 @@ import InfoDocument from './InfoDocument';
 
 import clienteAxios from '../../../../config/axios';
 import tokenAuth from '../../../../config/token';
+import Aditionals from './Aditionals';
 
 class CreateInvoice extends Component {
 
@@ -50,6 +51,7 @@ class CreateInvoice extends Component {
             pay_methods: [
                 { code: '01', value: '', term: 0, unit_time: '' }
             ],
+            aditionals: [],
             app_retention: false,
             redirect: false,
             hiddenreceived: true,
@@ -104,21 +106,6 @@ class CreateInvoice extends Component {
                             series
                         })
                     })
-                // await clienteAxios.get('orders/create')
-                //     .then(res => {
-                //         let { data } = res
-                //         let { series } = data
-                //         this.setState({
-                //             productinputs: data.products,
-                //             customers: data.customers,
-                //             taxes_request: data.taxes,
-                //             form: {
-                //                 ...this.state.form,
-                //                 serie: series.invoice
-                //             },
-                //             series
-                //         })
-                //     })
             } catch (error) { console.log(error) }
         }
     }
@@ -127,10 +114,11 @@ class CreateInvoice extends Component {
     submit = async (send) => {
 
         if (this.validate()) {
-            let { form, productouts } = this.state
+            let { form, productouts, aditionals } = this.state
             form.products = productouts.length > 0 ? productouts.filter(product => product.product_id !== 0) : []
 
             form.send = send
+            form.aditionals = aditionals
 
             tokenAuth(this.props.token);
             try {
@@ -404,6 +392,26 @@ class CreateInvoice extends Component {
         this.recalculate(productouts)
     }
 
+    // Agregar Informacion Adicional
+    addAditional = () => {
+        let { aditionals } = this.state
+        aditionals.push({ name: '', description: '' })
+        this.setState({ aditionals })
+    }
+
+    //Delete Informacion Adicional
+    deleteAditional = (index) => {
+        let aditionals = this.state.aditionals.filter((aditional, i) => i !== index)
+        this.setState({ aditionals })
+    }
+
+    onChangeAditional = (index) => (e) => {
+        let { aditionals } = this.state
+        let { name, value } = e.target
+        aditionals[index][name] = value
+        this.setState({ aditionals })
+    }
+
     // Create our number formatter.
     formatter = new Intl.NumberFormat('es-EC', {
         style: 'currency',
@@ -417,7 +425,7 @@ class CreateInvoice extends Component {
     //...............Layout
     render = () => {
 
-        let { form, customers } = this.state
+        let { form, aditionals } = this.state
 
         let { format } = this.formatter
 
@@ -480,7 +488,14 @@ class CreateInvoice extends Component {
                                     <Row form className="my-3" style={{ 'border-top': '1px solid #ced4da' }}>
                                     </Row>
                                     <Row>
-                                        <Col lg={8}></Col>
+                                        <Col lg={8}>
+                                            <Aditionals
+                                                aditionals={aditionals}
+                                                addAditional={this.addAditional}
+                                                deleteAditional={this.deleteAditional}
+                                                onChangeAditional={this.onChangeAditional}
+                                            />
+                                        </Col>
                                         <Col lg={4}>
                                             <Table bordered>
                                                 <thead>
