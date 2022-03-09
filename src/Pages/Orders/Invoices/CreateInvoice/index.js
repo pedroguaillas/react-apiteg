@@ -87,6 +87,7 @@ class CreateInvoice extends Component {
                             productinputs: data.products,
                             productouts: data.order_items,
                             customers: data.customers,
+                            aditionals: data.order_aditionals,
                             form: data.order,
                             series
                         })
