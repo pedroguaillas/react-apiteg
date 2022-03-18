@@ -7,8 +7,6 @@ import AppSidebar from '../../Layout/AppSidebar/';
 
 //Products
 import Products from "./Products";
-import CreateProduct from './Products/CreateProduct';
-import EditProduct from './Products/EditProduct';
 import Kardex from "./Products/kardex";
 import Movements from './Movements';
 import CreateMovement from './Movements/CreateMovement';
@@ -16,6 +14,7 @@ import Categories from './Categories';
 import CreateCategory from './Categories/CreateCategory';
 import Unities from './Unities';
 import CreateUnity from './Unities/CreateUnity';
+import FormProduct from './Products/FormProduct';
 
 const Inventories = ({ match }) => (
     <Fragment>
@@ -25,8 +24,8 @@ const Inventories = ({ match }) => (
             <div className="app-main__outer">
                 <div className="app-main__inner">
                     <Route path={`${match.url}/productos`} component={Products} />
-                    <Route path={`${match.url}/nuevoproducto`} component={CreateProduct} />
-                    <Route path={`${match.url}/producto/:id`} component={EditProduct} />
+                    <Route path={`${match.url}/nuevoproducto`} component={FormProduct} />
+                    <Route path={`${match.url}/producto/:id`} component={FormProduct} />
                     <Route path={`${match.url}/movimientos`} component={Movements} />
                     <Route path={`${match.url}/nuevomovimiento`} component={CreateMovement} />
                     <Route path={`${match.url}/categorias`} component={Categories} />

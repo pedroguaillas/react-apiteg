@@ -48,9 +48,6 @@ class CreateInvoice extends Component {
             ],
             taxes_request: [],
             taxes: [{ code: null, tax_code: null, base: null, porcentage: null, value: 0, editable_porcentage: false }],
-            pay_methods: [
-                { code: '01', value: '', term: 0, unit_time: '' }
-            ],
             aditionals: [],
             app_retention: false,
             redirect: false,
@@ -140,20 +137,17 @@ class CreateInvoice extends Component {
     //Validate data to send save
     validate = () => {
 
-        let { form, productouts, taxes } = this.state
-        let valid = true
+        let { form, productouts, aditionals } = this.state
 
         // Validar que la serie contenga 17 caracteres
-        if (form.serie.length < 17) {
-            alert('La serie debe contener el siguiente formato 000-000-000000000')
-            valid = false
+        if (form.serie === undefined || form.serie.length < 17) {
+            alert('El "Numero de Serie" debe contener el siguiente formato 000-000-000000000')
             return
         }
 
         // Validar que se selecciono un cliente
         if (form.customer_id === 0) {
             alert('Seleccione el cliente')
-            valid = false
             return
         }
 
@@ -161,24 +155,20 @@ class CreateInvoice extends Component {
         if (form.voucher_type === 1) {
             if (form.guia && form.guia.length < 17) {
                 alert('La "Guia de Remisión" debe contener el siguiente formato 000-000-000000000')
-                valid = false
                 return
             }
         } else {
             // Validar 3 campos que no sean nulos cuando es N/C
             if (form.date_order === undefined) {
                 alert('Es obligatorio la "Emisión factura" para Nota de Crédito')
-                valid = false
                 return
             }
             if (form.serie_order === undefined || form.serie_order.length < 17) {
                 alert('Es obligatorio la "Serie factura" y debe tener el siguiente formato 000-000-000000000')
-                valid = false
                 return
             }
             if (form.reason === undefined || form.reason.length < 3) {
                 alert('Es obligatorio el "Motivo" y debe contener almenos 3 caracteres')
-                valid = false
                 return
             }
         }
@@ -186,37 +176,40 @@ class CreateInvoice extends Component {
         // Validar que se registren productos
         if (productouts.length === 0) {
             alert('Debe seleccionar almenos un producto')
-            valid = false
             return
         }
 
         let i = 0
         // Products length siempre va ser mayor a cero por que se valido en la condicion anterior
-        while (i < productouts.length && valid) {
-            valid = productouts[i].product_id !== 0
+        while (i < productouts.length) {
+            if (productouts[i].product_id === 0) {
+                alert('No puedes dejar un item vacio de los productos')
+                return
+            }
+            if (productouts[i].quantity <= 0 || productouts[i].quantity === '') {
+                alert('La "Cantidad" debe ser mayor a cero')
+                return
+            }
+            if (productouts[i].price <= 0 || productouts[i].price === '') {
+                alert('El "Costo unitario" debe ser mayor a cero')
+                return
+            }
             i++
         }
 
-        if (!valid) {
-            alert('No puedes dejar un item vacio')
-            return
-        }
+        // if (aditionals.length > 0) {
+        //     let i = 0
+        //     // Products length siempre va ser mayor a cero por que se valido en la condicion anterior
+        //     while (i < aditionals.length) {
+        //         if (aditionals[i].name === undefined || aditionals[i].name.trim() === '' || productouts[i].description === undefined || productouts[i].description.trim() === '') {
+        //             alert('Los campos de la "Información Adicional" no pueden ser nulos')
+        //             return
+        //         }
+        //         i++
+        //     }
+        // }
 
-        if (valid) {
-            let i = 0
-            while (i < taxes.length && valid) {
-                let t = taxes[i]
-                valid = (t.tax_code !== null && t.base !== null && t.porcentage !== null) ||
-                    (t.tax_code === null && t.base === null && t.porcentage === null)
-                i++
-            }
-            if (!valid) {
-                alert('Si seleccionas una retención debes aplicar el porcentaje y la base imponible')
-                return
-            }
-        }
-
-        return valid
+        return true
     }
 
     //Info sale handle
@@ -341,13 +334,7 @@ class CreateInvoice extends Component {
         let sub_total = no_iva + base0 + base12
         let total = sub_total + iva
 
-        let { pay_methods } = this.state
-        if (pay_methods.length === 1) {
-            pay_methods[0].value = total
-        }
-
         this.setState({
-            pay_methods,
             productouts,
             form: {
                 ...this.state.form,

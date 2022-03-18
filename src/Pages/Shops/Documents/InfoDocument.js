@@ -14,7 +14,6 @@ class InfoDocument extends Component {
         let type_vouchers = [
             { code: 1, description: 'Factura' },
             { code: 3, description: 'Liquidación en Compra' },
-            // { code: 4, description: 'Nota Crédito' },
             // { code: 5, description: 'Nota Débito' }
         ]
 
@@ -56,14 +55,6 @@ class InfoDocument extends Component {
                                 id="authorization" name="authorization" maxlength={49} />
                         </Col>
                     </FormGroup>
-                    {/* <FormGroup className="mb-1" row>
-                        <Label style={{ 'font-weight': 'bold' }} for="expiration_date" sm={4}>Vencimiento</Label>
-                        <Col sm={2}>
-                            <Input bsSize="sm" onChange={handleChange} value={form.expiration_days} type="number"
-                                id="expiration_days" name="expiration_days" step={1} min={0} max={30} />
-                        </Col>
-                        <Label style={{ 'text-align': 'left' }} sm={2}>días</Label>
-                    </FormGroup> */}
                 </Col>
                 <Col md={6}>
                     <FormGroup className="mt-3" row>

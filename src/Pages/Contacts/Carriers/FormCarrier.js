@@ -34,19 +34,55 @@ class FormCarrier extends Component {
     }
 
     submit = async () => {
-        tokenAuth(this.props.token);
-        try {
-            let { form } = this.state
-            if (form.id) {
-                await clienteAxios.put(`carriers/${form.id}`, form)
-                    .then(res => this.props.history.push('/contactos/transportistas'))
-            } else {
-                await clienteAxios.post('carriers', this.state.form)
-                    .then(res => this.props.history.push('/contactos/transportistas'))
+        if (this.validate()) {
+
+            tokenAuth(this.props.token);
+            try {
+                let { form } = this.state
+                if (form.id) {
+                    await clienteAxios.put(`carriers/${form.id}`, form)
+                        .then(res => this.props.history.push('/contactos/transportistas'))
+                } else {
+                    await clienteAxios.post('carriers', this.state.form)
+                        .then(res => this.props.history.push('/contactos/transportistas'))
+                }
+            } catch (error) {
+                console.log(error)
             }
-        } catch (error) {
-            console.log(error)
         }
+    }
+
+    //Validate data to send save
+    validate = () => {
+
+        let { form } = this.state
+
+        if (form.identication === undefined || form.name === undefined || form.license_plate === undefined) {
+            alert('Los campos marcados con * no pueden ser nulos')
+            return
+        }
+
+        if (form.type_identification === 'cédula' && form.identication.trim().length !== 10) {
+            alert('La cédula debe tener 10 dígitos')
+            return
+        }
+
+        if (form.type_identification === 'ruc' && form.identication.trim().length < 13) {
+            alert('El RUC debe tener 13 dígitos')
+            return
+        }
+
+        if (form.type_identification === 'pasaporte' && form.identication.trim().length < 3) {
+            alert('El pasaporte debe tener mínimo 3 dígitos')
+            return
+        }
+
+        if (form.name.trim().length < 3 || form.license_plate.trim().length < 3) {
+            alert('El nombre y la placa debe tener mínimo 3 dígitos')
+            return
+        }
+
+        return true
     }
 
     //Change data in to input form

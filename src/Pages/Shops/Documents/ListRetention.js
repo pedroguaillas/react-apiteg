@@ -71,7 +71,7 @@ class ListRetention extends Component {
                                         </td>
                                         <td>
                                             <Input bsSize="sm" onChange={handleChangeOthersTax(index)}
-                                                value={tax.base} type="number" maxLength="11" name="base" required />
+                                                value={tax.base} type="number" min="0" name="base" required />
                                         </td>
                                         <td>{parseFloat(tax.value).toFixed(2)}</td>
                                         <td hidden={edit}>

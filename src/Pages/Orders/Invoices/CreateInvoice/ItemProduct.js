@@ -6,7 +6,7 @@ class ItemProduct extends Component {
 
     render() {
 
-        let { edit, index, product, handleChangeItem,
+        let { index, product, handleChangeItem,
             productinputs, selectProduct, deleteProduct, format
         } = this.props
 

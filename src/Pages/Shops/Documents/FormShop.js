@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import {
-    Row, Col, Card, CardBody, Table, Form, Button, FormGroup, Label, CustomInput, Input
+    Row, Col, Card, CardBody, Table, Form, Button, FormGroup, Label, CustomInput
 } from 'reactstrap';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
@@ -41,7 +41,6 @@ class FormShop extends Component {
                 total: 0,
                 description: null,
                 provider_id: 0,
-                doc_realeted: 0,
 
                 // Retencion
                 serie_retencion: '001-001-000000001',
@@ -49,14 +48,9 @@ class FormShop extends Component {
             },
             providers: [],
             productinputs: [],
-            productouts: [
-                { product_id: 0, price: 0, quantity: 1, stock: 1, discount: 0, inventory_account_id: null }
-            ],
+            productouts: [],
             taxes_request: [],
             taxes: [{ code: null, tax_code: null, base: null, porcentage: null, value: 0, editable_porcentage: false }],
-            pay_methods: [
-                { code: '01', value: '', term: 0, unit_time: '' }
-            ],
             app_retention: false,
             redirect: false,
             hiddenreceived: true,
@@ -157,12 +151,11 @@ class FormShop extends Component {
     //Save sale
     submit = async (send) => {
         if (this.validate()) {
-            let { form, productouts, taxes, pay_methods, app_retention } = this.state
+            let { form, productouts, taxes, app_retention } = this.state
             form.products = productouts.length > 0 ? productouts.filter(product => product.product_id !== 0) : []
             if (taxes.length > 0) {
                 form.taxes = taxes.filter(tax => tax.tax_code !== null)
             }
-            form.pay_methods = pay_methods
             form.app_retention = app_retention
             form.send = send
 
@@ -192,43 +185,78 @@ class FormShop extends Component {
     //Validate data to send save
     validate = () => {
 
-        let { form, productouts, taxes } = this.state
-        let valid = true
+        let { form, productouts, taxes, app_retention } = this.state
+
+        // Validar que se la serie contenga 17 caracteres
+        if (form.serie.trim().length < 17) {
+            alert('La serie debe contener el siguiente formato 000-000-000000000')
+            return
+        }
 
         // Validar que se selecciono un contacto
         if (form.provider_id === 0) {
             alert('Debe seleccionar el prvoeedor')
-            valid = false
+            return
         }
 
-        // Validar que se registren productos solo cuando es una venta
-        if (valid) {
+        // Validar que se selecciono un contacto
+        if (Number(form.voucher_type) === 1 && (form.authorization === undefined || ![10, 49].includes(form.authorization.trim().length))) {
+            alert('La autorización de la factura debe contener 10 o 49 dígitos')
+            return
+        }
+
+        // Si es liquidacion compra validar los productos
+        if (Number(form.voucher_type) === 3) {
+            if (productouts.length === 0) {
+                alert('Para registrar la liquidación en compra debe contener productos')
+                return
+            }
             let i = 0
             // Products length siempre va ser mayor a cero por que se valido en la condicion anterior
-            while (i < productouts.length && valid) {
-                let p = productouts[i]
-                valid = (p.product_id === 0 && p.price === 0) || (p.product_id > 0 && p.price > 0)
+            while (i < productouts.length) {
+                if (productouts[i].product_id === 0) {
+                    alert('No puedes dejar un item vacio')
+                    return
+                }
+                if (productouts[i].quantity <= 0 || productouts[i].quantity === '') {
+                    alert('La "Cantidad" debe ser mayor a cero')
+                    return
+                }
+                if (productouts[i].price <= 0 || productouts[i].price === '') {
+                    alert('El "Costo unitario" debe ser mayor a cero')
+                    return
+                }
                 i++
-            }
-            if (!valid) {
-                alert('Si seleccionas un producto debes aplicar el costo unitario')
             }
         }
 
-        if (valid) {
+        // En caso de aplicar la retencion validar los campos
+        if (app_retention) {
+            if (form.serie_retencion === undefined || form.serie_retencion.length < 17) {
+                alert('La "Serie de la Retención" debe contener el siguiente formato 000-000-000000000')
+                return
+            }
             let i = 0
-            while (i < taxes.length && valid) {
-                let t = taxes[i]
-                valid = (t.tax_code !== null && t.base !== null && t.porcentage !== null) ||
-                    (t.tax_code === null && t.base === null && t.porcentage === null)
+            // retentions length siempre va ser mayor a cero por que se valido en la condicion anterior
+            // Si aplica retencion obligar a seleccionar los item de los impuestos
+            while (i < taxes.length) {
+                if (taxes[i].code === null) {
+                    alert('No puedes dejar un item vacio')
+                    return
+                }
+                if (taxes[i].tax_code === null) {
+                    alert('Debes seleccionar una retención')
+                    return
+                }
+                if (taxes[i].base <= 0 || taxes[i].base === '' || taxes[i].base === '') {
+                    alert('La "Base Imponible" del impuesto debe ser mayor a cero')
+                    return
+                }
                 i++
-            }
-            if (!valid) {
-                alert('Si seleccionas una retención debes aplicar el porcentaje y la base imponible')
             }
         }
 
-        return valid
+        return true
     }
 
     //Info sale handle
@@ -260,18 +288,6 @@ class FormShop extends Component {
                 }
             })
         }
-    }
-
-    //Info sale handle Pay Method
-    handleChangePayMethod = e => {
-        let { name, value } = e.target
-        this.setState({
-            form: {
-                ...this.state.form,
-                [name]: value,
-            },
-            hiddenreceived: value === 'crédito'
-        })
     }
 
     //Add Contact
@@ -358,13 +374,7 @@ class FormShop extends Component {
         let sub_total = no_iva + base0 + base12
         let total = sub_total + iva
 
-        let { pay_methods } = this.state
-        if (pay_methods.length === 1) {
-            pay_methods[0].value = total
-        }
-
         this.setState({
-            pay_methods,
             productouts,
             form: {
                 ...this.state.form,
@@ -417,6 +427,7 @@ class FormShop extends Component {
         this.setState({ taxes })
     }
 
+    // Trabajando para calcular el total cuando se aplica retencion
     calTotalRetention = (taxes) => {
 
         let total = 0
@@ -425,72 +436,6 @@ class FormShop extends Component {
         })
 
         this.setState({ taxes })
-    }
-
-    //.................Pay Methods
-    handleChangePay = (index, e) => {
-        let { pay_methods } = this.state
-        let { name, value } = e.target
-        pay_methods[index][name] = value
-        this.setState({ pay_methods })
-    }
-
-    handleDeletePay = (index) => {
-        let { pay_methods } = this.state
-        pay_methods = pay_methods.filter((pay, i) => i !== index)
-        this.setState({ pay_methods })
-    }
-
-    handleAddPay = () => {
-        let { pay_methods } = this.state
-        pay_methods.push({ code: '01', value: '', term: 0, unit_time: '' })
-        this.setState({ pay_methods })
-    }
-
-    selectDocRelated = (item) => {
-        this.setState({
-            form: {
-                ...this.state.form,
-                doc_realeted: item.movement_id
-            }
-        })
-    }
-
-    importFromCsv = () => document.getElementById('file_csv').click()
-
-    handleSelectFile = e => {
-        let input = e.target
-
-        let reader = new FileReader()
-        reader.onload = () => this.uploadCsv(reader.result)
-        reader.readAsText(input.files[0])
-    }
-
-    uploadCsv = csv => {
-        let lines = csv.split(/\r\n|\n/)
-        let { productinputs } = this.state
-        let productouts = []
-        let i = 0
-
-        for (let line in lines) {
-            if (i > 0 && lines[line].length > 0) {
-                let words = lines[line].split(';')
-                let code = words[0].trim()
-                let product_search = productinputs.filter(p => p.code === code)[0]
-                let product = {
-                    product_id: product_search.id,
-                    price: words[1].trim() === "" ? product_search.price1 : words[1].trim(),
-                    quantity: words[2].trim() === "" ? 1 : words[2].trim(),
-                    stock: words[2].trim() === "" ? 1 : words[2].trim(),
-                    iva: product_search.iva,
-                    discount: 0,
-                    inventory_account_id: null
-                }
-                productouts.push(product)
-            }
-            i++
-        }
-        this.recalculate(productouts)
     }
 
     // Create our number formatter.
@@ -543,7 +488,6 @@ class FormShop extends Component {
                     transitionEnter={false}
                     transitionLeave={false}>
 
-                    <Input onChange={this.handleSelectFile} style={{ 'display': 'none' }} type="file" name="contactscsv" id="file_csv" accept=".csv" />
                     <Row>
                         <Col lg="12">
                             <Card className="main-card mb-3">
@@ -563,7 +507,6 @@ class FormShop extends Component {
                                             handleChange={this.handleChange}
                                             providers={providers}
                                             selectProvider={this.selectProvider}
-                                            selectDocRelated={this.selectDocRelated}
                                             selectDocXml={this.selectDocXml}
                                             registerProvider={this.registerProvider}
                                         />
@@ -571,9 +514,6 @@ class FormShop extends Component {
                                         <Row form className="my-3 pt-2" style={{ 'border-top': '1px solid #ced4da' }}>
                                             <div className="col-sm-6 text-left">
                                                 <strong>Productos / Servicios</strong>
-                                            </div>
-                                            <div className="col-sm-6">
-                                                <Button onClick={this.importFromCsv}>Importar</Button>
                                             </div>
                                         </Row>
 
@@ -628,13 +568,6 @@ class FormShop extends Component {
                                             form={form}
                                             handleChange={this.handleChange}
                                         />
-
-                                        {/* <PayMethod
-                                            pay_methods={this.state.pay_methods}
-                                            handleChangePay={this.handleChangePay}
-                                            handleDeletePay={this.handleDeletePay}
-                                            handleAddPay={this.handleAddPay}
-                                        /> */}
                                     </Form>
 
                                     <Row form className="my-3" style={{ 'border-top': '1px solid #ced4da' }}>

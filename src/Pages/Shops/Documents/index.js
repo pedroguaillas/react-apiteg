@@ -38,21 +38,6 @@ class Documents extends Component {
         } catch (error) { console.log(error) }
     }
 
-    // async componentDidMount() {
-    //     tokenAuth(this.props.token);
-    //     try {
-    //         await clienteAxios.get('shops')
-    //             .then(res => {
-    //                 let { data, links, meta } = res.data
-    //                 this.setState({
-    //                     shops: data,
-    //                     links,
-    //                     meta,
-    //                 })
-    //             })
-    //     } catch (error) { console.log(error) }
-    // }
-
     reqNewPage = async (e, page) => {
         e.preventDefault();
 
@@ -72,25 +57,6 @@ class Documents extends Component {
             } catch (error) { console.log(error) }
         }
     }
-
-    // reqNewPage = async (e, page) => {
-    //     e.preventDefault();
-
-    //     if (page !== null) {
-    //         tokenAuth(this.props.token);
-    //         try {
-    //             await clienteAxios.get(`shops?page=${page.substring((page.indexOf('=')) + 1)}`)
-    //                 .then(res => {
-    //                     let { data, links, meta } = res.data
-    //                     this.setState({
-    //                         shops: data,
-    //                         links,
-    //                         meta,
-    //                     })
-    //                 })
-    //         } catch (error) { console.log(error) }
-    //     }
-    // }
 
     reloadPage = async () => {
         let { current_page } = this.state.meta

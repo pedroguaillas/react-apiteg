@@ -34,19 +34,54 @@ class FormCustomer extends Component {
     }
 
     submit = async () => {
-        tokenAuth(this.props.token);
-        try {
-            let { form } = this.state
-            if (form.id) {
-                await clienteAxios.put(`customers/${form.id}`, form)
-                    .then(res => this.props.history.push('/contactos/clientes'))
-            } else {
-                await clienteAxios.post('customers', this.state.form)
-                    .then(res => this.props.history.push('/contactos/clientes'))
+        if (this.validate()) {
+            tokenAuth(this.props.token);
+            try {
+                let { form } = this.state
+                if (form.id) {
+                    await clienteAxios.put(`customers/${form.id}`, form)
+                        .then(res => this.props.history.push('/contactos/clientes'))
+                } else {
+                    await clienteAxios.post('customers', this.state.form)
+                        .then(res => this.props.history.push('/contactos/clientes'))
+                }
+            } catch (error) {
+                console.log(error)
             }
-        } catch (error) {
-            console.log(error)
         }
+    }
+
+    //Validate data to send save
+    validate = () => {
+
+        let { form } = this.state
+
+        if (form.identication === undefined || form.name === undefined) {
+            alert('Los campos marcados con * no pueden ser nulos')
+            return
+        }
+
+        if (form.type_identification === 'cédula' && form.identication.trim().length !== 10) {
+            alert('La cédula debe tener 10 dígitos')
+            return
+        }
+
+        if (form.type_identification === 'ruc' && form.identication.trim().length < 13) {
+            alert('El RUC debe tener 13 dígitos')
+            return
+        }
+
+        if (form.type_identification === 'pasaporte' && form.identication.trim().length < 3) {
+            alert('El pasaporte debe tener mínimo 3 caracteres')
+            return
+        }
+
+        if (form.name.trim().length < 3) {
+            alert('El nombre debe tener mínimo 3 caracteres')
+            return
+        }
+
+        return true
     }
 
     //Change data in to input form
@@ -55,25 +90,6 @@ class FormCustomer extends Component {
             form: {
                 ...this.state.form,
                 [e.target.name]: e.target.value
-            }
-        })
-    }
-
-    handleChangeCheck = (e) => {
-        let { name, checked } = e.target
-        this.setState(state => ({
-            form: {
-                ...state.form,
-                [name]: checked
-            }
-        }))
-    }
-
-    selectAccount = (account, attribute) => {
-        this.setState({
-            form: {
-                ...this.state.form,
-                [attribute]: account.id
             }
         })
     }

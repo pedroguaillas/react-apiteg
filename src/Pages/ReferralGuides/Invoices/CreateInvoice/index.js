@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import {
-    Row, Col, Card, CardBody, Form, Button, Input
+    Row, Col, Card, CardBody, Form, Button
 } from 'reactstrap';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
@@ -116,27 +116,48 @@ class CreateInvoice extends Component {
     validate = () => {
 
         let { form, productouts } = this.state
-        let valid = true
 
         // Validar que se la serie contenga 17 caracteres
-        if (form.customer_id === 0) {
-            alert('La serie de la guia de remision debe tener 15 digitos')
-            valid = false
+        if (form.serie.trim().length < 17) {
+            alert('La serie debe contener el siguiente formato 000-000-000000000')
+            return
         }
 
         // Validar que se selecciono un cliente
+        if (form.customer_id === 0) {
+            alert('Debe seleccionar un cliente o destinatario')
+            return
+        }
+
+        // Validar que se selecciono un transportista
         if (form.carrier_id === 0) {
             alert('Debe seleccionar un transportista')
-            valid = false
+            return
+        }
+
+        // Validar que se la serie contenga 17 caracteres
+        if (form.address_from.trim().length < 3 || form.address_to.trim().length < 3 || form.reason_transfer.trim().length < 3) {
+            alert('Los siguiente campos son obligatorios: motivo, dirección partida y llegada, ademas deben tener minimo 3 caracteres')
+            return
         }
 
         // Validar que se registren productos
         if (productouts.length === 0) {
             alert('Debe seleccionar almenos un producto')
-            valid = false
+            return
         }
 
-        return valid
+        let i = 0
+        // Products length siempre va ser mayor a cero por que se valido en la condicion anterior
+        while (i < productouts.length) {
+            if (productouts[i].product_id === 0 || productouts[i].quantity < 1) {
+                alert('No puedes dejar un item vacio y la cantidad debe ser mayor a 0')
+                return
+            }
+            i++
+        }
+
+        return true
     }
 
     //Info sale handle
