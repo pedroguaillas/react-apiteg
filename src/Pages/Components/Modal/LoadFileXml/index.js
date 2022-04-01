@@ -27,19 +27,19 @@ class LoadFileXml extends Component {
         let ruc = this._getTag(xmlDoc, "ruc");
         let { providers, selectProvider, selectDocXml, registerProvider } = this.props;
 
-        let provider = providers.filter(c => c.identication === ruc)[0]
+        // let provider = providers.filter(c => c.identication === ruc)[0]
 
-        if (provider === undefined) {
-            let objProvider = {
-                type_identification: 'ruc',
-                identication: ruc,
-                name: this._getTag(xmlDoc, "razonSocial"),
-                address: this._getTag(xmlDoc, "dirMatriz")
-            }
-            registerProvider(objProvider)
-        } else {
-            selectProvider(provider.id)
+        // if (provider === undefined) {
+        let objProvider = {
+            type_identification: 'ruc',
+            identication: ruc,
+            name: this._getTag(xmlDoc, "razonSocial"),
+            address: this._getTag(xmlDoc, "dirMatriz")
         }
+        registerProvider(objProvider)
+        // } else {
+        //     selectProvider(provider.id)
+        // }
         selectDocXml(xmlDoc, authorization)
     }
 

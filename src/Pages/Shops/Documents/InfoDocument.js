@@ -40,7 +40,7 @@ class InfoDocument extends Component {
                     </FormGroup>
                     <FormGroup className="mb-1" row>
                         <Label style={{ 'font-weight': 'bold' }} for="contact_id" sm={4}>Proveedor *</Label>
-                        <Col sm={6}>
+                        <Col sm={8}>
                             <SelectProvider
                                 id={form.provider_id}
                                 providers={providers}

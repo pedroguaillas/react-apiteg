@@ -27,7 +27,7 @@ class FormShop extends Component {
 
         this.state = {
             form: {
-                serie: '001-001-000000001',
+                serie: '001-010-000000001',
                 date,
                 expiration_days: 0,
                 voucher_type: 1,
@@ -43,7 +43,7 @@ class FormShop extends Component {
                 provider_id: 0,
 
                 // Retencion
-                serie_retencion: '001-001-000000001',
+                serie_retencion: '001-010-000000001',
                 date_retention: date
             },
             providers: [],
@@ -122,9 +122,7 @@ class FormShop extends Component {
                             app_retention: data.taxes.length > 0
                         })
                     })
-            } catch (error) {
-                console.log(error)
-            }
+            } catch (error) { console.log(error) }
         } else {
             try {
                 await clienteAxios.get('shops/create')
@@ -132,8 +130,6 @@ class FormShop extends Component {
                         let { data } = res
                         let { series } = data
                         this.setState({
-                            productinputs: data.products,
-                            providers: data.providers,
                             taxes_request: data.taxes,
                             form: {
                                 ...this.state.form,
@@ -142,9 +138,7 @@ class FormShop extends Component {
                             series
                         })
                     })
-            } catch (error) {
-                console.log(error)
-            }
+            } catch (error) { console.log(error) }
         }
     }
 
@@ -267,7 +261,7 @@ class FormShop extends Component {
         if (name === 'voucher_type') {
             let voucher_type = Number(value)
             let { series } = this.state
-            let serie = '000-000-000000000'
+            let serie = '000-010-000000001'
 
             if (voucher_type === 3) {
                 serie = series.set_purchase
@@ -449,21 +443,39 @@ class FormShop extends Component {
     })
 
     registerProvider = async (provider) => {
-        await clienteAxios.post('providers', provider)
-            .then(res => {
-                let { provider } = res.data
-                let { providers } = this.state
+        try {
+            await clienteAxios.post('providers', provider)
+                .then(res => {
+                    let { provider } = res.data
+                    let { providers } = this.state
 
-                providers.push(provider)
+                    providers.push(provider)
 
-                this.setState({ providers })
+                    this.setState({ providers })
+                    this.setState({
+                        form: {
+                            ...this.state.form,
+                            provider_id: provider.id
+                        }
+                    })
+                })
+        } catch (error) {
+            if (error.response.data.message === 'KEY_DUPLICATE') {
+
+                let { id, identication, name } = error.response.data.provider
+                let providers = []
+
+                providers.push({ id, atts: { identication, name } })
+
                 this.setState({
+                    providers,
                     form: {
                         ...this.state.form,
-                        provider_id: provider.id
+                        provider_id: id
                     }
                 })
-            })
+            }
+        }
     }
 
     //...............Layout

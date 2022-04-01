@@ -27,9 +27,7 @@ class FormProvider extends Component {
                     .then(res => {
                         this.setState({ form: res.data.provider })
                     })
-            } catch (error) {
-                console.log(error)
-            }
+            } catch (error) { console.log(error) }
         }
     }
 

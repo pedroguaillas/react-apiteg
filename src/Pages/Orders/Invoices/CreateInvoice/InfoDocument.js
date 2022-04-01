@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import {
     Row, Col, FormGroup, Label, Input, CustomInput
 } from 'reactstrap'
-import SelectCustomer1 from '../../../Components/Modal/SelectCustomer1'
+import SelectCustomer from '../../../Components/Modal/SelectCustomer'
 
 class InfoDocument extends Component {
 
@@ -39,26 +39,13 @@ class InfoDocument extends Component {
                     <FormGroup className="mb-1" row>
                         <Label style={{ 'font-weight': 'bold' }} for="customer_id" sm={4}>Cliente *</Label>
                         <Col sm={8}>
-                            <SelectCustomer1
+                            <SelectCustomer
                                 id={form.customer_id}
                                 selectCustomer={selectCustomer}
                                 customers={customers}
                             />
-                            {/* <SelectCustomer
-                                id={form.customer_id}
-                                customers={customers}
-                                selectCustomer={selectCustomer}
-                            /> */}
                         </Col>
                     </FormGroup>
-                    {/* <FormGroup className="mb-1" row>
-                        <Label style={{ 'font-weight': 'bold' }} for="expiration_date" sm={4}>Vencimiento</Label>
-                        <Col sm={2}>
-                            <Input bsSize="sm" onChange={handleChange} value={form.expiration_days} type="number"
-                                id="expiration_days" name="expiration_days" step={1} min={0} max={30} />
-                        </Col>
-                        <Label style={{ 'text-align': 'left' }} sm={2}>días</Label>
-                    </FormGroup> */}
                 </Col>
                 <Col md={6}>
                     <FormGroup className="mb-1" row>

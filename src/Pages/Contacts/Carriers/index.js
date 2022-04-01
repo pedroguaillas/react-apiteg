@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
-import { Row, Col, Card, CardBody, Table, Button, Input } from 'reactstrap'
+import { Row, Col, Card, CardBody, Table, Button, Input, Form, InputGroup } from 'reactstrap'
 import PageTitle from '../../../Layout/AppMain/PageTitle'
 import ReactCSSTransitionGroup from "react-addons-css-transition-group"
 import { Link } from 'react-router-dom';
@@ -14,13 +14,15 @@ class Carriers extends Component {
     state = {
         carriers: null,
         links: null,
-        meta: null
+        meta: null,
+        search: ''
     }
 
     async componentDidMount() {
         tokenAuth(this.props.token);
+        let { search } = this.state
         try {
-            await clienteAxios.get('carriers')
+            await clienteAxios.post('carrierlist', { search })
                 .then(res => {
                     let { data, links, meta } = res.data
                     this.setState({
@@ -29,9 +31,7 @@ class Carriers extends Component {
                         meta,
                     })
                 })
-        } catch (error) {
-            console.log(error)
-        }
+        } catch (error) { console.log(error) }
     }
 
     reqNewPage = async (e, page) => {
@@ -39,8 +39,9 @@ class Carriers extends Component {
 
         if (page !== null) {
             tokenAuth(this.props.token);
+            let { search } = this.state
             try {
-                await clienteAxios.get(`carriers?page=${page.substring((page.indexOf('=')) + 1)}`)
+                await clienteAxios.post(`carrierlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search })
                     .then(res => {
                         let { data, links, meta } = res.data
                         this.setState({
@@ -49,10 +50,28 @@ class Carriers extends Component {
                             meta,
                         })
                     })
-            } catch (error) {
-                console.log(error)
-            }
+            } catch (error) { console.log(error) }
         }
+    }
+
+    onChangeSearch = async (e) => {
+        tokenAuth(this.props.token)
+        let {
+            value
+        } = e.target
+
+        try {
+            await clienteAxios.post('carrierlist', { search: value })
+                .then(res => {
+                    let { data, links, meta } = res.data
+                    this.setState({
+                        search: value,
+                        carriers: data,
+                        links,
+                        meta,
+                    })
+                })
+        } catch (error) { console.log(error) }
     }
 
     importContacts = () => document.getElementById('file_csv').click()
@@ -99,18 +118,18 @@ class Carriers extends Component {
         }
     }
 
-    addCustomer = () => this.props.history.push("/contactos/nuevotransportista")
+    addCarrier = () => this.props.history.push("/contactos/nuevotransportista")
 
     render() {
 
-        let { carriers, links, meta } = this.state
+        let { carriers, links, meta, search } = this.state
 
         return (
             <Fragment>
                 <PageTitle
                     options={[
                         { type: 'button', id: 'tooltip-import-contact', action: this.importContacts, icon: 'import', msmTooltip: 'Importar contactos', color: 'success' },
-                        { type: 'button', id: 'tooltip-add-contact', action: this.addCustomer, icon: 'plus', msmTooltip: 'Agregar cliente', color: 'primary' }
+                        { type: 'button', id: 'tooltip-add-contact', action: this.addCarrier, icon: 'plus', msmTooltip: 'Agregar cliente', color: 'primary' }
                     ]}
                     heading="Transportistas"
                     subheading="Lista de transportistas"
@@ -124,7 +143,24 @@ class Carriers extends Component {
                     transitionEnter={false}
                     transitionLeave={false}>
 
+                    <Row>
+                        <Col lg="12" className="mb-4">
+                            <Card>
+                                <div className="card-header">Busqueda
+                                    <div className="btn-actions-pane-right">
+                                        <Form className="text-right">
+                                            <InputGroup size="sm">
+                                                <Input value={search} onChange={this.onChangeSearch} placeholder="Buscar" className="search-input" />
+                                            </InputGroup>
+                                        </Form>
+                                    </div>
+                                </div>
+                            </Card>
+                        </Col>
+                    </Row>
+
                     <Input onChange={this.handleSelectFile} style={{ 'display': 'none' }} type="file" name="contactscsv" id="file_csv" accept=".csv" />
+
                     {
                         (carriers === null) ? (<p>Cargando ...</p>) :
                             (carriers.length < 1) ? (<p>No existe registro de transportistas</p>) :

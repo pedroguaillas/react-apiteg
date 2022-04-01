@@ -24,7 +24,7 @@ class CreateInvoice extends Component {
 
         this.state = {
             form: {
-                serie: '001-001-000000001',
+                serie: '001-010-000000001',
                 date_start: date,
                 date_end: date,
                 carrier_id: 0,
@@ -42,8 +42,6 @@ class CreateInvoice extends Component {
         }
     }
 
-    _getTag = (xmlDoc, tag) => xmlDoc.getElementsByTagName(tag)[0].childNodes[0].nodeValue
-
     async componentDidMount() {
         tokenAuth(this.props.token)
         const { match: { params } } = this.props
@@ -60,9 +58,7 @@ class CreateInvoice extends Component {
                             form: data.referralguide
                         })
                     })
-            } catch (error) {
-                console.log(error)
-            }
+            } catch (error) { console.log(error) }
         } else {
             try {
                 await clienteAxios.get('referralguides/create')
@@ -70,18 +66,13 @@ class CreateInvoice extends Component {
                         let { data } = res
                         let { serie } = data
                         this.setState({
-                            productinputs: data.products,
-                            carriers: data.carriers,
-                            customers: data.customers,
                             form: {
                                 ...this.state.form,
                                 serie
                             },
                         })
                     })
-            } catch (error) {
-                console.log(error)
-            }
+            } catch (error) { console.log(error) }
         }
     }
 
@@ -106,9 +97,7 @@ class CreateInvoice extends Component {
                     await clienteAxios.post('referralguides', form)
                         .then(res => this.props.history.push('/guiasremision/index'))
                 }
-            } catch (error) {
-                console.log(error)
-            }
+            } catch (error) { console.log(error) }
         }
     }
 
@@ -208,6 +197,8 @@ class CreateInvoice extends Component {
             }
             return item
         })
+
+        this.setState({ productouts })
     }
 
     //Delete product
