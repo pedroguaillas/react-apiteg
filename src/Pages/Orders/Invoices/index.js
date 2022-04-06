@@ -168,12 +168,13 @@ class Invoices extends Component {
         return prefix
     }
 
-    renderproccess = ({ id, atts: { state, voucher_type } }) => (
-        (voucher_type === 1 || voucher_type === 4 || voucher_type === 5) ?
+    renderproccess = ({ id, atts: { state } }) => (
+        (state !== 'ANULADO') ?
             <DropdownItem onClick={() =>
-            ((state === 'CREADO' || state === 'DEVUELTA') ? this.generateSign(id) :
-                (state === 'FIRMADO' ? this.sendToSri(id) :
-                    ((state === 'ENVIADO' || state === 'RECIBIDA' || state === 'EN_PROCESO') ? this.autorizedFromSri(id) : null)))
+                (state === 'CREADO' || state === 'DEVUELTA') ? this.generateSign(id) :
+                    ((state === 'FIRMADO' ? this.sendToSri(id) :
+                        ((state === 'ENVIADO' || state === 'RECIBIDA' || state === 'EN_PROCESO') ? this.autorizedFromSri(id) :
+                            ((state === 'AUTORIZADO' ? this.canceled(id) : null)))))
             }>{this.renderSwith(state)}</DropdownItem>
             : null
     )
@@ -186,6 +187,7 @@ class Invoices extends Component {
             case 'RECIBIDA': return 'Autorizar'
             case 'EN_PROCESO': return 'Autorizar'
             case 'DEVUELTA': return 'Volver a procesar'
+            case 'AUTORIZADO': return 'Anular'
         }
     }
 
@@ -207,10 +209,24 @@ class Invoices extends Component {
 
     autorizedFromSri = async (id) => {
         tokenAuth(this.props.token);
-        // Recargar la pagina actual .......................
         try {
             await clienteAxios.get(`orders/authorize/${id}`)
                 .then(res => this.reloadPage())
+        } catch (error) { console.log(error) }
+    }
+
+    canceled = async (id) => {
+        tokenAuth(this.props.token);
+        try {
+            await clienteAxios.get(`orders/cancel/${id}`)
+                .then(res => {
+                    let { state } = res.data
+                    if (state === 'OK') {
+                        this.reloadPage()
+                    } else {
+                        alert('Para anular el comprobante en este sistema primero se debe anular en el Sistema del SRI')
+                    }
+                })
         } catch (error) { console.log(error) }
     }
 

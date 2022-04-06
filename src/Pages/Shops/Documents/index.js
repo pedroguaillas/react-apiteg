@@ -99,19 +99,6 @@ class Documents extends Component {
 
     addDocument = () => this.props.history.push('/compras/registrardocumento')
 
-    duplicate = async (id) => {
-        tokenAuth(this.props.token);
-        try {
-            await clienteAxios.get('shops/duplicate/' + id)
-                .then(res => {
-                    // let { data, links, meta } = res.data
-                    this.setState({
-                        shops: res.data.shops
-                    })
-                })
-        } catch (error) { console.log(error) }
-    }
-
     handleDrops = (index) => {
         let { dropdowns } = this.state
         dropdowns[index] = !dropdowns[index]
@@ -137,11 +124,12 @@ class Documents extends Component {
                     Retención
                 </DropdownItem>
                 <DropdownItem onClick={() => this.viewRetentionPdf(id)}>Ver Pdf</DropdownItem>
-                {state_retencion !== 'AUTORIZADO' ?
+                {state_retencion !== 'ANULADO' ?
                     <DropdownItem onClick={() =>
                     ((state_retencion === null || state_retencion === 'CREADO' || state_retencion === 'DEVUELTA') ? this.generateSignRetention(id) :
                         (state_retencion === 'FIRMADO' ? this.sendToSriRetention(id) :
-                            ((state_retencion === 'ENVIADO' || state_retencion === 'RECIBIDO') ? this.autorizedFromSriRetention(id) : null)))
+                            ((state_retencion === 'ENVIADO' || state_retencion === 'RECIBIDO' || state_retencion === 'EN_PROCESO') ? this.autorizedFromSriRetention(id) :
+                                ((state_retencion === 'AUTORIZADO' ? this.canceledRetention(id) : null)))))
                     }>{this.renderSwith(state_retencion)}</DropdownItem>
                     : null}
                 {
@@ -192,6 +180,21 @@ class Documents extends Component {
         } catch (error) { console.log(error) }
     }
 
+    canceledRetention = async (id) => {
+        tokenAuth(this.props.token);
+        try {
+            await clienteAxios.get(`retentions/cancel/${id}`)
+                .then(res => {
+                    let { state } = res.data
+                    if (state === 'OK') {
+                        this.reloadPage()
+                    } else {
+                        alert('Para anular el comprobante en este sistema primero se debe anular en el Sistema del SRI')
+                    }
+                })
+        } catch (error) { console.log(error) }
+    }
+
     downloadXmlRetention = async (id) => {
         tokenAuth(this.props.token);
         try {
@@ -215,6 +218,7 @@ class Documents extends Component {
             case 'ENVIADO': return 'Autorizar'
             case 'RECIBIDA': return 'Autorizar'
             case 'DEVUELTA': return 'Volver a procesar'
+            case 'AUTORIZADO': return 'Anular'
         }
     }
 
@@ -227,11 +231,14 @@ class Documents extends Component {
                     Liquidación en compra
                 </DropdownItem>
                 <DropdownItem onClick={() => this.viewSetPurchasePdf(id)}>Ver Pdf</DropdownItem>
-                <DropdownItem onClick={() =>
-                ((state === null || state === 'CREADO' || state === 'DEVUELTA') ? this.generateSignSetPurchase(id) :
-                    (state === 'FIRMADO' ? this.sendToSriSetPurchase(id) :
-                        ((state === 'ENVIADO' || state === 'RECIBIDA') ? this.autorizedFromSriSetPurchase(id) : null)))
-                }>{this.renderSwith(state)}</DropdownItem>
+                {(state !== 'ANULADO') ?
+                    <DropdownItem onClick={() =>
+                        (state === 'CREADO' || state === 'DEVUELTA') ? this.generateSignSetPurchase(id) :
+                            ((state === 'FIRMADO' ? this.sendToSriSetPurchase(id) :
+                                ((state === 'ENVIADO' || state === 'RECIBIDA' || state === 'EN_PROCESO') ? this.autorizedFromSriSetPurchase(id) :
+                                    ((state === 'AUTORIZADO' ? this.canceledSetPurchase(id) : null)))))
+                    }>{this.renderSwith(state)}</DropdownItem>
+                    : null}
                 {
                     xml ?
                         <DropdownItem onClick={() => this.downloadXmlSetPurchase(id)}>Descargar XML</DropdownItem>
@@ -277,6 +284,21 @@ class Documents extends Component {
         try {
             await clienteAxios.get(`shops/${id}/authorize`)
                 .then(res => this.reloadPage())
+        } catch (error) { console.log(error) }
+    }
+
+    canceledSetPurchase = async (id) => {
+        tokenAuth(this.props.token);
+        try {
+            await clienteAxios.get(`shops/${id}/cancel`)
+                .then(res => {
+                    let { state } = res.data
+                    if (state === 'OK') {
+                        this.reloadPage()
+                    } else {
+                        alert('Para anular el comprobante en este sistema primero se debe anular en el Sistema del SRI')
+                    }
+                })
         } catch (error) { console.log(error) }
     }
 
@@ -415,8 +437,6 @@ class Documents extends Component {
                                                                                 {this.renderSetPurchase(voucher)}
                                                                                 {/* Fin Liquidación en compra */}
 
-                                                                                <DropdownItem divider />
-                                                                                <DropdownItem onClick={() => this.duplicate(voucher.id)}>Duplicar</DropdownItem>
                                                                             </DropdownMenu>
                                                                         </ButtonDropdown>
                                                                     </td>
