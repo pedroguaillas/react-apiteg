@@ -64,14 +64,16 @@ class ListRetention extends Component {
                                             />
                                         </td>
                                         <td>
+                                            {/* El maxLength es igual a 2 para permitir hasta 10% */}
                                             {tax.editable_porcentage ?
                                                 (<Input bsSize="sm" onChange={handleChangeOthersTax(index)}
-                                                    value={tax.porcentage} type="number" maxLength="6" name="porcentage" required />)
+                                                    value={tax.porcentage} type="text" maxLength="2" name="porcentage" required />)
                                                 : `${tax.porcentage === undefined || tax.porcentage === null ? 0 : tax.porcentage}%`}
                                         </td>
                                         <td>
+                                            {/* El maxLength es igual a 10 para permitir hasta 9999999.99 */}
                                             <Input bsSize="sm" onChange={handleChangeOthersTax(index)}
-                                                value={tax.base} type="number" min="0" name="base" required />
+                                                value={tax.base} type="text" maxLength="10" name="base" required />
                                         </td>
                                         <td>{parseFloat(tax.value).toFixed(2)}</td>
                                         <td hidden={edit}>

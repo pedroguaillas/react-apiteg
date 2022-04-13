@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import {
-    Row, Col, Card, CardBody, Table, Form, Button, FormGroup, Label, CustomInput
+    Row, Col, Card, CardBody, Table, Form, Button, FormGroup, Label, CustomInput, Input
 } from 'reactstrap';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
@@ -85,7 +85,7 @@ class FormShop extends Component {
             }
         }
 
-        let iva = base12 * .12
+        let iva = Number((base12 * .12).toFixed(2))
         let sub_total = no_iva + base0 + base12
         let total = parseFloat(this._getTag(xmlDoc, 'importeTotal'))
 
@@ -187,19 +187,19 @@ class FormShop extends Component {
             return
         }
 
-        // Validar que se selecciono un contacto
+        // Validar que se selecciono un proveedor
         if (form.provider_id === 0) {
             alert('Debe seleccionar el prvoeedor')
             return
         }
 
-        // Validar que se selecciono un contacto
+        // Validar la autorización
         if (Number(form.voucher_type) === 1 && (form.authorization === undefined || ![10, 49].includes(form.authorization.trim().length))) {
             alert('La autorización de la factura debe contener 10 o 49 dígitos')
             return
         }
 
-        // Si es liquidacion compra validar los productos
+        // Si es liquidación en compra validar los productos
         if (Number(form.voucher_type) === 3) {
             if (productouts.length === 0) {
                 alert('Para registrar la liquidación en compra debe contener productos')
@@ -248,6 +248,32 @@ class FormShop extends Component {
                 }
                 i++
             }
+
+            if (form.base12 === '') {
+                alert('La base 12% no puede ser nulo')
+                return
+            }
+
+            if (form.base0 === '') {
+                alert('La base 0% no puede ser nulo')
+                return
+            }
+
+            let sumb = 0
+            i = 0
+            // Verificar que las base de las retenciones sean igual a las bases de los totales
+            while (i < taxes.length) {
+                if (Number(taxes[i].code) === 1) {
+                    sumb += Number(taxes[i].base)
+                }
+
+                i++
+            }
+
+            if (sumb !== Number(form.base12) + Number(form.base0)) {
+                alert('La suma de las bases imponibles del impuesto  a la rente debe ser igual a la suma del Subtotal 12% mas el Subtotal 0%')
+                return
+            }
         }
 
         return true
@@ -282,6 +308,17 @@ class FormShop extends Component {
                 }
             })
         }
+    }
+
+    onChangeNumber = e => {
+        let { name, value } = e.target
+        if (isNaN(value)) { return }
+
+        let { form } = this.state
+        form[name] = value
+        form.iva = Number((Number(form.base12) * .12).toFixed(2))
+        form.total = Number(form.base12) + Number(form.base0) + Number(form.iva)
+        this.setState({ form })
     }
 
     //Add Contact
@@ -354,7 +391,7 @@ class FormShop extends Component {
 
         productouts.forEach(item => {
             let sub_total = item.quantity * parseFloat(item.price)
-            let dis = item.discount > 0 ? sub_total * item.discount * .01 : 0
+            let dis = item.discount > 0 ? Number((sub_total * item.discount * .01).toFixed(2)) : 0
             let total = sub_total - dis
             discount += dis
             switch (item.iva) {
@@ -364,7 +401,7 @@ class FormShop extends Component {
             }
         })
 
-        let iva = base12 * .12
+        let iva = Number((base12 * .12).toFixed(2))
         let sub_total = no_iva + base0 + base12
         let total = sub_total + iva
 
@@ -416,19 +453,9 @@ class FormShop extends Component {
 
         let { taxes } = this.state
         let { name, value } = e.target
-        taxes[index][name] = Number(value)
+        if (isNaN(value)) { return }
+        taxes[index][name] = value
         taxes[index].value = (taxes[index].porcentage !== null && taxes[index].base !== null) ? taxes[index].porcentage * taxes[index].base * .01 : 0
-        this.setState({ taxes })
-    }
-
-    // Trabajando para calcular el total cuando se aplica retencion
-    calTotalRetention = (taxes) => {
-
-        let total = 0
-        taxes.forEach(item => {
-            total += parseFloat(item.base)
-        })
-
         this.setState({ taxes })
     }
 
@@ -446,16 +473,16 @@ class FormShop extends Component {
         try {
             await clienteAxios.post('providers', provider)
                 .then(res => {
-                    let { provider } = res.data
-                    let { providers } = this.state
+                    let { id, identication, name } = res.data.provider
+                    let providers = []
 
-                    providers.push(provider)
+                    providers.push({ id, atts: { identication, name } })
 
-                    this.setState({ providers })
                     this.setState({
+                        providers,
                         form: {
                             ...this.state.form,
-                            provider_id: provider.id
+                            provider_id: id
                         }
                     })
                 })
@@ -596,12 +623,16 @@ class FormShop extends Component {
                                                 </thead>
                                                 <tbody>
                                                     <tr>
-                                                        <td>Subtotal 12%</td>
-                                                        <td style={{ 'text-align': 'right' }}>{format(form.base12)}</td>
+                                                        <td>Subtotal 12% ($)</td>
+                                                        <td style={{ 'text-align': 'right' }}>
+                                                            <input onChange={this.onChangeNumber} name="base12" value={form.base12} type="text" style={{ 'width': '7.5em', 'text-align': 'right' }} bsSize="sm" />
+                                                        </td>
                                                     </tr>
                                                     <tr>
-                                                        <td>Subtotal 0%</td>
-                                                        <td style={{ 'text-align': 'right' }}>{format(form.base0)}</td>
+                                                        <td>Subtotal 0% ($)</td>
+                                                        <td style={{ 'text-align': 'right' }}>
+                                                            <input onChange={this.onChangeNumber} name="base0" value={form.base0} type="text" style={{ 'width': '7.5em', 'text-align': 'right' }} bsSize="sm" />
+                                                        </td>
                                                     </tr>
                                                     <tr>
                                                         <td>Monto IVA</td>

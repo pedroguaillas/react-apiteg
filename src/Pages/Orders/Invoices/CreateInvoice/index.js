@@ -320,7 +320,7 @@ class CreateInvoice extends Component {
 
         productouts.forEach(item => {
             let sub_total = parseFloat(item.quantity) * parseFloat(item.price)
-            let dis = item.discount > 0 ? sub_total * item.discount * .01 : 0
+            let dis = item.discount > 0 ? Number((sub_total * item.discount * .01).toFixed(2)) : 0
             let total = sub_total - dis
             discount += dis
             switch (item.iva) {
@@ -330,7 +330,7 @@ class CreateInvoice extends Component {
             }
         })
 
-        let iva = base12 * .12
+        let iva = Number((base12 * .12).toFixed(2))
         let sub_total = no_iva + base0 + base12
         let total = sub_total + iva
 
