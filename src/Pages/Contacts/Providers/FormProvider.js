@@ -36,6 +36,11 @@ class FormProvider extends Component {
             tokenAuth(this.props.token);
             try {
                 let { form } = this.state
+
+                // quitar los espacios del principio y final de la identificacion y le nombre
+                form.name = form.name.trim()
+                form.identication = form.identication.trim()
+
                 if (form.id) {
                     await clienteAxios.put(`providers/${form.id}`, form)
                         .then(res => this.props.history.push('/contactos/proveedores'))
@@ -43,9 +48,7 @@ class FormProvider extends Component {
                     await clienteAxios.post('providers', form)
                         .then(res => this.props.history.push('/contactos/proveedores'))
                 }
-            } catch (error) {
-                console.log(error)
-            }
+            } catch (error) { console.log(error) }
         }
     }
 
@@ -137,7 +140,8 @@ class FormProvider extends Component {
                                             <Label for="identication" sm={4}>Identificación *</Label>
                                             <Col sm={6}>
                                                 <Input bsSize="sm" onChange={this.handleChange} value={form.identication}
-                                                    type="text" id="identication" name="identication" maxlength="13" requiered />
+                                                    type="text" id="identication" name="identication"
+                                                    maxlength={form.type_identification === 'cédula' ? 10 : 13} requiered />
                                             </Col>
                                         </FormGroup>
                                         <FormGroup className="mb-1" row>
