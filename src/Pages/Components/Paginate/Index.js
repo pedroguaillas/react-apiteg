@@ -17,7 +17,7 @@ const Paginate = ({ meta, links, reqNewPage }) => {
                 (meta.last_page > 10) ?
                     [...Array(meta.last_page)].map((a, i) => (
                         (i > meta.current_page - 5 && i < meta.current_page + 5) ?
-                            <PaginationItem>
+                            <PaginationItem active={meta.current_page === (1 + i)}>
                                 <PaginationLink onClick={e => reqNewPage(e, `${meta.path}?page=${(1 + i)}`)} href="#">
                                     {(1 + i)}
                                 </PaginationLink>
@@ -26,7 +26,7 @@ const Paginate = ({ meta, links, reqNewPage }) => {
                     ))
                     :
                     [...Array(meta.last_page)].map((a, i) => (
-                        <PaginationItem>
+                        <PaginationItem active={meta.current_page === (1 + i)}>
                             <PaginationLink onClick={e => reqNewPage(e, `${meta.path}?page=${(1 + i)}`)} href="#">
                                 {(1 + i)}
                             </PaginationLink>
