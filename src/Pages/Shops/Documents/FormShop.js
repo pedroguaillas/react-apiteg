@@ -270,8 +270,10 @@ class FormShop extends Component {
                 i++
             }
 
-            if (sumb !== Number(form.base12) + Number(form.base0)) {
-                alert('La suma de las bases imponibles del impuesto  a la rente debe ser igual a la suma del Subtotal 12% mas el Subtotal 0%')
+            sumb = Number(sumb.toFixed(2))
+
+            if (sumb !== Number(form.base12) + Number(form.base0) + Number(form.no_iva)) {
+                alert('La suma de las bases imponibles del impuesto a la rente debe ser igual a la suma del Subtotal 12% mas el Subtotal 0% mas No objeto de IVA')
                 return
             }
         }
@@ -639,8 +641,10 @@ class FormShop extends Component {
                                                         <td style={{ 'text-align': 'right' }}>{format(form.iva)}</td>
                                                     </tr>
                                                     <tr>
-                                                        <td>No objeto de IVA</td>
-                                                        <td style={{ 'text-align': 'right' }}>{format(form.no_iva)}</td>
+                                                        <td>No objeto de IVA ($)</td>
+                                                        <td style={{ 'text-align': 'right' }}>
+                                                            <input onChange={this.onChangeNumber} name="no_iva" value={form.no_iva} type="text" style={{ 'width': '7.5em', 'text-align': 'right' }} bsSize="sm" />
+                                                        </td>
                                                     </tr>
                                                     <tr>
                                                         <td>Monto ICE</td>
