@@ -319,6 +319,7 @@ class FormShop extends Component {
         let { form } = this.state
         form[name] = value
         form.iva = Number((Number(form.base12) * .12).toFixed(2))
+        form.sub_total = Number(form.base12) + Number(form.base0) + Number(form.no_iva)
         form.total = Number(form.base12) + Number(form.base0) + Number(form.iva)
         this.setState({ form })
     }
@@ -452,7 +453,6 @@ class FormShop extends Component {
     }
 
     handleChangeOthersTax = (index) => (e) => {
-
         let { taxes } = this.state
         let { name, value } = e.target
         if (isNaN(value)) { return }

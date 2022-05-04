@@ -359,6 +359,10 @@ class CreateInvoice extends Component {
         let productouts = []
         let i = 0
 
+        // Extraer los codigos
+        // Enviar a traer solo esos productos
+        // Actualizar esos productos
+
         for (let line in lines) {
             if (i > 0 && lines[line].length > 0) {
                 let words = lines[line].split(';')
