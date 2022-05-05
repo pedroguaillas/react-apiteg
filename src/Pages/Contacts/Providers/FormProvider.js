@@ -48,7 +48,12 @@ class FormProvider extends Component {
                     await clienteAxios.post('providers', form)
                         .then(res => this.props.history.push('/contactos/proveedores'))
                 }
-            } catch (error) { console.log(error) }
+            } catch (error) {
+                if (error.response.data.message === 'KEY_DUPLICATE') {
+                    alert('Ya existe un proveedor con esa identificación')
+                }
+                console.log(error)
+            }
         }
     }
 

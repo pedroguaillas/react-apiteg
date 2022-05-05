@@ -27,9 +27,7 @@ class FormCarrier extends Component {
                     .then(res => {
                         this.setState({ form: res.data.carrier })
                     })
-            } catch (error) {
-                console.log(error)
-            }
+            } catch (error) { console.log(error) }
         }
     }
 
@@ -51,7 +49,12 @@ class FormCarrier extends Component {
                     await clienteAxios.post('carriers', this.state.form)
                         .then(res => this.props.history.push('/contactos/transportistas'))
                 }
-            } catch (error) { console.log(error) }
+            } catch (error) {
+                if (error.response.data.message === 'KEY_DUPLICATE') {
+                    alert('Ya existe un transportista con esa identificación')
+                }
+                console.log(error)
+            }
         }
     }
 

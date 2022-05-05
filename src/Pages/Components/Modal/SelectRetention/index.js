@@ -2,13 +2,12 @@ import React, { Component, Fragment } from 'react'
 import '../scrollmodal.css'
 import {
     Button, Modal, ModalHeader, ModalBody, Row, Col, Card, Form,
-    InputGroup, Input, InputGroupAddon, Table, ListGroup, ListGroupItem
+    InputGroup, Input, InputGroupAddon, Table
 } from 'reactstrap'
 
 class SelectRetention extends Component {
 
     state = {
-        suggestions: [],
         modal: false,
         search: ''
     }
@@ -36,23 +35,12 @@ class SelectRetention extends Component {
     //Show & hidden modal
     toggle = () => this.setState(state => ({ modal: !state.modal }))
 
-    onChangeItem = (e) => {
-        let { value } = e.target
-
-        this.setState((state, props) => ({
-            item: value,
-            suggestions: (value !== '') ? props.retentions.filter(retention => retention.code.includes(value)) : []
-        }))
-    }
-
     onChangeSearch = async (e) => this.setState({ search: e.target.value })
 
     render = () => {
         let { retentions, code } = this.props
-        let { item, suggestions, search } = this.state
+        let { item, search } = this.state
         let items = null
-
-        suggestions = suggestions.length > 4 ? suggestions.filter((suggestion, ind) => ind < 4) : suggestions
 
         if (code !== null) {
             items = retentions.filter(retention => Number(code) === 2 ?
@@ -75,19 +63,6 @@ class SelectRetention extends Component {
                             </InputGroup>
                         </Col>
                     </Row>
-                    {/* <Row key={111}>
-                        <Col style={{ width: '100%' }}>
-                            <ListGroup style={{ 'cursor': 'pointer' }}>
-                                {
-                                    suggestions.map((suggestion, index) => (
-                                        <ListGroupItem onClick={() => this.props.selectRetention(suggestion)} style={{ padding: '.4em', 'font-size': '.9em', 'text-align': 'left' }} key={index}>
-                                            {`${suggestion.code} - ${suggestion.conception}`}
-                                        </ListGroupItem>
-                                    ))
-                                }
-                            </ListGroup>
-                        </Col>
-                    </Row> */}
                 </div>
                 <Modal
                     isOpen={this.state.modal}

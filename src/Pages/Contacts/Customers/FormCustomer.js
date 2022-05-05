@@ -50,7 +50,12 @@ class FormCustomer extends Component {
                     await clienteAxios.post('customers', this.state.form)
                         .then(res => this.props.history.push('/contactos/clientes'))
                 }
-            } catch (error) { console.log(error) }
+            } catch (error) {
+                if (error.response.data.message === 'KEY_DUPLICATE') {
+                    alert('Ya existe un cliente con esa identificación')
+                }
+                console.log(error)
+            }
         }
     }
 
