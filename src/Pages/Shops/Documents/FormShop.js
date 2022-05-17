@@ -268,12 +268,12 @@ class FormShop extends Component {
                     sumb += Number(taxes[i].base)
                 }
 
-                i++
+                i++ 
             }
 
             sumb = Number(sumb.toFixed(2))
 
-            if (sumb !== Number(form.base12) + Number(form.base0) + Number(form.no_iva)) {
+            if (sumb !== Number((Number(form.base12) + Number(form.base0) + Number(form.no_iva)).toFixed(2))) {
                 alert('La suma de las bases imponibles del impuesto a la rente debe ser igual a la suma del Subtotal 12% mas el Subtotal 0% mas No objeto de IVA')
                 return
             }
