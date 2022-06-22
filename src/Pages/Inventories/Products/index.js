@@ -1,278 +1,330 @@
-import React, { Component, Fragment } from 'react';
-import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { Row, Col, Card, CardBody, Form, InputGroup, InputGroupAddon, Table, Button, Input } from 'reactstrap';
-import ReactCSSTransitionGroup from "react-addons-css-transition-group";
+import React, { Component, Fragment } from 'react'
+import { connect } from 'react-redux'
+import { Link } from 'react-router-dom'
+import {
+  Row,
+  Col,
+  Card,
+  CardBody,
+  Form,
+  InputGroup,
+  InputGroupAddon,
+  Table,
+  Button,
+  Input
+} from 'reactstrap'
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
-import PageTitle from '../../../Layout/AppMain/PageTitle';
+import PageTitle from '../../../Layout/AppMain/PageTitle'
 
-import clienteAxios from '../../../config/axios';
-import tokenAuth from '../../../config/token';
-import Paginate from '../../Components/Paginate/Index';
+import clienteAxios from '../../../config/axios'
+import tokenAuth from '../../../config/token'
+import Paginate from '../../Components/Paginate/Index'
 
 class Products extends Component {
+  state = {
+    products: null,
+    links: null,
+    meta: null,
+    search: ''
+  }
 
-    state = {
-        products: null,
-        links: null,
-        meta: null,
-        search: ''
+  async componentDidMount () {
+    tokenAuth(this.props.token)
+    let { search } = this.state
+    try {
+      await clienteAxios.post('productlist', { search }).then(res => {
+        let { data, links, meta } = res.data
+        this.setState({
+          products: data,
+          links,
+          meta
+        })
+      })
+    } catch (error) {
+      console.log(error)
     }
+  }
 
-    async componentDidMount() {
-        tokenAuth(this.props.token);
-        let { search } = this.state
-        try {
-            await clienteAxios.post('productlist', { search })
-                .then(res => {
-                    let { data, links, meta } = res.data
-                    this.setState({
-                        products: data,
-                        links,
-                        meta,
-                    })
-                })
-        } catch (error) { console.log(error) }
+  // async componentDidMount() {
+  //     tokenAuth(this.props.token);
+  //     try {
+  //         await clienteAxios.get('products')
+  //             .then(res => {
+  //                 let { data, links, meta } = res.data
+  //                 this.setState({
+  //                     products: data,
+  //                     links,
+  //                     meta,
+  //                 })
+  //             })
+  //     } catch (error) {
+  //         console.log(error)
+  //     }
+  // }
+
+  reqNewPage = async (e, page) => {
+    e.preventDefault()
+
+    let { search } = this.state
+
+    if (page !== null) {
+      tokenAuth(this.props.token)
+      try {
+        await clienteAxios
+          .post(`productlist?page=${page.substring(page.indexOf('=') + 1)}`, {
+            search
+          })
+          .then(res => {
+            let { data, links, meta } = res.data
+            this.setState({
+              ...this.state,
+              products: data,
+              links,
+              meta
+            })
+          })
+      } catch (error) {
+        console.log(error)
+      }
     }
+  }
 
-    // async componentDidMount() {
-    //     tokenAuth(this.props.token);
-    //     try {
-    //         await clienteAxios.get('products')
-    //             .then(res => {
-    //                 let { data, links, meta } = res.data
-    //                 this.setState({
-    //                     products: data,
-    //                     links,
-    //                     meta,
-    //                 })
-    //             })
-    //     } catch (error) {
-    //         console.log(error)
-    //     }
-    // }
+  // reqNewPage = async (e, page) => {
+  //     e.preventDefault();
 
-    reqNewPage = async (e, page) => {
-        e.preventDefault();
+  //     let { search } = this.state
 
-        let { search } = this.state
+  //     if (page !== null) {
+  //         tokenAuth(this.props.token);
+  //         try {
+  //             // await clienteAxios.get(`products?page=${page.substring((page.indexOf('=')) + 1)}${search === '' ? null : '&search=' + search}`)
+  //             await clienteAxios.get(`products?page=${page.substring((page.indexOf('=')) + 1)}`)
+  //                 .then(res => {
+  //                     let { data, links, meta } = res.data
+  //                     this.setState({
+  //                         ...this.state,
+  //                         products: data,
+  //                         links,
+  //                         meta,
+  //                     })
+  //                 })
+  //         } catch (error) {
+  //             console.log(error)
+  //         }
+  //     }
+  // }
 
-        if (page !== null) {
-            tokenAuth(this.props.token);
-            try {
-                await clienteAxios.post(`productlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search })
-                    .then(res => {
-                        let { data, links, meta } = res.data
-                        this.setState({
-                            ...this.state,
-                            products: data,
-                            links,
-                            meta,
-                        })
-                    })
-            } catch (error) { console.log(error) }
+  importProducts = () => document.getElementById('file_csv').click()
+
+  handleSelectFile = e => {
+    let input = e.target
+
+    let reader = new FileReader()
+    reader.onload = () => this.uploadCsv(reader.result)
+    reader.readAsText(input.files[0], 'ISO-8859-1')
+  }
+
+  uploadCsv = csv => {
+    let lines = csv.split(/\r\n|\n/)
+    let products = []
+    let i = 0
+    for (let line in lines) {
+      if (i > 0 && lines[line].length > 0) {
+        let words = lines[line].split(';')
+        let object = {
+          code: words[0].trim(),
+          type_product: words[1].trim(),
+          name: words[2].trim(),
+          unity_id: words[3] !== undefined ? words[3].trim() : null,
+          price1: words[4],
+          price2: words[5] !== undefined ? words[5].trim() : null,
+          price3: words[6] !== undefined ? words[6].trim() : null,
+          iva: words[7]
         }
+        products.push(object)
+      }
+      i++
     }
+    this.saveProductsFromCsv(products)
+  }
 
-    // reqNewPage = async (e, page) => {
-    //     e.preventDefault();
+  saveProductsFromCsv = async products => {
+    let data = { products }
 
-    //     let { search } = this.state
-
-    //     if (page !== null) {
-    //         tokenAuth(this.props.token);
-    //         try {
-    //             // await clienteAxios.get(`products?page=${page.substring((page.indexOf('=')) + 1)}${search === '' ? null : '&search=' + search}`)
-    //             await clienteAxios.get(`products?page=${page.substring((page.indexOf('=')) + 1)}`)
-    //                 .then(res => {
-    //                     let { data, links, meta } = res.data
-    //                     this.setState({
-    //                         ...this.state,
-    //                         products: data,
-    //                         links,
-    //                         meta,
-    //                     })
-    //                 })
-    //         } catch (error) {
-    //             console.log(error)
-    //         }
-    //     }
-    // }
-
-    importProducts = () => document.getElementById('file_csv').click()
-
-    handleSelectFile = e => {
-        let input = e.target
-
-        let reader = new FileReader()
-        reader.onload = () => this.uploadCsv(reader.result)
-        reader.readAsText(input.files[0], 'ISO-8859-1')
+    tokenAuth(this.props.token)
+    try {
+      await clienteAxios.post('products_import', data).then(res => {
+        let { data, links, meta } = res.data
+        this.setState({
+          products: data,
+          links,
+          meta
+        })
+      })
+    } catch (error) {
+      console.log(error)
     }
+  }
 
-    uploadCsv = csv => {
-        let lines = csv.split(/\r\n|\n/)
-        let products = []
-        let i = 0
-        for (let line in lines) {
-            if (i > 0 && lines[line].length > 0) {
-                let words = lines[line].split(';')
-                let object = {
-                    code: words[0].trim(),
-                    type_product: words[1].trim(),
-                    name: words[2].trim(),
-                    unity_id: words[3].trim(),
-                    price1: words[4].trim(),
-                    price2: words[5].trim(),
-                    price3: words[6].trim(),
-                    iva: words[7].trim()
-                }
-                products.push(object)
+  onChangeSearch = async e => {
+    tokenAuth(this.props.token)
+    let { value } = e.target
+
+    try {
+      await clienteAxios.post('productlist', { search: value }).then(res => {
+        let { data, links, meta } = res.data
+        this.setState({
+          search: value,
+          products: data,
+          links,
+          meta
+        })
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  addProduct = () => this.props.history.push('/inventarios/nuevoproducto')
+
+  render () {
+    let { products, links, meta, search } = this.state
+
+    return (
+      <Fragment>
+        <PageTitle
+          options={[
+            {
+              type: 'button',
+              id: 'tooltip-import-contact',
+              action: this.importProducts,
+              icon: 'import',
+              msmTooltip: 'Importar productos',
+              color: 'success'
+            },
+            {
+              type: 'button',
+              id: 'tooltip-add-product',
+              action: this.addProduct,
+              icon: 'plus',
+              msmTooltip: 'Agregar producto',
+              color: 'primary'
             }
-            i++
-        }
-        this.saveProductsFromCsv(products)
-    }
+          ]}
+          heading='Productos'
+          subheading='Lista de todos los productos'
+          icon='pe-7s-note2 icon-gradient bg-mean-fruit'
+        />
+        <ReactCSSTransitionGroup
+          component='div'
+          transitionName='TabsAnimation'
+          transitionAppear={true}
+          transitionAppearTimeout={0}
+          transitionEnter={false}
+          transitionLeave={false}
+        >
+          <Row>
+            <Col lg='12' className='mb-4'>
+              <Card>
+                <div className='card-header'>
+                  Busqueda
+                  <div className='btn-actions-pane-right'>
+                    <Form className='text-right'>
+                      <InputGroup size='sm'>
+                        <Input
+                          value={search}
+                          onChange={this.onChangeSearch}
+                          placeholder='Buscar'
+                          className='search-input'
+                        />
+                      </InputGroup>
+                    </Form>
+                  </div>
+                </div>
+              </Card>
+            </Col>
+          </Row>
 
-    saveProductsFromCsv = async (products) => {
+          <Input
+            onChange={this.handleSelectFile}
+            style={{ display: 'none' }}
+            type='file'
+            name='contactscsv'
+            id='file_csv'
+            accept='.csv'
+          />
 
-        let data = { products }
+          {products === null ? (
+            <p>Cargando ...</p>
+          ) : products.length < 1 ? (
+            <p>No existe productos empiece por agregar el primer producto</p>
+          ) : (
+            <Row>
+              <Col lg='12'>
+                <Card className='main-card mb-3'>
+                  <CardBody>
+                    <Table striped size='sm' responsive>
+                      <thead>
+                        <tr>
+                          <th>Código</th>
+                          <th>Nombre</th>
+                          <th>Precio</th>
+                          <th>iva</th>
+                          <th style={{ width: '1em' }}></th>
+                        </tr>
+                      </thead>
 
-        tokenAuth(this.props.token)
-        try {
-            await clienteAxios.post('products_import', data)
-                .then(res => {
-                    let { data, links, meta } = res.data
-                    this.setState({
-                        products: data,
-                        links,
-                        meta,
-                    })
-                })
-        } catch (error) { console.log(error) }
-    }
+                      <tbody>
+                        {products.map((product, index) => (
+                          <tr key={index}>
+                            <td>{product.atts.code}</td>
+                            <td>{product.atts.name}</td>
+                            <td>
+                              $
+                              {Number(
+                                product.atts.price1 !== null
+                                  ? product.atts.price1
+                                  : 0
+                              ).toFixed(2)}
+                            </td>
+                            <td>
+                              {product.atts.iva == 0
+                                ? '0%'
+                                : product.atts.iva == 2
+                                ? '12%'
+                                : 'no iva'}
+                            </td>
+                            <td>
+                              <Link to={'/inventarios/producto/' + product.id}>
+                                <Button size='sm' color='primary'>
+                                  <i className='nav-link-icon lnr-pencil'></i>
+                                </Button>
+                              </Link>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
 
-    onChangeSearch = async (e) => {
-        tokenAuth(this.props.token)
-        let {
-            value
-        } = e.target
-
-        try {
-            await clienteAxios.post('productlist', { search: value })
-                .then(res => {
-                    let { data, links, meta } = res.data
-                    this.setState({
-                        search: value,
-                        products: data,
-                        links,
-                        meta,
-                    })
-                })
-        } catch (error) { console.log(error) }
-    }
-
-    addProduct = () => this.props.history.push("/inventarios/nuevoproducto")
-
-    render() {
-
-        let { products, links, meta, search } = this.state
-
-        return (
-            <Fragment>
-                <PageTitle
-                    options={[
-                        { type: 'button', id: 'tooltip-import-contact', action: this.importProducts, icon: 'import', msmTooltip: 'Importar productos', color: 'success' },
-                        { type: 'button', id: 'tooltip-add-product', action: this.addProduct, icon: 'plus', msmTooltip: 'Agregar producto', color: 'primary' },
-                    ]}
-                    heading="Productos"
-                    subheading="Lista de todos los productos"
-                    icon="pe-7s-note2 icon-gradient bg-mean-fruit"
-                />
-                <ReactCSSTransitionGroup
-                    component="div"
-                    transitionName="TabsAnimation"
-                    transitionAppear={true}
-                    transitionAppearTimeout={0}
-                    transitionEnter={false}
-                    transitionLeave={false}>
-
-                    <Row>
-                        <Col lg="12" className="mb-4">
-                            <Card>
-                                <div className="card-header">Busqueda
-                                    <div className="btn-actions-pane-right">
-                                        <Form className="text-right">
-                                            <InputGroup size="sm">
-                                                <Input value={search} onChange={this.onChangeSearch} placeholder="Buscar" className="search-input" />
-                                            </InputGroup>
-                                        </Form>
-                                    </div>
-                                </div>
-                            </Card>
-                        </Col>
-                    </Row>
-
-                    <Input onChange={this.handleSelectFile} style={{ 'display': 'none' }} type="file" name="contactscsv" id="file_csv" accept=".csv" />
-
-                    {
-                        (products === null) ? (<p>Cargando ...</p>) :
-                            (products.length < 1) ? (<p>No existe productos empiece por agregar el primer producto</p>) :
-                                (
-                                    <Row>
-                                        <Col lg="12">
-                                            <Card className="main-card mb-3">
-                                                <CardBody>
-                                                    <Table striped size="sm" responsive>
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Código</th>
-                                                                <th>Nombre</th>
-                                                                <th>Precio</th>
-                                                                <th>iva</th>
-                                                                <th style={{ width: '1em' }}></th>
-                                                            </tr>
-                                                        </thead>
-
-                                                        <tbody>
-                                                            {
-                                                                products.map((product, index) => (
-                                                                    <tr key={index}>
-                                                                        <td>{product.atts.code}</td>
-                                                                        <td>{product.atts.name}</td>
-                                                                        <td>${Number(product.atts.price1 !== null ? product.atts.price1 : 0).toFixed(2)}</td>
-                                                                        <td>{product.atts.iva == 0 ? '0%' : (product.atts.iva == 2 ? '12%' : 'no iva')}</td>
-                                                                        <td>
-                                                                            <Link to={'/inventarios/producto/' + product.id}>
-                                                                                <Button size='sm' color="primary">
-                                                                                    <i className='nav-link-icon lnr-pencil'></i>
-                                                                                </Button>
-                                                                            </Link>
-                                                                        </td>
-                                                                    </tr>
-                                                                ))
-                                                            }
-                                                        </tbody>
-                                                    </Table>
-
-                                                    <Paginate
-                                                        links={links}
-                                                        meta={meta}
-                                                        reqNewPage={this.reqNewPage}
-                                                    />
-                                                </CardBody>
-                                            </Card>
-                                        </Col>
-                                    </Row>
-                                )
-                    }
-                </ReactCSSTransitionGroup>
-            </Fragment>
-        )
-    }
+                    <Paginate
+                      links={links}
+                      meta={meta}
+                      reqNewPage={this.reqNewPage}
+                    />
+                  </CardBody>
+                </Card>
+              </Col>
+            </Row>
+          )}
+        </ReactCSSTransitionGroup>
+      </Fragment>
+    )
+  }
 }
 
 const mapStateToProps = state => ({
-    token: state.AuthReducer.token
-});
+  token: state.AuthReducer.token
+})
 
-export default connect(mapStateToProps)(Products);
+export default connect(mapStateToProps)(Products)
