@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import {
-    Row, Col, Card, CardBody, Table, Form, Button, FormGroup, Label, CustomInput, Input
+    Row, Col, Card, CardBody, Table, Form, Button, FormGroup, Label, CustomInput
 } from 'reactstrap';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
@@ -60,6 +60,8 @@ class FormShop extends Component {
     }
 
     selectDocXml = (xmlDoc, authorization) => {
+
+        let tv=parseInt(this._getTag(xmlDoc, "codDoc"))
         let date = this._getTag(xmlDoc, "fechaEmision")
         let date_v = date.split('/')
         date_v.reverse()
@@ -69,9 +71,13 @@ class FormShop extends Component {
         let base0 = 0
         let base12 = 0
         let ice = 0
-        let discount = parseFloat(this._getTag(xmlDoc, 'totalDescuento'))
+        let discount = 0
+        
+        if(this._getTag(xmlDoc, 'totalDescuento')!==""){
+            discount=parseFloat(this._getTag(xmlDoc, 'totalDescuento'))
+        }
 
-        let impuestos = xmlDoc.getElementsByTagName('totalImpuesto')
+        let impuestos = xmlDoc.getElementsByTagName(tv===1?'totalImpuesto':'impuesto')
 
         for (let i = 0; i < impuestos.length; i++) {
             switch (parseInt(this._getTag(impuestos[i], 'codigoPorcentaje'))) {
@@ -87,7 +93,7 @@ class FormShop extends Component {
 
         let iva = Number((base12 * .12).toFixed(2))
         let sub_total = no_iva + base0 + base12
-        let total = parseFloat(this._getTag(xmlDoc, 'importeTotal'))
+        let total = parseFloat(this._getTag(xmlDoc, tv===1? 'importeTotal':'valorTotal'))
 
         this.setState({
             form: {
@@ -100,7 +106,12 @@ class FormShop extends Component {
         })
     }
 
-    _getTag = (xmlDoc, tag) => xmlDoc.getElementsByTagName(tag)[0].childNodes[0].nodeValue
+    _getTag = (xmlDoc, tag) =>{
+        if(xmlDoc.getElementsByTagName(tag).length>0){
+           return xmlDoc.getElementsByTagName(tag)[0].childNodes[0].nodeValue
+        }
+        return ""
+    }
 
     async componentDidMount() {
         tokenAuth(this.props.token)
@@ -569,10 +580,10 @@ class FormShop extends Component {
                                             handleChangeItem={this.handleChangeItem}
                                         />
 
-                                        <Row hidden={Number(form.voucher_type) > 3} form className="my-3" style={{ 'border-top': '1px solid #ced4da' }}>
+                                        <Row form className="my-3" style={{ 'border-top': '1px solid #ced4da' }}>
                                             <strong className='mt-2'>Retención</strong>
                                         </Row>
-                                        <Row hidden={Number(form.voucher_type) > 3}>
+                                        <Row>
                                             <Col md={3}>
                                                 <FormGroup>
                                                     <Label>
@@ -582,7 +593,7 @@ class FormShop extends Component {
                                                 </FormGroup>
                                             </Col>
                                         </Row>
-                                        <Row form hidden={!app_retention || Number(form.voucher_type) > 3}>
+                                        <Row form hidden={!app_retention}>
                                             <RetentionForm
                                                 form={form}
                                                 handleChange={this.handleChange}
@@ -597,7 +608,7 @@ class FormShop extends Component {
                                                 handleChangeOthersTax={this.handleChangeOthersTax}
                                             />
                                         </Row>
-                                        <Button hidden={!app_retention || Number(form.voucher_type) > 3} color="primary" onClick={this.addTax} className="mr-2 btn-transition">
+                                        <Button hidden={!app_retention} color="primary" onClick={this.addTax} className="mr-2 btn-transition">
                                             Añadir impuesto
                                         </Button>
 

@@ -13,8 +13,9 @@ class InfoDocument extends Component {
 
         let type_vouchers = [
             { code: 1, description: 'Factura' },
+            { code: 2, description: 'Nota Venta' },
             { code: 3, description: 'Liquidación en Compra' },
-            // { code: 5, description: 'Nota Débito' }
+            { code: 5, description: 'Nota Débito' }
         ]
 
         let date = new Date()
@@ -68,12 +69,11 @@ class InfoDocument extends Component {
                                 }
                             </CustomInput>
                         </Col>
-                        <Col className="mt-3" sm={3} hidden={form.voucher_type === 3}>
+                        <Col className="mt-3" sm={3} hidden={form.voucher_type === 2 || form.voucher_type === 3}>
                             <LoadFileXml
-                                providers={providers}
-                                selectProvider={selectProvider}
                                 selectDocXml={selectDocXml}
                                 registerProvider={registerProvider}
+                                voucher_type={form.voucher_type}
                             />
                         </Col>
                     </FormGroup>

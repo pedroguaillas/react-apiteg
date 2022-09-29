@@ -109,6 +109,7 @@ class Documents extends Component {
         let prefix = null
         switch (Number(type)) {
             case 1: prefix = 'FAC'; break;
+            case 2: prefix = 'N/V'; break;
             case 3: prefix = 'L/C'; break;
             case 4: prefix = 'N/C'; break;
             case 5: prefix = 'N/D'; break;
@@ -118,7 +119,7 @@ class Documents extends Component {
 
     // Inicio Retencion
     renderRetention = ({ id, atts: { state_retencion, voucher_type, serie_retencion, xml_retention } }) => (
-        (voucher_type < 4 && serie_retencion) ?
+        (serie_retencion) ?
             <Fragment>
                 <DropdownItem header>
                     Retención
