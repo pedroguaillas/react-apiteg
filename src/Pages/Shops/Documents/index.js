@@ -118,7 +118,7 @@ class Documents extends Component {
     }
 
     // Inicio Retencion
-    renderRetention = ({ id, atts: { state_retencion, voucher_type, serie_retencion, xml_retention,send_mail_set_purchase },provider:{email} }) => (
+    renderRetention = ({ id, atts: { state_retencion, voucher_type, serie_retencion, xml_retention, send_mail_retention }, provider: { email } }) => (
         (serie_retencion) ?
             <Fragment>
                 <DropdownItem header>
@@ -138,9 +138,9 @@ class Documents extends Component {
                         <DropdownItem onClick={() => this.downloadXmlRetention(id)}>Descargar XML</DropdownItem>
                         : null
                 }
-                {send_mail_set_purchase === 0 && state_retencion === 'AUTORIZADO' && email !== null ?
-                <DropdownItem onClick={() => this.sendMail(id)}>Enviar correo</DropdownItem>
-                : null}
+                {send_mail_retention === 0 && state_retencion === 'AUTORIZADO' && email !== null ?
+                    <DropdownItem onClick={() => this.sendMail(id)}>Enviar correo</DropdownItem>
+                    : null}
             </Fragment>
             : null
     )
