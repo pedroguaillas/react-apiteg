@@ -156,7 +156,7 @@ class Invoices extends Component {
         tokenAuth(this.props.token);
         try {
             await clienteAxios.get(`orders/${id}/mail`)
-                .then(res => alert('Enviado al correo'))
+                .then(() => this.reloadPage())
         } catch (error) { console.log(error) }
     }
 
@@ -306,6 +306,7 @@ class Invoices extends Component {
                                                             <th>Estado</th>
                                                             <th>Total</th>
                                                             <th style={{ width: '1em' }}></th>
+                                                            <th style={{ width: '1em' }}></th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -320,7 +321,12 @@ class Invoices extends Component {
                                                                     </td>
                                                                     <td>{order.customer.name}</td>
                                                                     <td>{order.atts.state}</td>
-                                                                    <td>${order.atts.total}</td>
+                                                                    <td style={{'text-align':'right'}}>${order.atts.total}</td>
+                                                                    <td className='font-icon-wrapper font-icon-sm border-right-0 border-left-0'>
+                                                                        {order.atts.send_mail === 1?
+                                                                        <i title={`Enviado al correo ${order.customer.email}`} className="pe-7s-mail icon-gradient bg-plum-plate"> </i>
+                                                                        :null}
+                                                                    </td>
                                                                     <td>
                                                                         <ButtonDropdown direction="left" isOpen={dropdowns[index]} toggle={() => this.handleDrops(index)}>
                                                                             <DropdownToggle caret>

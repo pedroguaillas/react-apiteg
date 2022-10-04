@@ -216,7 +216,7 @@ class Documents extends Component {
         tokenAuth(this.props.token);
         try {
             await clienteAxios.get(`retentions/mail/${id}`)
-                .then(res => alert('Enviado al correo'))
+                .then(() => this.reloadPage())
         } catch (error) { console.log(error) }
     }
     // Fin Retencion
@@ -421,6 +421,7 @@ class Documents extends Component {
                                                             <th>Estado Ret Elec</th>
                                                             <th>Total</th>
                                                             <th style={{ width: '1em' }}></th>
+                                                            <th style={{ width: '1em' }}></th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -435,7 +436,12 @@ class Documents extends Component {
                                                                     </td>
                                                                     <td>{voucher.provider.name}</td>
                                                                     <td>{voucher.atts.state_retencion}</td>
-                                                                    <td>${voucher.atts.total}</td>
+                                                                    <td style={{'text-align':'right'}}>${voucher.atts.total}</td>
+                                                                    <td className='font-icon-wrapper font-icon-sm border-right-0 border-left-0'>
+                                                                        {voucher.atts.send_mail_retention === 1?
+                                                                        <i title={`Enviado al correo ${voucher.provider.email}`} className="pe-7s-mail icon-gradient bg-plum-plate"> </i>
+                                                                        :null}
+                                                                    </td>
                                                                     <td>
                                                                         <ButtonDropdown direction="left" isOpen={dropdowns[index]} toggle={() => this.handleDrops(index)}>
                                                                             <DropdownToggle caret>
