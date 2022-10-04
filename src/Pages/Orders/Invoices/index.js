@@ -152,6 +152,14 @@ class Invoices extends Component {
         } catch (error) { console.log(error) }
     }
 
+    sendMail = async (id) => {
+        tokenAuth(this.props.token);
+        try {
+            await clienteAxios.get(`orders/${id}/mail`)
+                .then(res => alert('Enviado al correo'))
+        } catch (error) { console.log(error) }
+    }
+
     handleDrops = (index) => {
         let { dropdowns } = this.state
         dropdowns[index] = !dropdowns[index]
@@ -322,10 +330,13 @@ class Invoices extends Component {
                                                                                 {this.renderproccess(order)}
                                                                                 {
                                                                                     order.atts.xml ?
-                                                                                        <DropdownItem onClick={() => this.downloadXml(order.id)}>Descargar XML</DropdownItem>
-                                                                                        :
-                                                                                        null
+                                                                                    <DropdownItem onClick={() => this.downloadXml(order.id)}>Descargar XML</DropdownItem>
+                                                                                    :
+                                                                                    null
                                                                                 }
+                                                                                {order.atts.send_mail === 0 && order.atts.state === 'AUTORIZADO' && order.customer.email !== null ?
+                                                                                <DropdownItem onClick={() => this.sendMail(order.id)}>Enviar correo</DropdownItem>
+                                                                                : null}
                                                                             </DropdownMenu>
                                                                         </ButtonDropdown>
                                                                     </td>

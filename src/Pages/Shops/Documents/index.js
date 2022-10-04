@@ -118,7 +118,7 @@ class Documents extends Component {
     }
 
     // Inicio Retencion
-    renderRetention = ({ id, atts: { state_retencion, voucher_type, serie_retencion, xml_retention } }) => (
+    renderRetention = ({ id, atts: { state_retencion, voucher_type, serie_retencion, xml_retention,send_mail_set_purchase },provider:{email} }) => (
         (serie_retencion) ?
             <Fragment>
                 <DropdownItem header>
@@ -138,6 +138,9 @@ class Documents extends Component {
                         <DropdownItem onClick={() => this.downloadXmlRetention(id)}>Descargar XML</DropdownItem>
                         : null
                 }
+                {send_mail_set_purchase === 0 && state_retencion === 'AUTORIZADO' && email !== null ?
+                <DropdownItem onClick={() => this.sendMail(id)}>Enviar correo</DropdownItem>
+                : null}
             </Fragment>
             : null
     )
@@ -206,6 +209,14 @@ class Documents extends Component {
                     a.download = "Retención.xml"; //File name Here
                     a.click(); //Downloaded file
                 })
+        } catch (error) { console.log(error) }
+    }
+
+    sendMail = async (id) => {
+        tokenAuth(this.props.token);
+        try {
+            await clienteAxios.get(`retentions/mail/${id}`)
+                .then(res => alert('Enviado al correo'))
         } catch (error) { console.log(error) }
     }
     // Fin Retencion
