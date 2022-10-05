@@ -152,6 +152,21 @@ class Invoices extends Component {
         } catch (error) { console.log(error) }
     }
 
+    printfPdf = async (id) => {
+        tokenAuth(this.props.token);
+        try {
+            await clienteAxios.get(`orders/${id}/printf`, { responseType: 'blob' })
+                .then(res => {
+                    //Create a Blob from the PDF Stream
+                    const file = new Blob([res.data], { type: 'application/pdf' });
+                    //Build a URL from the file
+                    const fileURL = URL.createObjectURL(file);
+                    //Open the URL on new Window
+                    window.open(fileURL);
+                })
+        } catch (error) { console.log(error) }
+    }
+
     sendMail = async (id) => {
         tokenAuth(this.props.token);
         try {
@@ -343,6 +358,7 @@ class Invoices extends Component {
                                                                                 {order.atts.send_mail === 0 && order.atts.state === 'AUTORIZADO' && order.customer.email !== null ?
                                                                                 <DropdownItem onClick={() => this.sendMail(order.id)}>Enviar correo</DropdownItem>
                                                                                 : null}
+                                                                                <DropdownItem onClick={() => this.printfPdf(order.id)}>Imprimir</DropdownItem>
                                                                             </DropdownMenu>
                                                                         </ButtonDropdown>
                                                                     </td>
