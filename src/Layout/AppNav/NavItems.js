@@ -78,6 +78,13 @@ export const ReferralGuidesNav = [
         to: '#/guiasremision/index',
     },
 ];
+export const SriNav = [
+    {
+        icon: 'pe-7s-note2',
+        label: 'SRI',
+        to: '#/sri',
+    },
+];
 export const ContactsNav = [
     {
         icon: 'pe-7s-users',
