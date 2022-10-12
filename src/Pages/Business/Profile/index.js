@@ -9,8 +9,7 @@ import {
   FormGroup,
   Input,
   Button,
-  Label,
-  CustomInput
+  Label
 } from 'reactstrap'
 
 import PageTitle from '../../../Layout/AppMain/PageTitle'
@@ -30,7 +29,7 @@ class Profile extends Component {
     try {
       await clienteAxios
         .get('companies')
-        .then(res => this.setState({ form: res.data.company }))
+        .then(({ data: { company } }) => this.setState({ form: company }))
     } catch (error) {
       console.log(error)
     }
@@ -39,8 +38,8 @@ class Profile extends Component {
   //Info seller handle
   handleChange = e => {
     this.setState({
-      ...this.state.form,
       form: {
+        ...this.state.form,
         [e.target.name]: e.target.value
       }
     })
@@ -86,7 +85,6 @@ class Profile extends Component {
       company,
       economic_activity,
       accounting,
-      micro_business,
       retention_agent,
       logo,
       cert,
@@ -108,7 +106,6 @@ class Profile extends Component {
     }
     data.append('economic_activity', economic_activity)
     data.append('accounting', accounting)
-    data.append('micro_business', micro_business)
     if (retention_agent) {
       data.append('retention_agent', retention_agent)
     }
@@ -139,9 +136,9 @@ class Profile extends Component {
   downloadSign = async () => {
     tokenAuth(this.props.token)
     try {
-      await clienteAxios.get('downloadsign').then(res => {
+      await clienteAxios.get('downloadsign').then(({ data: { cert } }) => {
         var a = document.createElement('a') //Create <a>
-        a.href = 'data:text/xml;base64,' + res.data.cert //Image Base64 Goes here
+        a.href = 'data:text/xml;base64,' + cert //Image Base64 Goes here
         a.download = `${this.state.form.company}.p12` //File name Here
         a.click() //Downloaded file
       })
@@ -255,36 +252,6 @@ class Profile extends Component {
                             </FormGroup>
                           </Col>
                         </FormGroup>
-                        {/* <FormGroup>
-                                                    <Label for="accounting">
-                                                        <CustomInput onChange={this.handleChangeCheck} checked={form.accounting} type="checkbox"
-                                                            id="accounting" name="accounting" label="Obligado llevar contabilidad" />
-                                                    </Label>
-                                                </FormGroup> */}
-                      </Col>
-                      <Col md={6}>
-                        <FormGroup row>
-                          <Col sm={{ size: 10 }}>
-                            <FormGroup check>
-                              <Label check>
-                                <Input
-                                  type='checkbox'
-                                  id='micro_business'
-                                  checked={form.micro_business}
-                                  onChange={this.handleChangeCheck}
-                                  name='micro_business'
-                                />{' '}
-                                Microempresa
-                              </Label>
-                            </FormGroup>
-                          </Col>
-                        </FormGroup>
-                        {/* <FormGroup>
-                                                    <Label for="micro_business">
-                                                        <CustomInput onChange={this.handleChangeCheck} checked={form.micro_business} type="checkbox"
-                                                            id="micro_business" name="micro_business" label="Microempresa" />
-                                                    </Label>
-                                                </FormGroup> */}
                       </Col>
                     </Row>
                     <Row>
