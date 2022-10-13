@@ -22,13 +22,19 @@ class Invoices extends Component {
   handleChange = e => {
     this.setState({ month: e.target.value })
   }
-  donwloadExcel = async () => {
+
+  donwloadExcel = async type => {
     tokenAuth(this.props.token)
     try {
       await clientAxios
-        .get(`shops/${this.state.month}/export`, { responseType: 'blob' })
-        .then(res => {
-          var blob = new Blob([res.data], {
+        .get(
+          type === 'Compras'
+            ? `shops/${this.state.month}/export`
+            : `orders/export/${this.state.month}`,
+          { responseType: 'blob' }
+        )
+        .then(({ data }) => {
+          var blob = new Blob([data], {
             type:
               'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;'
           })
@@ -36,7 +42,7 @@ class Invoices extends Component {
           var a = document.createElement('a') //Create <a>
           // a.href = 'data:text/xlsx;base64,' + res.data //Image Base64 Goes here
           a.href = URL.createObjectURL(blob) //Image Base64 Goes here
-          a.download = 'Compras.xlsx' //File name Here
+          a.download = `${type}.xlsx` //File name Here
           a.click() //Downloaded file
         })
     } catch (error) {
@@ -91,7 +97,15 @@ class Invoices extends Component {
                       </FormGroup>
                     </Col>
                   </Row>
-                  <Button onClick={this.donwloadExcel}>Compras</Button>
+                  <Button onClick={() => this.donwloadExcel('Compras')}>
+                    Compras
+                  </Button>
+                  <Button
+                    onClick={() => this.donwloadExcel('Ventas')}
+                    className='ml-2'
+                  >
+                    Ventas
+                  </Button>
                 </CardBody>
               </Card>
             </Col>
