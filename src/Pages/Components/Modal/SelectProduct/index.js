@@ -208,7 +208,7 @@ class SelectProduct extends Component {
                             </div>
                         </Card>
                         {products === null ? null :
-                            (<Table className="mb-2" bordered>
+                            (<Table className="mb-2" responsive bordered>
                                 <thead>
                                     <tr>
                                         <th style={{ width: '8em' }}>Codigo</th>

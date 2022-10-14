@@ -618,12 +618,12 @@ class CreateInvoice extends Component {
                               {format(form.no_iva)}
                             </td>
                           </tr>
-                          <tr>
+                          {/* <tr>
                             <td>Descuento</td>
                             <td style={{ 'text-align': 'right' }}>
                               {format(form.discount)}
                             </td>
-                          </tr>
+                          </tr> */}
                           <tr>
                             <th style={{ 'text-align': 'center' }}>TOTAL</th>
                             <th style={{ 'text-align': 'right' }}>

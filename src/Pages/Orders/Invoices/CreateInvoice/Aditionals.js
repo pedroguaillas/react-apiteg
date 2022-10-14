@@ -9,7 +9,7 @@ class Aditionals extends React.Component {
 
         return (
             <Fragment>
-                <Table bordered>
+                <Table responsive bordered>
                     <thead>
                         <tr>
                             <th colSpan={3} style={{ 'text-align': 'center' }}>Información Adicional</th>
