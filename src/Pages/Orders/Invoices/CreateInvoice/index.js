@@ -633,7 +633,7 @@ class CreateInvoice extends Component {
                         </tbody>
                       </Table>
 
-                      {/* <Button
+                      <Button
                         color='secondary'
                         id='btn-save'
                         onClick={() => this.submit(false)}
@@ -641,7 +641,7 @@ class CreateInvoice extends Component {
                         disable
                       >
                         Guardar
-                      </Button> */}
+                      </Button>
                       <Button
                         color='success'
                         id='btn-save-send'

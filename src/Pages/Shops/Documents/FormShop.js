@@ -672,7 +672,7 @@ class FormShop extends Component {
                                                     </tr>
                                                 </tbody>
                                             </Table>
-                                            {/* <Button color="secondary" id="btn-save" onClick={() => this.submit(false)} className="mr-2 btn-transition" disable>Guardar</Button> */}
+                                            <Button color="secondary" id="btn-save" onClick={() => this.submit(false)} className="mr-2 btn-transition" disable>Guardar</Button>
                                             <Button color="success" id="btn-save-send" onClick={() => this.submit(true)} className="mr-2 btn-transition">Guardar y procesar</Button>
                                         </Col>
                                     </Row>
