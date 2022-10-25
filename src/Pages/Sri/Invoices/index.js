@@ -106,6 +106,7 @@ class Invoices extends Component {
                   >
                     Ventas
                   </Button>
+                  <Button className='ml-2'>ATS</Button>
                 </CardBody>
               </Card>
             </Col>
