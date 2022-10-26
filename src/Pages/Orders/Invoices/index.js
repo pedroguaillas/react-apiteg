@@ -167,10 +167,18 @@ class Invoices extends Component {
         } catch (error) { console.log(error) }
     }
 
-    sendMail = async (id) => {
+    sendMail = async (order) => {
+        if(order.atts.state !== 'AUTORIZADO'){
+            alert('La factura debe estar AUTORIZADO para enviar')
+            return
+        }
+        if(order.customer.email === null){
+            alert('Agregue el CORREO ELECTRÓNICO del cliente para enviar')
+            return
+        }
         tokenAuth(this.props.token);
         try {
-            await clienteAxios.get(`orders/${id}/mail`)
+            await clienteAxios.get(`orders/${order.id}/mail`)
                 .then(() => this.reloadPage())
         } catch (error) { console.log(error) }
     }
@@ -339,7 +347,7 @@ class Invoices extends Component {
                                                                     <td style={{'text-align':'right'}}>${order.atts.total}</td>
                                                                     <td className='font-icon-wrapper font-icon-sm border-right-0 border-left-0'>
                                                                         {order.atts.send_mail === 1?
-                                                                        <i title={`Enviado al correo ${order.customer.email}`} className="pe-7s-mail icon-gradient bg-plum-plate"> </i>
+                                                                        <i className="pe-7s-mail icon-gradient bg-plum-plate"> </i>
                                                                         :null}
                                                                     </td>
                                                                     <td>
@@ -355,9 +363,9 @@ class Invoices extends Component {
                                                                                     :
                                                                                     null
                                                                                 }
-                                                                                {order.atts.send_mail === 0 && order.atts.state === 'AUTORIZADO' && order.customer.email !== null ?
-                                                                                <DropdownItem onClick={() => this.sendMail(order.id)}>Enviar correo</DropdownItem>
-                                                                                : null}
+                                                                                <DropdownItem onClick={() => this.sendMail(order)}>
+                                                                                {order.atts.send_mail === 1 ? 'Renviar correo' : 'Enviar correo'}
+                                                                                </DropdownItem>
                                                                                 <DropdownItem onClick={() => this.printfPdf(order.id)}>Imprimir</DropdownItem>
                                                                             </DropdownMenu>
                                                                         </ButtonDropdown>
