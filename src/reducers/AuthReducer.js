@@ -20,6 +20,7 @@ export default function (state = initialState, action) {
                 ...state,
                 authenticated: true,
                 token: action.payload.token,
+                inventory: action.payload.inventory,
                 user: action.payload.user,
                 message: null,
                 cargando: false
