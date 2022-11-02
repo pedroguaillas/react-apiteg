@@ -17,9 +17,18 @@ class ItemProduct extends Component {
             (
                 <tr key={index}>
                     <td>
+                    <Input size="sm" name="code" className="form-control" type="text"
+                            value={product.code} min="0" required /> 
+                    </td>
+                    <td>
                         <Input size="sm" onChange={handleChangeItem(index)} name="quantity" className="form-control" type="number"
                             value={product.quantity} min="0" required />
                     </td>
+                    <td>
+                    <Input size="sm" name="description" className="form-control" type="text"
+                            value={product.code} maxLength={300} required /> 
+                  
+                     </td>
                     <td>
                         <SelectProduct
                             index={index}
@@ -32,10 +41,10 @@ class ItemProduct extends Component {
                         <Input size="sm" onChange={handleChangeItem(index)} name="price" className="form-control" type="number"
                             value={product.price} min={0} required />
                     </td>
-                    <td>
+                    {/* <td>
                         <Input size="sm" onChange={handleChangeItem(index)} name="discount" className="form-control" type="number"
                             value={product.discount} min={0} max={100} required />
-                    </td>
+                    </td> */}
                     <td>${discount.toFixed(2)}</td>
                     <td>${(sub_total - discount).toFixed(2)}</td>
                     <td>

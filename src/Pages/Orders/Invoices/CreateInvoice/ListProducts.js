@@ -1,17 +1,18 @@
-import React, { Fragment } from 'react'
-import { Table, Button } from 'reactstrap'
+import React, { Fragment } from 'react';
+import { Table, Button } from 'reactstrap';
 
-import ItemProduct from './ItemProduct'
+import ItemProduct from './ItemProduct';
 
 class ListProducts extends React.Component {
-  render () {
+  render() {
     let {
       edit,
       productinputs,
       productouts,
       addProduct,
+      breakdown,
       ...functions
-    } = this.props
+    } = this.props;
 
     return (
       <Fragment>
@@ -21,8 +22,7 @@ class ListProducts extends React.Component {
               <th style={{ width: '9em' }}>Cantidad</th>
               <th>Nombre</th>
               <th style={{ width: '9em' }}>Precio unitario</th>
-              {/* <th style={{ 'width': '9em' }}>Descuento (%)</th> */}
-              {/* <th style={{ 'width': '9em' }}>Descuento ($)</th> */}
+              {breakdown ? <th style={{ width: '5em' }}>Iva</th> : null}
               <th style={{ width: '9em' }}>Total</th>
               <th style={{ width: '1em' }}></th>
             </tr>
@@ -34,18 +34,19 @@ class ListProducts extends React.Component {
                     index={i}
                     product={product}
                     productinputs={productinputs}
+                    breakdown={breakdown}
                     {...functions}
                   />
                 ))
               : null}
           </tbody>
         </Table>
-        <Button onClick={addProduct} className='btn-transition' color='primary'>
+        <Button onClick={addProduct} className="btn-transition" color="primary">
           Añadir producto
         </Button>
       </Fragment>
-    )
+    );
   }
 }
 
-export default ListProducts
+export default ListProducts;

@@ -7,7 +7,7 @@ const Description = ({ form, handleChange, edit }) => {
         <Row form>
             <Col md={6}>
                 <FormGroup row>
-                    <Label style={{ 'font-weight': 'bold' }} for="description" sm={4}>Descripción</Label>
+                    <Label style={{ 'font-weight': 'bold' }} for="description" sm={4}>Comentarios:</Label>
                     <Col sm={6} hidden={edit}>
                         <Input bsSize="sm" onChange={handleChange} value={form.description} type="textarea"
                             name="description" id="description" />
