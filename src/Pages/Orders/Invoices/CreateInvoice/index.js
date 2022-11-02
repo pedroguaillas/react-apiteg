@@ -377,7 +377,7 @@ class CreateInvoice extends Component {
           if (value >= 0) {
             productouts[index].total_iva = value;
             productouts[index].price = Number(
-              value / (productouts[index].quantity * 1.12)
+              value / productouts[index].quantity / 1.12
             );
           }
           break;
