@@ -10,7 +10,7 @@ class InfoDocument extends Component {
     render() {
 
         let { form, handleChange, providers, selectProvider, selectDocXml, registerProvider } = this.props
-
+        console.log(form);
         let type_vouchers = [
             { code: 1, description: 'Factura' },
             { code: 2, description: 'Nota Venta' },
