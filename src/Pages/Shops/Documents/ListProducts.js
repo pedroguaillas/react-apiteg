@@ -5,7 +5,7 @@ import ItemProduct from './ItemProduct';
 
 class ListProducts extends React.Component {
   render() {
-    let { edit, productinputs, productouts, addProduct, ...functions } =
+    let { edit, productinputs, productouts, addProduct, apply_inventory, ...functions } =
       this.props;
 
     return (
@@ -13,9 +13,9 @@ class ListProducts extends React.Component {
         <Table responsive bordered>
           <thead>
             <tr style={{ textAlign: 'center' }}>
-              <th style={{ width: '7em' }}>Código</th>
+             { apply_inventory ? <th style={{ width: '7em' }}>Código</th>: null}
               <th style={{ width: '7em' }}>Cantidad</th>
-              <th>Descripción</th>
+              {apply_inventory? <th>Descripción</th> : null}
               <th style={{ width: '11em' }}>Nombre</th>
               <th style={{ width: '7em' }}>Precio unitario</th>
               <th style={{ width: '6em' }}>Descuento ($)</th>
@@ -31,7 +31,9 @@ class ListProducts extends React.Component {
                     index={i}
                     product={product}
                     productinputs={productinputs}
+                    apply_inventory={apply_inventory}
                     {...functions}
+                    
                   />
                 ))
               : null}

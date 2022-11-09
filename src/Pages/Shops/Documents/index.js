@@ -113,6 +113,8 @@ class Documents extends Component {
             case 3: prefix = 'L/C'; break;
             case 4: prefix = 'N/C'; break;
             case 5: prefix = 'N/D'; break;
+            default: 
+            break;
         }
         return prefix
     }
@@ -231,6 +233,8 @@ class Documents extends Component {
             case 'RECIBIDA': return 'Autorizar'
             case 'DEVUELTA': return 'Volver a procesar'
             case 'AUTORIZADO': return 'Anular'
+            default:
+                break;
         }
     }
 

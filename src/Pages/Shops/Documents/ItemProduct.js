@@ -7,28 +7,28 @@ class ItemProduct extends Component {
     render() {
 
         let { edit, index, product, handleChangeItem,
-            productinputs, selectProduct, deleteProduct
+            productinputs, selectProduct, deleteProduct, apply_inventory
         } = this.props
 
         let sub_total = product.quantity * product.price
         let discount = sub_total * product.discount * .01
-
+        console.log(product);
         return ((edit === false) ?
             (
                 <tr key={index}>
-                    <td>
+                    {apply_inventory ? <td>
                     <Input size="sm" name="code" className="form-control" type="text"
                             value={product.code} min="0" required /> 
-                    </td>
+                    </td> :null}
                     <td>
                         <Input size="sm" onChange={handleChangeItem(index)} name="quantity" className="form-control" type="number"
                             value={product.quantity} min="0" required />
                     </td>
-                    <td>
+                    {apply_inventory? <td>
                     <Input size="sm" name="description" className="form-control" type="text"
                             value={product.code} maxLength={300} required /> 
                   
-                     </td>
+                     </td> :null}
                     <td>
                         <SelectProduct
                             index={index}
