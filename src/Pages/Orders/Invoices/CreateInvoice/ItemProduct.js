@@ -13,6 +13,7 @@ class ItemProduct extends Component {
       deleteProduct,
       format,
       breakdown,
+      decimal,
     } = this.props;
 
     let sub_total = product.quantity * product.price;
@@ -42,7 +43,7 @@ class ItemProduct extends Component {
         </td>
         <td>
           {breakdown ? (
-            format(product.price)
+            product.price.toFixed(decimal)
           ) : (
             <Input
               size="sm"
@@ -56,12 +57,9 @@ class ItemProduct extends Component {
             />
           )}
         </td>
-        {/* <td>
-                    <Input size="sm" onChange={handleChangeItem(index)} name="discount" className="form-control" type="number"
-                        value={product.discount} min={0} max={100} required />
-                </td> */}
-        {/* <td>{format(discount)}</td> */}
-        { breakdown ? <td>{format(product.price * 0.12)}</td> : null}
+        {breakdown ? (
+          <td>{format(product.price * (product.iva === 2 ? 0.12 : 0))}</td>
+        ) : null}
         <td>
           {breakdown ? (
             <Input

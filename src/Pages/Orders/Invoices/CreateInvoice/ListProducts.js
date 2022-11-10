@@ -11,6 +11,7 @@ class ListProducts extends React.Component {
       productouts,
       addProduct,
       breakdown,
+      decimal,
       ...functions
     } = this.props;
 
@@ -35,6 +36,7 @@ class ListProducts extends React.Component {
                     product={product}
                     productinputs={productinputs}
                     breakdown={breakdown}
+                    decimal={decimal}
                     {...functions}
                   />
                 ))

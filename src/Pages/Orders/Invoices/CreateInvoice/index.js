@@ -328,10 +328,11 @@ class CreateInvoice extends Component {
       let productouts = this.state.productouts.map((item, i) => {
         if (index === i) {
           item.product_id = product.id;
-          item.price = product.atts.price1;
+          item.price = parseFloat(product.atts.price1);
           item.quantity = 1;
           item.iva = product.atts.iva;
           item.stock = product.stock > 0 ? product.stock : 1;
+          item.total_iva = parseFloat(product.atts.price1);
         }
         return item;
       });
@@ -354,18 +355,23 @@ class CreateInvoice extends Component {
   handleChangeItem = (index) => (e) => {
     let { productouts } = this.state;
     let { name, value } = e.target;
+    let {decimal} = this.props;
     if (!isNaN(value)) {
       switch (name) {
         case 'quantity':
           if (value >= 0) {
             productouts[index].quantity = value;
-            productouts[index].total_iva = value * productouts[index].price;
+            productouts[index].total_iva = parseFloat(
+              (value * productouts[index].price).toFixed(2)
+            );
           }
           break;
         case 'price':
           if (value >= 0) {
             productouts[index].price = value;
-            productouts[index].total_iva = value * productouts[index].quantity;
+            productouts[index].total_iva = parseFloat(
+              (value * productouts[index].quantity).toFixed(2)
+            );
           }
           break;
         case 'discount':
@@ -376,9 +382,12 @@ class CreateInvoice extends Component {
         case 'total_iva':
           if (value >= 0) {
             productouts[index].total_iva = value;
-            productouts[index].price = Number(
-              value / productouts[index].quantity / 1.12
-            );
+            productouts[index].price =
+              productouts[index].iva === 2
+                ? parseFloat(
+                    (value / productouts[index].quantity / 1.12).toFixed(decimal)
+                  )
+                : parseFloat((value / productouts[index].quantity).toFixed(decimal));
           }
           break;
         default:
@@ -623,6 +632,7 @@ class CreateInvoice extends Component {
                       handleChangeItem={this.handleChangeItem}
                       format={format}
                       breakdown={breakdown}
+                      decimal = {this.props.decimal}
                     />
                   </Form>
 
@@ -720,6 +730,7 @@ class CreateInvoice extends Component {
 
 const mapStateToProps = (state) => ({
   token: state.AuthReducer.token,
+  decimal: state.AuthReducer.decimal
 });
 
 export default connect(mapStateToProps)(CreateInvoice);
