@@ -21,6 +21,7 @@ export default function (state = initialState, action) {
                 authenticated: true,
                 token: action.payload.token,
                 inventory: action.payload.inventory,
+                decimal: action.payload.decimal,
                 user: action.payload.user,
                 message: null,
                 cargando: false
