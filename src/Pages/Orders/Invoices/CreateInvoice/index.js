@@ -23,6 +23,7 @@ import InfoDocument from './InfoDocument';
 import clienteAxios from '../../../../config/axios';
 import tokenAuth from '../../../../config/token';
 import Aditionals from './Aditionals';
+import api from '../../../../services/api';
 
 class CreateInvoice extends Component {
   constructor() {
@@ -110,13 +111,14 @@ class CreateInvoice extends Component {
     xmlDoc.getElementsByTagName(tag)[0].childNodes[0].nodeValue;
 
   async componentDidMount() {
-    tokenAuth(this.props.token);
+    // tokenAuth(this.props.token);
     const {
       match: { params },
     } = this.props;
     if (params.id) {
       try {
-        await clienteAxios.get(`orders/${params.id}`).then((res) => {
+        // await clienteAxios.get(`orders/${params.id}`).then((res) => {
+        await api.get(`orders/${params.id}`).then((res) => {
           let { data } = res;
           let { series } = data;
           this.setState({
@@ -133,7 +135,8 @@ class CreateInvoice extends Component {
       }
     } else {
       try {
-        await clienteAxios.get('orders/create').then((res) => {
+        // await clienteAxios.get('orders/create').then((res) => {
+        await api.get('orders/create').then((res) => {
           let { data } = res;
           let { series } = data;
           this.setState({
@@ -162,17 +165,19 @@ class CreateInvoice extends Component {
       form.send = send;
       form.aditionals = aditionals;
 
-      tokenAuth(this.props.token);
+      // tokenAuth(this.props.token);
       try {
         document.getElementById('btn-save').disabled = true;
         document.getElementById('btn-save-send').disabled = true;
 
         if (form.id) {
-          await clienteAxios
+          // await clienteAxios
+          await api
             .put(`orders/${form.id}`, form)
             .then((res) => this.props.history.push('/ventas/facturas'));
         } else {
-          await clienteAxios
+          // await clienteAxios
+          await api
             .post('orders', form)
             .then((res) => this.props.history.push('/ventas/facturas'));
         }
@@ -479,10 +484,11 @@ class CreateInvoice extends Component {
   getMasive = async (prods) => {
     let data = { prods };
 
-    tokenAuth(this.props.token);
+    // tokenAuth(this.props.token);
     try {
       // Enviar a traer solo esos productos
-      await clienteAxios.post('products/getmasive', data).then((res) => {
+      // await clienteAxios.post('products/getmasive', data).then((res) => {
+      await api.post('products/getmasive', data).then((res) => {
         let { products, order_items } = res.data;
         let newpros = [];
         for (let i = 0; i < products.length; i++) {
@@ -729,8 +735,9 @@ class CreateInvoice extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  token: state.AuthReducer.token,
+  // token: state.AuthReducer.token,
   decimal: state.AuthReducer.decimal
 });
 
 export default connect(mapStateToProps)(CreateInvoice);
+// export default CreateInvoice;

@@ -7,6 +7,7 @@ import PageTitle from '../../../Layout/AppMain/PageTitle';
 
 import clientAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
+import api from '../../../services/api';
 
 const CreateCategory = (props) => {
 
@@ -35,9 +36,10 @@ const CreateCategory = (props) => {
 
     const submit = async () => {
         if (formCategory.category !== '') {
-            tokenAuth(props.token);
+            // tokenAuth(props.token);
             try {
-                await clientAxios.post('categories', formCategory)
+                // await clientAxios.post('categories', formCategory)
+                await api.post('categories', formCategory)
                     .then(res => props.history.push('/inventarios/categorias'))
 
             } catch (error) {
@@ -128,10 +130,11 @@ const CreateCategory = (props) => {
     );
 }
 
-const mapStateToProps = state => ({
-    token: state.AuthReducer.token
-});
+// const mapStateToProps = state => ({
+//     token: state.AuthReducer.token
+// });
 
-const mapDispatchToProps = () => ({});
+// const mapDispatchToProps = () => ({});
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreateCategory);
+// export default connect(mapStateToProps, mapDispatchToProps)(CreateCategory);
+export default CreateCategory;

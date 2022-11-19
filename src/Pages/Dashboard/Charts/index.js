@@ -1,12 +1,10 @@
 import React, { Fragment } from 'react';
-import { connect } from 'react-redux';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import { Row, Col } from 'reactstrap';
 
 import OrdersByMonths from './OrdersByMonths';
 import Alert from 'reactstrap/lib/Alert';
-import clientAxios from '../../../config/axios';
-import tokenAuth from '../../../config/token';
+import api from '../../../services/api';
 
 class Charts extends React.Component {
 
@@ -22,9 +20,9 @@ class Charts extends React.Component {
     }
 
     async componentDidMount() {
-        tokenAuth(this.props.token);
         try {
-            await clientAxios.get('dashboard')
+            await api.get('dashboard')
+            // await setup.get('dashboard')
                 .then(res => {
                     let { active, expired, orders, shops, count_orders, count_shops, count_customers, count_providers } = res.data
                     this.setState({ active, expired, orders, shops, count_orders, count_shops, count_customers, count_providers })
@@ -131,8 +129,4 @@ class Charts extends React.Component {
     }
 }
 
-const mapStateToProps = state => ({
-    token: state.AuthReducer.token
-});
-
-export default connect(mapStateToProps)(Charts);
+export default Charts;

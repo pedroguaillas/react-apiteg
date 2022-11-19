@@ -18,7 +18,7 @@ import PageTitle from '../../../Layout/AppMain/PageTitle';
 
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
-
+import api from '../../../services/api';
 class FormProduct extends Component {
   state = {
     unities: [],
@@ -35,13 +35,14 @@ class FormProduct extends Component {
   };
 
   async componentDidMount() {
-    tokenAuth(this.props.token);
+    // tokenAuth(this.props.token);
     const {
       match: { params },
     } = this.props;
     if (params.id) {
       try {
-        await clienteAxios
+        // await clienteAxios
+        await api
           .get('products/' + params.id)
           .then(({ data: { accounts, product, categories, unities } }) => {
             this.setState({ form: product, unities, categories, accounts });
@@ -51,7 +52,8 @@ class FormProduct extends Component {
       }
     } else {
       try {
-        await clienteAxios
+        // await clienteAxios
+        await api
           .get('productscreate')
           .then(({ data: { unities, categories } }) => {
             this.setState({ unities, categories });
@@ -67,26 +69,33 @@ class FormProduct extends Component {
       match: { params },
     } = this.props;
     if (this.validate()) {
-      tokenAuth(this.props.token);
+      // tokenAuth(this.props.token);
       try {
         let { form } = this.state;
         if (form.id) {
           delete form.stock;
-          await clienteAxios
-            .put('products/' + params.id, form)
-            .then((res) => this.props.history.push('/inventarios/productos'));
+          // await clienteAxios
+          await api.put('products/' + params.id, form).then((res) => {
+            if (res.data.message === 'KEY_DUPLICATE') {
+              alert('Ya existe un producto con ese código');
+              return;
+            }
+            this.props.history.push('/inventarios/productos');
+          });
         } else {
           if (form.stock === '') {
             delete form.stock;
           }
-          await clienteAxios
-            .post('products', form)
-            .then((res) => this.props.history.push('/inventarios/productos'));
+          // await clienteAxios
+          await api.post('products', form).then((res) => {
+            if (res.data.message === 'KEY_DUPLICATE') {
+              alert('Ya existe un producto con ese código');
+              return;
+            }
+            this.props.history.push('/inventarios/productos');
+          });
         }
       } catch (error) {
-        if (error.response.data.message === 'KEY_DUPLICATE') {
-          alert('Ya existe un producto con ese código');
-        }
         console.log(error);
       }
     }
@@ -321,8 +330,9 @@ class FormProduct extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  token: state.AuthReducer.token,
+  // token: state.AuthReducer.token,
   inventory: state.AuthReducer.inventory,
 });
 
 export default connect(mapStateToProps)(FormProduct);
+// export default FormProduct;

@@ -12,7 +12,6 @@ class ItemProduct extends Component {
 
         let sub_total = product.quantity * product.price
         let discount = sub_total * product.discount * .01
-        console.log(product);
         return ((edit === false) ?
             (
                 <tr key={index}>

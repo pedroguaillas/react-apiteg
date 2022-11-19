@@ -10,6 +10,7 @@ import {
 import clientAxios from '../../../../config/axios';
 import tokenAuth from '../../../../config/token';
 import Paginate from '../../Paginate/Index';
+import api from '../../../../services/api';
 
 class SelectCarrier extends Component {
 
@@ -70,9 +71,10 @@ class SelectCarrier extends Component {
 
     submit = async () => {
         if (this.validate()) {
-            tokenAuth(this.props.token);
+            // tokenAuth(this.props.token);
             try {
-                await clientAxios.post('carriers', this.state.carrier)
+                // await clientAxios.post('carriers', this.state.carrier)
+                await api.post('carriers', this.state.carrier)
                     .then(res => {
                         let { carrier } = res.data
                         let { carriers } = this.state
@@ -132,9 +134,10 @@ class SelectCarrier extends Component {
         let { carriers } = this.state
 
         if (carriers.length === 0) {
-            tokenAuth(this.props.token);
+            // tokenAuth(this.props.token);
             try {
-                await clientAxios.post('carrierlist', { paginate: 10 })
+                // await clientAxios.post('carrierlist', { paginate: 10 })
+                await api.post('carrierlist', { paginate: 10 })
                     .then(res => {
                         let { data, links, meta } = res.data
                         this.setState(state => ({
@@ -155,10 +158,11 @@ class SelectCarrier extends Component {
         e.preventDefault();
 
         if (page !== null) {
-            tokenAuth(this.props.token);
+            // tokenAuth(this.props.token);
             let { search } = this.state
             try {
-                await clientAxios.post(`carrierlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search, paginate: 10 })
+                // await clientAxios.post(`carrierlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search, paginate: 10 })
+                await api.post(`carrierlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search, paginate: 10 })
                     .then(res => {
                         let { data, links, meta } = res.data
                         this.setState({
@@ -172,14 +176,15 @@ class SelectCarrier extends Component {
     }
 
     onChangeItem = async (e) => {
-        tokenAuth(this.props.token)
+        // tokenAuth(this.props.token)
         let {
             value
         } = e.target
 
         if (value.length > 1) {
             try {
-                await clientAxios.post('carrierlist', { search: value, paginate: 4 })
+                // await clientAxios.post('carrierlist', { search: value, paginate: 4 })
+                await api.post('carrierlist', { search: value, paginate: 4 })
                     .then(res => {
                         let { data, links, meta } = res.data
                         this.setState({
@@ -202,13 +207,14 @@ class SelectCarrier extends Component {
     }
 
     onChangeSearch = async (e) => {
-        tokenAuth(this.props.token)
+        // tokenAuth(this.props.token)
         let {
             value
         } = e.target
 
         try {
-            await clientAxios.post('carrierlist', { search: value, paginate: 10 })
+            // await clientAxios.post('carrierlist', { search: value, paginate: 10 })
+            await api.post('carrierlist', { search: value, paginate: 10 })
                 .then(res => {
                     let { data, links, meta } = res.data
                     this.setState({
@@ -371,8 +377,9 @@ class SelectCarrier extends Component {
     }
 }
 
-const mapStateToProps = state => ({
-    token: state.AuthReducer.token
-});
+// const mapStateToProps = state => ({
+//     token: state.AuthReducer.token
+// });
 
-export default connect(mapStateToProps)(SelectCarrier);
+// export default connect(mapStateToProps)(SelectCarrier);
+export default SelectCarrier;

@@ -8,6 +8,7 @@ import PageTitle from '../../../Layout/AppMain/PageTitle';
 
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
+import api from '../../../services/api';
 
 class Categories extends Component {
 
@@ -20,9 +21,10 @@ class Categories extends Component {
     }
 
     async componentDidMount() {
-        tokenAuth(this.props.token);
+        // tokenAuth(this.props.token);
         try {
-            await clienteAxios.get('categories')
+            // await clienteAxios.get('categories')
+            await api.get('categories')
                 .then(res => this.setState({ categories: res.data.data }))
         } catch (error) {
             console.log(error)
@@ -104,10 +106,16 @@ class Categories extends Component {
     }
 }
 
-const mapStateToProps = state => ({
-    token: state.AuthReducer.token
-});
+// const mapStateToProps = state => ({
+//     token: state.AuthReducer.token
+// });
 
-const mapDispatchToProps = dispatch => ({});
+// const mapDispatchToProps = dispatch => ({});
+// const mapStateToProps = state => ({
+//     token: state.AuthReducer.token
+// });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Categories);
+// const mapDispatchToProps = dispatch => ({});
+
+// export default connect(mapStateToProps, mapDispatchToProps)(Categories);
+export default Categories;

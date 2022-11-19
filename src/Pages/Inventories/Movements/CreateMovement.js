@@ -11,6 +11,7 @@ import ListProducts from './ListProducts';
 
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
+import api from '../../../services/api';
 
 class CreateMovement extends Component {
 
@@ -29,9 +30,10 @@ class CreateMovement extends Component {
     }
 
     async componentDidMount() {
-        tokenAuth(this.props.token);
+        // tokenAuth(this.props.token);
         try {
-            await clienteAxios.get('movementscreate')
+            // await clienteAxios.get('movementscreate')
+            await api.get('movementscreate')
                 .then(response => this.setState({
                     productinputs: response.data.products
                 }))
@@ -44,9 +46,10 @@ class CreateMovement extends Component {
         let { form, productouts, total } = this.state
         form.products = productouts.filter(product => product.product_id > 0)
         form.sub_total = total
-        tokenAuth(this.props.token);
+        // tokenAuth(this.props.token);
         try {
-            await clienteAxios.post('movements', form)
+            // await clienteAxios.post('movements', form)
+            await api.post('movements', form)
                 .then(res => this.props.history.push("/inventarios/movimientos"))
         } catch (error) {
             console.log(error)
@@ -214,8 +217,9 @@ class CreateMovement extends Component {
     }
 }
 
-const mapStateToProps = state => ({
-    token: state.AuthReducer.token
-});
+// const mapStateToProps = state => ({
+//     token: state.AuthReducer.token
+// });
 
-export default connect(mapStateToProps)(CreateMovement);
+// export default connect(mapStateToProps)(CreateMovement);
+export default CreateMovement;

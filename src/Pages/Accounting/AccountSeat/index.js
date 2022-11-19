@@ -12,6 +12,7 @@ import ListAccountSeat from './ListAccountSeat';
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
 
+
 class AccountSeat extends Component {
 
     state = {

@@ -7,6 +7,7 @@ import PageTitle from '../../../Layout/AppMain/PageTitle';
 
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
+import api from '../../../services/api';
 
 class Unities extends Component {
 
@@ -15,9 +16,10 @@ class Unities extends Component {
     }
 
     async componentDidMount() {
-        tokenAuth(this.props.token);
+        // tokenAuth(this.props.token);
         try {
-            await clienteAxios.get('unities')
+            // await clienteAxios.get('unities')
+            await api.get('unities')
                 .then(res => this.setState({ unities: res.data.data }))
         } catch (error) {
             console.log(error)
@@ -90,10 +92,11 @@ class Unities extends Component {
     }
 }
 
-const mapStateToProps = state => ({
-    token: state.AuthReducer.token
-});
+// const mapStateToProps = state => ({
+//     token: state.AuthReducer.token
+// });
 
-const mapDispatchToProps = dispatch => ({});
+// const mapDispatchToProps = dispatch => ({});
 
-export default connect(mapStateToProps, mapDispatchToProps)(Unities);
+// export default connect(mapStateToProps, mapDispatchToProps)(Unities);
+export default Unities;

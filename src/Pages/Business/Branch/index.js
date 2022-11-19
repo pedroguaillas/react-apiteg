@@ -8,15 +8,17 @@ import PageTitle from '../../../Layout/AppMain/PageTitle';
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
+import api from '../../../services/api';
 
 class Branch extends Component {
 
     state = { branches: null }
 
     async componentDidMount() {
-        tokenAuth(this.props.token);
+        // tokenAuth(this.props.token);
         try {
-            await clienteAxios.get('branches')
+            // await clienteAxios.get('branches')
+            await api.get('branches')
                 .then(res => this.setState({ branches: res.data.branches }))
         } catch (error) {
             console.log(error)
@@ -108,8 +110,9 @@ class Branch extends Component {
     }
 }
 
-const mapStateToProps = state => ({
-    token: state.AuthReducer.token
-});
+// const mapStateToProps = state => ({
+//     token: state.AuthReducer.token
+// });
 
-export default connect(mapStateToProps)(Branch);
+// export default connect(mapStateToProps)(Branch);
+export default Branch;

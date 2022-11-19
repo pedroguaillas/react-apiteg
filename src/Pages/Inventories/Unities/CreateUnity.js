@@ -7,6 +7,7 @@ import PageTitle from '../../../Layout/AppMain/PageTitle';
 
 import clientAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
+import api from '../../../services/api';
 
 const CreateUnity = (props) => {
 
@@ -22,9 +23,10 @@ const CreateUnity = (props) => {
 
     const submit = async () => {
         if (formUnity.unity !== '') {
-            tokenAuth(props.token);
+            // tokenAuth(props.token);
             try {
-                await clientAxios.post('unities', formUnity)
+                // await clientAxios.post('unities', formUnity)
+                await api.post('unities', formUnity)
                     .then(res => props.history.push('/inventarios/unidades'))
             } catch (error) {
                 if (error.message.includes('405')) {
@@ -90,10 +92,11 @@ const CreateUnity = (props) => {
     );
 }
 
-const mapStateToProps = state => ({
-    token: state.AuthReducer.token
-});
+// const mapStateToProps = state => ({
+//     token: state.AuthReducer.token
+// });
 
-const mapDispatchToProps = () => ({});
+// const mapDispatchToProps = () => ({});
 
-export default connect(mapStateToProps, mapDispatchToProps)(CreateUnity);
+// export default connect(mapStateToProps, mapDispatchToProps)(CreateUnity);
+export default CreateUnity;

@@ -6,6 +6,7 @@ import './assets/base.css';
 import configureStore from './config/configureStore';
 
 import Main from './Pages/Main';
+import setupInterceptors from './services/setupInterceptors';
 
 const store = configureStore();
 
@@ -17,7 +18,6 @@ const store = configureStore();
 //     </Provider>,
 //     document.getElementById('root')
 // );
-
 const rootElement = document.getElementById('root');
 
 const renderApp = Component => {
@@ -32,6 +32,8 @@ const renderApp = Component => {
 };
 
 renderApp(Main);
+
+setupInterceptors(store);
 
 if (module.hot) {
     module.hot.accept('./Pages/Main', () => {
