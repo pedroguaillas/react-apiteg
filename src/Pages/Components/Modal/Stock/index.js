@@ -160,8 +160,9 @@ class Stock extends Component {
   };
 }
 
-const mapStateToProps = (state) => ({
-  token: state.AuthReducer.token,
-});
+// const mapStateToProps = (state) => ({
+//   token: state.AuthReducer.token,
+// });
 
-export default connect(mapStateToProps)(Stock);
+// export default connect(mapStateToProps)(Stock);
+export default Stock;

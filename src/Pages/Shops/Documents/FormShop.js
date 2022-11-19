@@ -24,6 +24,7 @@ import InfoDocument from './InfoDocument';
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
 import Description from './Description';
+import api from '../../../services/api';
 
 class FormShop extends Component {
   constructor() {
@@ -154,13 +155,14 @@ class FormShop extends Component {
   };
 
   async componentDidMount() {
-    tokenAuth(this.props.token);
+    // tokenAuth(this.props.token);
     const {
       match: { params },
     } = this.props;
     if (params.id) {
       try {
-        await clienteAxios.get(`shops/${params.id}`).then((res) => {
+        // await clienteAxios.get(`shops/${params.id}`).then((res) => {
+        await api.get(`shops/${params.id}`).then((res) => {
           let { data } = res;
           let { series } = data;
           this.setState({
@@ -179,7 +181,8 @@ class FormShop extends Component {
       }
     } else {
       try {
-        await clienteAxios.get('shops/create').then((res) => {
+        // await clienteAxios.get('shops/create').then((res) => {
+        await api.get('shops/create').then((res) => {
           let { data } = res;
           let { series } = data;
           this.setState({
@@ -211,12 +214,13 @@ class FormShop extends Component {
       form.app_retention = app_retention;
       form.send = send;
 
-      tokenAuth(this.props.token);
+      // tokenAuth(this.props.token);
       if (form.id) {
         try {
           document.getElementById('btn-save').disabled = true;
           document.getElementById('btn-save-send').disabled = true;
-          await clienteAxios
+          // await clienteAxios
+          await api
             .put(`shops/${form.id}`, form)
             .then((res) => this.props.history.push('/compras/facturas'));
         } catch (error) {
@@ -226,7 +230,8 @@ class FormShop extends Component {
         try {
           document.getElementById('btn-save').disabled = true;
           document.getElementById('btn-save-send').disabled = true;
-          await clienteAxios
+          // await clienteAxios
+          await api
             .post('shops', form)
             .then((res) => this.props.history.push('/compras/facturas'));
         } catch (error) {
@@ -614,35 +619,39 @@ class FormShop extends Component {
 
   registerProvider = async (provider) => {
     try {
-      await clienteAxios.post('providers', provider).then((res) => {
-        let { id, identication, name } = res.data.provider;
-        let providers = [];
+      // tokenAuth(this.props.token);
+      // await clienteAxios.post('providers', provider).then((res) => {
+      await api.post('providers', provider).then((res) => {
+        if (res.data.message === 'KEY_DUPLICATE') {
+          let { id, identication, name } = res.data.provider;
+          let providers = [];
 
-        providers.push({ id, atts: { identication, name } });
+          providers.push({ id, atts: { identication, name } });
 
-        this.setState({
-          providers,
-          form: {
-            ...this.state.form,
-            provider_id: id,
-          },
-        });
+          this.setState({
+            providers,
+            form: {
+              ...this.state.form,
+              provider_id: id,
+            },
+          });
+        } else {
+          let { id, identication, name } = res.data.provider;
+          let providers = [];
+
+          providers.push({ id, atts: { identication, name } });
+
+          this.setState({
+            providers,
+            form: {
+              ...this.state.form,
+              provider_id: id,
+            },
+          });
+        }
       });
     } catch (error) {
-      if (error.response.data.message === 'KEY_DUPLICATE') {
-        let { id, identication, name } = error.response.data.provider;
-        let providers = [];
-
-        providers.push({ id, atts: { identication, name } });
-
-        this.setState({
-          providers,
-          form: {
-            ...this.state.form,
-            provider_id: id,
-          },
-        });
-      }
+      console.log(error);
     }
   };
 
@@ -913,8 +922,9 @@ class FormShop extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  token: state.AuthReducer.token,
+  // token: state.AuthReducer.token,
   inventory: state.AuthReducer.inventory,
 });
 
 export default connect(mapStateToProps)(FormShop);
+// export default FormShop;

@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
 import Paginate from '../../Components/Paginate/Index';
+import api from '../../../services/api';
 
 class Customers extends Component {
 
@@ -19,10 +20,11 @@ class Customers extends Component {
     }
 
     async componentDidMount() {
-        tokenAuth(this.props.token);
+        // tokenAuth(this.props.token);
         let { search } = this.state
         try {
-            await clienteAxios.post('customerlist', { search })
+            // await clienteAxios.post('customerlist', { search })
+            await api.post('customerlist', { search })
                 .then(res => {
                     let { data, links, meta } = res.data
                     this.setState({
@@ -38,10 +40,11 @@ class Customers extends Component {
         e.preventDefault();
 
         if (page !== null) {
-            tokenAuth(this.props.token);
+            // tokenAuth(this.props.token);
             let { search } = this.state
             try {
-                await clienteAxios.post(`customerlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search })
+                // await clienteAxios.post(`customerlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search })
+                await api.post(`customerlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search })
                     .then(res => {
                         let { data, links, meta } = res.data
                         this.setState({
@@ -55,13 +58,14 @@ class Customers extends Component {
     }
 
     onChangeSearch = async (e) => {
-        tokenAuth(this.props.token)
+        // tokenAuth(this.props.token)
         let {
             value
         } = e.target
 
         try {
-            await clienteAxios.post('customerlist', { search: value })
+            // await clienteAxios.post('customerlist', { search: value })
+            await api.post('customerlist', { search: value })
                 .then(res => {
                     let { data, links, meta } = res.data
                     this.setState({
@@ -109,9 +113,10 @@ class Customers extends Component {
 
         let data = { customers }
 
-        tokenAuth(this.props.token)
+        // tokenAuth(this.props.token)
         try {
-            await clienteAxios.post('customers_import_csv', data)
+            // await clienteAxios.post('customers_import_csv', data)
+            await api.post('customers_import_csv', data)
                 .then(res => {
                     let { data, links, meta } = res.data
                     this.setState({
@@ -218,8 +223,9 @@ class Customers extends Component {
     }
 }
 
-const mapStateToProps = state => ({
-    token: state.AuthReducer.token
-});
+// const mapStateToProps = state => ({
+//     token: state.AuthReducer.token
+// });
 
-export default connect(mapStateToProps)(Customers);
+// export default connect(mapStateToProps)(Customers);
+export default Customers;

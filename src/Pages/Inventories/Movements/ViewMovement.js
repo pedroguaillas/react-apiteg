@@ -7,6 +7,7 @@ import {
 
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
+import api from '../../../services/api';
 
 class ViewMovement extends Component {
 
@@ -18,9 +19,10 @@ class ViewMovement extends Component {
     async componentDidUpdate(prevProps) {
         let { id } = this.props;
         if (id > 0 && id !== prevProps.id) {
-            tokenAuth(this.props.token);
+            // tokenAuth(this.props.token);
             try {
-                await clienteAxios.get('movements/' + id)
+                // await clienteAxios.get('movements/' + id)
+                await api.get('movements/' + id)
                     .then(res => this.setState({
                         movement: res.data.movement,
                         products: res.data.products
@@ -83,8 +85,10 @@ class ViewMovement extends Component {
     }
 }
 
-const mapStateToProps = state => ({
-    token: state.AuthReducer.token
-});
+// const mapStateToProps = state => ({
+//     token: state.AuthReducer.token
+// });
 
-export default connect(mapStateToProps)(ViewMovement);
+// export default connect(mapStateToProps)(ViewMovement);
+
+export default ViewMovement;

@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
 import Paginate from '../../Components/Paginate/Index';
+import api from '../../../services/api';
 
 class Carriers extends Component {
 
@@ -19,10 +20,11 @@ class Carriers extends Component {
     }
 
     async componentDidMount() {
-        tokenAuth(this.props.token);
+        // tokenAuth(this.props.token);
         let { search } = this.state
         try {
-            await clienteAxios.post('carrierlist', { search })
+            // await clienteAxios.post('carrierlist', { search })
+            await api.post('carrierlist', { search })
                 .then(res => {
                     let { data, links, meta } = res.data
                     this.setState({
@@ -38,10 +40,11 @@ class Carriers extends Component {
         e.preventDefault();
 
         if (page !== null) {
-            tokenAuth(this.props.token);
+            // tokenAuth(this.props.token);
             let { search } = this.state
             try {
-                await clienteAxios.post(`carrierlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search })
+                // await clienteAxios.post(`carrierlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search })
+                await api.post(`carrierlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search })
                     .then(res => {
                         let { data, links, meta } = res.data
                         this.setState({
@@ -55,13 +58,14 @@ class Carriers extends Component {
     }
 
     onChangeSearch = async (e) => {
-        tokenAuth(this.props.token)
+        // tokenAuth(this.props.token)
         let {
             value
         } = e.target
 
         try {
-            await clienteAxios.post('carrierlist', { search: value })
+            // await clienteAxios.post('carrierlist', { search: value })
+            await api.post('carrierlist', { search: value })
                 .then(res => {
                     let { data, links, meta } = res.data
                     this.setState({
@@ -109,9 +113,10 @@ class Carriers extends Component {
 
         let data = { carriers }
 
-        tokenAuth(this.props.token)
+        // tokenAuth(this.props.token)
         try {
-            await clienteAxios.post('carriers_import', data)
+            // await clienteAxios.post('carriers_import', data)
+            await api.post('carriers_import', data)
                 .then(res => this.setState({ carriers: res.data.carriers }))
         } catch (error) {
             alert('Por mal')
@@ -214,8 +219,9 @@ class Carriers extends Component {
     }
 }
 
-const mapStateToProps = state => ({
-    token: state.AuthReducer.token
-});
+// const mapStateToProps = state => ({
+//     token: state.AuthReducer.token
+// });
 
-export default connect(mapStateToProps)(Carriers);
+// export default connect(mapStateToProps)(Carriers);
+export default Carriers;

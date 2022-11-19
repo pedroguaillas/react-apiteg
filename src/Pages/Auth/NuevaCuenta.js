@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 
 import clienteAxios from '../../config/axios';
 import './index.css';
+import api from '../../services/api';
 
 const NuevaCuenta = () => {
 
@@ -127,7 +128,8 @@ const NuevaCuenta = () => {
         data.append('password', password);
         data.append('email', email);
         try {
-            const response = await clienteAxios.post('api/companies', data,
+            // const response = await clienteAxios.post('api/companies', data,
+            const response = await api.post('api/companies', data,
                 {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });

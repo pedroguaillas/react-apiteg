@@ -15,6 +15,7 @@ import {
 import PageTitle from '../../../Layout/AppMain/PageTitle'
 import tokenAuth from '../../../config/token'
 import clientAxios from '../../../config/axios'
+import api from '../../../services/api';
 
 class Invoices extends Component {
   state = {}
@@ -24,9 +25,10 @@ class Invoices extends Component {
   }
 
   donwloadExcel = async type => {
-    tokenAuth(this.props.token)
+    // tokenAuth(this.props.token)
     try {
-      await clientAxios
+      // await clientAxios
+      await api
         .get(
           type === 'Compras'
             ? `shops/${this.state.month}/export`
@@ -117,8 +119,9 @@ class Invoices extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  token: state.AuthReducer.token
-})
+// const mapStateToProps = state => ({
+//   token: state.AuthReducer.token
+// })
 
-export default connect(mapStateToProps)(Invoices)
+// export default connect(mapStateToProps)(Invoices)
+export default Invoices;

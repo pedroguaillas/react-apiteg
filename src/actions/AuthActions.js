@@ -1,5 +1,6 @@
 import clienteAxios from '../config/axios';
 import tokenAuth from '../config/token';
+import api from '../services/api';
 
 import {
     LOGIN_SUCCESS,
@@ -13,7 +14,9 @@ export function startSesion(user) {
 
     return async (dispatch) => {
         try {
-            const response = await clienteAxios.post('api/login', user);
+            // const response = await clienteAxios.post('api/login', user);
+            const response = await api.post('api/login', user);
+            localStorage.setItem('russ', response.data.token);
             dispatch({
                 type: LOGIN_SUCCESS,
                 payload: response.data
@@ -34,6 +37,7 @@ export function startSesion(user) {
 
 export function refresthToken(token) {
     return (dispatch) => {
+        localStorage.setItem('russ', token);
         dispatch({
             type: REFRESH_TOKEN,
             payload: token
@@ -44,8 +48,10 @@ export function refresthToken(token) {
 export function logout(token) {
     return async (dispatch) => {
         try {
-            tokenAuth(token);
-            await clienteAxios.get('logout');
+            // tokenAuth(token);
+            // await clienteAxios.get('logout');
+            await api.get('logout');
+            localStorage.removeItem('russ');
             dispatch({
                 type: LOGOUT_SESSION
             })

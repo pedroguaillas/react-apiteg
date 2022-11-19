@@ -9,6 +9,7 @@ import PageTitle from '../../../Layout/AppMain/PageTitle';
 
 import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
+import api from '../../../services/api';
 
 class CreateBranch extends Component {
 
@@ -26,11 +27,12 @@ class CreateBranch extends Component {
 
     submit = async () => {
         if (this.validate()) {
-            tokenAuth(this.props.token);
+            // tokenAuth(this.props.token);
             let { form } = this.state
             form.store = parseInt(form.store)
             try {
-                await clienteAxios.post('branches', form)
+                // await clienteAxios.post('branches', form)
+                await api.post('branches', form)
                     .then(res => this.props.history.push('/empresa/establecimientos'))
             } catch (error) {
                 if (error.response.data.message === 'KEY_DUPLICATE') {
@@ -144,8 +146,9 @@ class CreateBranch extends Component {
     }
 }
 
-const mapStateToProps = state => ({
-    token: state.AuthReducer.token
-});
+// const mapStateToProps = state => ({
+//     token: state.AuthReducer.token
+// });
 
-export default connect(mapStateToProps)(CreateBranch);
+// export default connect(mapStateToProps)(CreateBranch);
+export default CreateBranch;

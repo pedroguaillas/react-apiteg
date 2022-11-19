@@ -12,6 +12,7 @@ import InfoDocument from './InfoDocument';
 
 import clienteAxios from '../../../../config/axios';
 import tokenAuth from '../../../../config/token';
+import api from '../../../../services/api';
 
 class CreateInvoice extends Component {
 
@@ -43,11 +44,12 @@ class CreateInvoice extends Component {
     }
 
     async componentDidMount() {
-        tokenAuth(this.props.token)
+        // tokenAuth(this.props.token)
         const { match: { params } } = this.props
         if (params.id) {
             try {
-                await clienteAxios.get(`referralguides/${params.id}`)
+                // await clienteAxios.get(`referralguides/${params.id}`)
+                await api.get(`referralguides/${params.id}`)
                     .then(res => {
                         let { data } = res
                         this.setState({
@@ -61,7 +63,8 @@ class CreateInvoice extends Component {
             } catch (error) { console.log(error) }
         } else {
             try {
-                await clienteAxios.get('referralguides/create')
+                // await clienteAxios.get('referralguides/create')
+                await api.get('referralguides/create')
                     .then(res => {
                         let { data } = res
                         let { serie } = data
@@ -85,16 +88,18 @@ class CreateInvoice extends Component {
 
             form.send = send
 
-            tokenAuth(this.props.token);
+            // tokenAuth(this.props.token);
             try {
                 document.getElementById("btn-save").disabled = true
                 document.getElementById("btn-save-send").disabled = true
 
                 if (form.id) {
-                    await clienteAxios.put(`referralguides/${form.id}`, form)
+                    // await clienteAxios.put(`referralguides/${form.id}`, form)
+                    await api.put(`referralguides/${form.id}`, form)
                         .then(res => this.props.history.push('/guiasremision/index'))
                 } else {
-                    await clienteAxios.post('referralguides', form)
+                    // await clienteAxios.post('referralguides', form)
+                    await api.post('referralguides', form)
                         .then(res => this.props.history.push('/guiasremision/index'))
                 }
             } catch (error) { console.log(error) }
@@ -291,8 +296,9 @@ class CreateInvoice extends Component {
     }
 }
 
-const mapStateToProps = state => ({
-    token: state.AuthReducer.token
-});
+// const mapStateToProps = state => ({
+//     token: state.AuthReducer.token
+// });
 
-export default connect(mapStateToProps)(CreateInvoice);
+// export default connect(mapStateToProps)(CreateInvoice);
+export default CreateInvoice;

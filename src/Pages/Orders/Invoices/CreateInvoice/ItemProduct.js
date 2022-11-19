@@ -15,7 +15,6 @@ class ItemProduct extends Component {
       breakdown,
       decimal,
     } = this.props;
-
     let sub_total = product.quantity * product.price;
     let discount = sub_total * product.discount * 0.01;
 
@@ -43,7 +42,7 @@ class ItemProduct extends Component {
         </td>
         <td>
           {breakdown ? (
-            product.price.toFixed(decimal)
+            (+product.price).toFixed(decimal)
           ) : (
             <Input
               size="sm"

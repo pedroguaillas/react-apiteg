@@ -23,6 +23,7 @@ import clienteAxios from '../../../config/axios';
 import tokenAuth from '../../../config/token';
 import Paginate from '../../Components/Paginate/Index';
 import Stock from '../../Components/Modal/Stock';
+import api from '../../../services/api';
 
 class Products extends Component {
   state = {
@@ -43,10 +44,11 @@ class Products extends Component {
   };
 
   async componentDidMount() {
-    tokenAuth(this.props.token);
+    // tokenAuth(this.props.token);
     let { search } = this.state;
     try {
-      await clienteAxios
+      // await clienteAxios
+      await api
         .post('productlist', { search })
         .then(({ data: { data, links, meta } }) => {
           this.setState({
@@ -66,9 +68,10 @@ class Products extends Component {
     let { search, meta } = this.state;
 
     if (page !== null) {
-      tokenAuth(this.props.token);
+      // tokenAuth(this.props.token);
       try {
-        await clienteAxios
+        // await clienteAxios
+        await api
           .post(`${meta.path}?page=${page.substring(page.indexOf('=') + 1)}`, {
             search,
           })
@@ -89,10 +92,11 @@ class Products extends Component {
   reloadPage = async () => {
     let { current_page } = this.state.meta
     if (current_page !== null) {
-        tokenAuth(this.props.token);
+        // tokenAuth(this.props.token);
         let { search , meta:{path}} = this.state
         try {
-            await clienteAxios.post(`${path}?page=${current_page}`, { search })
+            // await clienteAxios.post(`${path}?page=${current_page}`, { search })
+            await api.post(`${path}?page=${current_page}`, { search })
                 .then(({data:{ data, links, meta }}) => {
                     this.setState({
                         products: data,
@@ -141,9 +145,10 @@ class Products extends Component {
   saveProductsFromCsv = async (products) => {
     let data = { products };
 
-    tokenAuth(this.props.token);
+    // tokenAuth(this.props.token);
     try {
-      await clienteAxios
+      // await clienteAxios
+      await api
         .post('products_import', data)
         .then(({ data: { data, links, meta } }) => {
           this.setState({
@@ -158,11 +163,12 @@ class Products extends Component {
   };
 
   onChangeSearch = async (e) => {
-    tokenAuth(this.props.token);
+    // tokenAuth(this.props.token);
     let { value } = e.target;
 
     try {
-      await clienteAxios
+      // await clienteAxios
+      await api
         .post('productlist', { search: value })
         .then(({ data: { data, links, meta } }) => {
           this.setState({
@@ -253,9 +259,10 @@ class Products extends Component {
       alert('La cantidad y precio son obligatorios');
       return;
     }
-    tokenAuth(this.props.token);
+    // tokenAuth(this.props.token);
     try {
-      await clienteAxios.post('inventories', this.state.inventori).then(() => {
+      // await clienteAxios.post('inventories', this.state.inventori).then(() => {
+      await api.post('inventories', this.state.inventori).then(() => {
         this.setState({
           product: null,
           modal: false,
@@ -438,8 +445,9 @@ class Products extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  token: state.AuthReducer.token,
+  // token: state.AuthReducer.token,
   inventory:state.AuthReducer.inventory
 });
 
 export default connect(mapStateToProps)(Products);
+// export default Products;

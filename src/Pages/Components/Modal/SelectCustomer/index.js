@@ -10,6 +10,7 @@ import {
 import clientAxios from '../../../../config/axios';
 import tokenAuth from '../../../../config/token';
 import Paginate from '../../Paginate/Index';
+import api from '../../../../services/api';
 
 class SelectCustomer extends Component {
 
@@ -70,9 +71,10 @@ class SelectCustomer extends Component {
 
     submit = async () => {
         if (this.validate()) {
-            tokenAuth(this.props.token);
+            // tokenAuth(this.props.token);
             try {
-                await clientAxios.post('customers', this.state.customer)
+                // await clientAxios.post('customers', this.state.customer)
+                await api.post('customers', this.state.customer)
                     .then(res => {
                         let { customer } = res.data
                         let { customers } = this.state
@@ -127,9 +129,10 @@ class SelectCustomer extends Component {
         let { customers } = this.state
 
         if (customers.length === 0) {
-            tokenAuth(this.props.token);
+            // tokenAuth(this.props.token);
             try {
-                await clientAxios.post('customerlist', { paginate: 10 })
+                // await clientAxios.post('customerlist', { paginate: 10 })
+                await api.post('customerlist', { paginate: 10 })
                     .then(res => {
                         let { data, links, meta } = res.data
                         this.setState(state => ({
@@ -150,10 +153,11 @@ class SelectCustomer extends Component {
         e.preventDefault();
 
         if (page !== null) {
-            tokenAuth(this.props.token);
+            // tokenAuth(this.props.token);
             let { search } = this.state
             try {
-                await clientAxios.post(`customerlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search, paginate: 10 })
+                // await clientAxios.post(`customerlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search, paginate: 10 })
+                await api.post(`customerlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search, paginate: 10 })
                     .then(res => {
                         let { data, links, meta } = res.data
                         this.setState({
@@ -167,14 +171,15 @@ class SelectCustomer extends Component {
     }
 
     onChangeItem = async (e) => {
-        tokenAuth(this.props.token)
+        // tokenAuth(this.props.token)
         let {
             value
         } = e.target
 
         if (value.length > 1) {
             try {
-                await clientAxios.post('customerlist', { search: value, paginate: 4 })
+                // await clientAxios.post('customerlist', { search: value, paginate: 4 })
+                await api.post('customerlist', { search: value, paginate: 4 })
                     .then(res => {
                         let { data, links, meta } = res.data
                         this.setState({
@@ -197,13 +202,14 @@ class SelectCustomer extends Component {
     }
 
     onChangeSearch = async (e) => {
-        tokenAuth(this.props.token)
+        // tokenAuth(this.props.token)
         let {
             value
         } = e.target
 
         try {
-            await clientAxios.post('customerlist', { search: value, paginate: 10 })
+            // await clientAxios.post('customerlist', { search: value, paginate: 10 })
+            await api.post('customerlist', { search: value, paginate: 10 })
                 .then(res => {
                     let { data, links, meta } = res.data
                     this.setState({
@@ -374,8 +380,9 @@ class SelectCustomer extends Component {
     }
 }
 
-const mapStateToProps = state => ({
-    token: state.AuthReducer.token
-});
+// const mapStateToProps = state => ({
+//     token: state.AuthReducer.token
+// });
 
-export default connect(mapStateToProps)(SelectCustomer);
+// export default connect(mapStateToProps)(SelectCustomer);
+export default SelectCustomer;

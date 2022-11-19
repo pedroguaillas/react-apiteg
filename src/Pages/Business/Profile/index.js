@@ -16,6 +16,7 @@ import PageTitle from '../../../Layout/AppMain/PageTitle'
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 import clienteAxios from '../../../config/axios'
 import tokenAuth from '../../../config/token'
+import api from '../../../services/api';
 
 class Profile extends Component {
   state = {
@@ -25,9 +26,10 @@ class Profile extends Component {
   }
 
   async componentDidMount () {
-    tokenAuth(this.props.token)
+    // tokenAuth(this.props.token)
     try {
-      await clienteAxios
+      // await clienteAxios
+      await api
         .get('companies')
         .then(({ data: { company } }) => this.setState({ form: company }))
     } catch (error) {
@@ -120,10 +122,11 @@ class Profile extends Component {
     }
 
     // Send
-    tokenAuth(this.props.token)
+    // tokenAuth(this.props.token)
 
     try {
-      await clienteAxios
+      // await clienteAxios
+      await api
         .post('company_update', data, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
@@ -134,9 +137,10 @@ class Profile extends Component {
   }
 
   downloadSign = async () => {
-    tokenAuth(this.props.token)
+    // tokenAuth(this.props.token)
     try {
-      await clienteAxios.get('downloadsign').then(({ data: { cert } }) => {
+      // await clienteAxios.get('downloadsign').then(({ data: { cert } }) => {
+      await api.get('downloadsign').then(({ data: { cert } }) => {
         var a = document.createElement('a') //Create <a>
         a.href = 'data:text/xml;base64,' + cert //Image Base64 Goes here
         a.download = `${this.state.form.company}.p12` //File name Here
@@ -319,8 +323,9 @@ class Profile extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  token: state.AuthReducer.token
-})
+// const mapStateToProps = state => ({
+//   token: state.AuthReducer.token
+// })
 
-export default connect(mapStateToProps)(Profile)
+// export default connect(mapStateToProps)(Profile)
+export default Profile;
