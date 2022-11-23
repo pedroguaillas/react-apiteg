@@ -1,7 +1,6 @@
-import React, { Component, Fragment } from 'react';
-import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+import React, { Component, Fragment } from 'react'
+import { Link } from 'react-router-dom'
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 import {
   Row,
   Col,
@@ -14,14 +13,12 @@ import {
   ButtonDropdown,
   DropdownMenu,
   DropdownItem,
-  DropdownToggle,
-} from 'reactstrap';
+  DropdownToggle
+} from 'reactstrap'
 
-import PageTitle from '../../../Layout/AppMain/PageTitle';
-import clienteAxios from '../../../config/axios';
-import tokenAuth from '../../../config/token';
-import Paginate from '../../Components/Paginate/Index';
-import api from '../../../services/api';
+import PageTitle from '../../../Layout/AppMain/PageTitle'
+import Paginate from '../../Components/Paginate/Index'
+import api from '../../../services/api'
 
 class Documents extends Component {
   state = {
@@ -29,127 +26,119 @@ class Documents extends Component {
     shops: null,
     links: null,
     meta: null,
-    search: '',
-  };
+    search: ''
+  }
 
-  async componentDidMount() {
-    // tokenAuth(this.props.token);
-    let { search } = this.state;
+  async componentDidMount () {
+    let { search } = this.state
     try {
-      // await clienteAxios.post('shoplist', { search })
-      await api.post('shoplist', { search }).then((res) => {
-        let { data, links, meta } = res.data;
+      await api.post('shoplist', { search }).then(res => {
+        let { data, links, meta } = res.data
         this.setState({
           shops: data,
           links,
-          meta,
-        });
-      });
+          meta
+        })
+      })
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
   }
 
   reqNewPage = async (e, page) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (page !== null) {
-      // tokenAuth(this.props.token);
-      let { search } = this.state;
+      let { search } = this.state
       try {
-        // await clienteAxios.post(`shoplist?page=${page.substring((page.indexOf('=')) + 1)}`, { search })
         await api
           .post(`shoplist?page=${page.substring(page.indexOf('=') + 1)}`, {
-            search,
+            search
           })
-          .then((res) => {
-            let { data, links, meta } = res.data;
+          .then(res => {
+            let { data, links, meta } = res.data
             this.setState({
               shops: data,
               links,
-              meta,
-            });
-          });
+              meta
+            })
+          })
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
     }
-  };
+  }
 
   reloadPage = async () => {
-    let { current_page } = this.state.meta;
+    let { current_page } = this.state.meta
     if (current_page !== null) {
-      // tokenAuth(this.props.token);
-      let { search } = this.state;
+      let { search } = this.state
       try {
-        // await clienteAxios.post(`shoplist?page=${current_page}`, { search })
         await api
           .post(`shoplist?page=${current_page}`, { search })
-          .then((res) => {
-            let { data, links, meta } = res.data;
+          .then(res => {
+            let { data, links, meta } = res.data
             this.setState({
               shops: data,
               links,
-              meta,
-            });
-          });
+              meta
+            })
+          })
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
     }
-  };
+  }
 
-  onChangeSearch = async (e) => {
-    // tokenAuth(this.props.token)
-    let { value } = e.target;
+  onChangeSearch = async e => {
+    let { value } = e.target
 
     try {
-      // await clienteAxios.post('shoplist', { search: value })
-      await api.post('shoplist', { search: value }).then((res) => {
-        let { data, links, meta } = res.data;
+      await api.post('shoplist', { search: value }).then(res => {
+        let { data, links, meta } = res.data
         this.setState({
           search: value,
           shops: data,
           links,
-          meta,
-        });
-      });
+          meta
+        })
+      })
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
-  addDocument = () => this.props.history.push('/compras/registrardocumento');
+  addDocument = () => this.props.history.push('/compras/registrardocumento')
 
-  handleDrops = (index) => {
-    let { dropdowns } = this.state;
-    dropdowns[index] = !dropdowns[index];
-    this.setState({ dropdowns });
-  };
+  handleDrops = index => {
+    let { dropdowns } = this.state
+    dropdowns[index] = !dropdowns[index]
+    this.setState({ dropdowns })
+  }
 
-  cal_prefix = (type) => {
-    let prefix = null;
+  cal_prefix = type => {
+    let prefix = null
     switch (Number(type)) {
       case 1:
-        prefix = 'FAC';
-        break;
+        prefix = 'FAC'
+        break
       case 2:
-        prefix = 'N/V';
-        break;
+        prefix = 'N/V'
+        break
       case 3:
-        prefix = 'L/C';
-        break;
+        prefix = 'L/C'
+        break
       case 4:
-        prefix = 'N/C';
-        break;
+        prefix = 'N/C'
+        break
       case 5:
-        prefix = 'N/D';
-        break;
+        prefix = 'N/D'
+        break
       default:
-        break;
+        break
     }
-    return prefix;
-  };
+    return prefix
+  }
 
   // Inicio Retencion
   renderRetention = ({
@@ -161,7 +150,7 @@ class Documents extends Component {
       send_mail_retention,
       extra_detail_retention
     },
-    provider: { email },
+    provider: { email }
   }) =>
     serie_retencion ? (
       <Fragment>
@@ -187,7 +176,7 @@ class Documents extends Component {
                 ? this.canceledRetention(id)
                 : null
             }
-            title= {extra_detail_retention}
+            title={extra_detail_retention}
           >
             {this.renderSwith(state_retencion)}
           </DropdownItem>
@@ -197,141 +186,124 @@ class Documents extends Component {
             Descargar XML
           </DropdownItem>
         ) : null}
-        {send_mail_retention === 0 &&
-        state_retencion === 'AUTORIZADO' &&
-        email !== null ? (
+        {email !== null && state_retencion === 'AUTORIZADO' ? (
           <DropdownItem onClick={() => this.sendMail(id)}>
-            Enviar correo
+            {send_mail_retention === 0 ? 'Enviar' : 'Reenviar'} correo
           </DropdownItem>
         ) : null}
       </Fragment>
-    ) : null;
+    ) : null
 
-  viewRetentionPdf = async (id) => {
-    // tokenAuth(this.props.token);
+  viewRetentionPdf = async id => {
     try {
-      // await clienteAxios.get('retentions/pdf/' + id, { responseType: 'blob' })
       await api
         .get('retentions/pdf/' + id, { responseType: 'blob' })
-        .then((res) => {
+        .then(res => {
           //Create a Blob from the PDF Stream
-          const file = new Blob([res.data], { type: 'application/pdf' });
+          const file = new Blob([res.data], { type: 'application/pdf' })
           //Build a URL from the file
-          const fileURL = URL.createObjectURL(file);
+          const fileURL = URL.createObjectURL(file)
           //Open the URL on new Window
-          window.open(fileURL);
-        });
+          window.open(fileURL)
+        })
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
-  generateSignRetention = async (id) => {
-    // tokenAuth(this.props.token);
+  generateSignRetention = async id => {
     try {
-      // await clienteAxios.get('retentions/xml/' + id)
-      await api.get('retentions/xml/' + id).then((res) => this.reloadPage());
+      await api.get('retentions/xml/' + id).then(res => this.reloadPage())
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
-  sendToSriRetention = async (id) => {
-    // tokenAuth(this.props.token);
+  sendToSriRetention = async id => {
     try {
-      // await clienteAxios.get('retentions/sendsri/' + id)
-      await api
-        .get('retentions/sendsri/' + id)
-        .then((res) => this.reloadPage());
+      await api.get('retentions/sendsri/' + id).then(res => this.reloadPage())
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
-  autorizedFromSriRetention = async (id) => {
-    // tokenAuth(this.props.token);
+  autorizedFromSriRetention = async id => {
     try {
-      // await clienteAxios.get(`retentions/authorize/${id}`)
-      await api
-        .get(`retentions/authorize/${id}`)
-        .then((res) => this.reloadPage());
+      await api.get(`retentions/authorize/${id}`).then(res => this.reloadPage())
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
-  canceledRetention = async (id) => {
-    // tokenAuth(this.props.token);
+  canceledRetention = async id => {
     try {
-      // await clienteAxios.get(`retentions/cancel/${id}`)
-      await api.get(`retentions/cancel/${id}`).then((res) => {
-        let { state } = res.data;
+      await api.get(`retentions/cancel/${id}`).then(res => {
+        let { state } = res.data
         if (state === 'OK') {
-          this.reloadPage();
+          this.reloadPage()
         } else {
           alert(
             'Para anular el comprobante en este sistema primero se debe anular en el Sistema del SRI'
-          );
+          )
         }
-      });
+      })
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
-  downloadXmlRetention = async (id) => {
-    // tokenAuth(this.props.token);
+  downloadXmlRetention = async id => {
     try {
-      // await clienteAxios.get('retentions/download/' + id)
-      await api.get('retentions/download/' + id).then((res) => {
-        var a = document.createElement('a'); //Create <a>
-        a.href = 'data:text/xml;base64,' + res.data.xml; //Image Base64 Goes here
-        a.download = 'Retención.xml'; //File name Here
-        a.click(); //Downloaded file
-      });
+      await api.get('retentions/download/' + id).then(res => {
+        var a = document.createElement('a') //Create <a>
+        a.href = 'data:text/xml;base64,' + res.data.xml //Image Base64 Goes here
+        a.download = 'Retención.xml' //File name Here
+        a.click() //Downloaded file
+      })
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
-  sendMail = async (id) => {
-    // tokenAuth(this.props.token);
+  sendMail = async id => {
     try {
-      // await clienteAxios.get(`retentions/mail/${id}`)
-      await api.get(`retentions/mail/${id}`).then(() => this.reloadPage());
+      await api.get(`retentions/mail/${id}`).then(() => this.reloadPage())
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
   // Fin Retencion
 
-  renderSwith = (state) => {
+  renderSwith = state => {
     switch (state) {
       case null:
-        return 'Firmar enviar y procesar';
+        return 'Firmar enviar y procesar'
       case 'CREADO':
-        return 'Firmar enviar y procesar';
+        return 'Firmar enviar y procesar'
       case 'FIRMADO':
-        return 'Enviar y procesar';
+        return 'Enviar y procesar'
       case 'EN_PROCESO':
-        return 'Autorizar';
+        return 'Autorizar'
       case 'ENVIADO':
-        return 'Autorizar';
+        return 'Autorizar'
       case 'RECIBIDA':
-        return 'Autorizar';
+        return 'Autorizar'
       case 'DEVUELTA':
-        return 'Volver a procesar';
+        return 'Volver a procesar'
       case 'AUTORIZADO':
-        return 'Anular';
+        return 'Anular'
       case 'NO AUTORIZADO':
-        return 'Volver a procesar';
+        return 'Volver a procesar'
       default:
-        break;
+        break
     }
-  };
+  }
 
   // Inicio liquidación en compra
-  renderSetPurchase = ({ id, atts: { state, voucher_type, serie, xml , extra_detail} }) =>
+  renderSetPurchase = ({
+    id,
+    atts: { state, voucher_type, serie, xml, extra_detail }
+  }) =>
     voucher_type === 3 && serie ? (
       <Fragment>
         <DropdownItem divider />
@@ -342,7 +314,9 @@ class Documents extends Component {
         {state !== 'ANULADO' ? (
           <DropdownItem
             onClick={() =>
-              state === 'CREADO' || state === 'DEVUELTA' || state === 'NO AUTORIZADO' 
+              state === 'CREADO' ||
+              state === 'DEVUELTA' ||
+              state === 'NO AUTORIZADO'
                 ? this.generateSignSetPurchase(id)
                 : state === 'FIRMADO'
                 ? this.sendToSriSetPurchase(id)
@@ -354,7 +328,7 @@ class Documents extends Component {
                 ? this.canceledSetPurchase(id)
                 : null
             }
-            title= {extra_detail}
+            title={extra_detail}
           >
             {this.renderSwith(state)}
           </DropdownItem>
@@ -365,131 +339,117 @@ class Documents extends Component {
           </DropdownItem>
         ) : null}
       </Fragment>
-    ) : null;
+    ) : null
 
-  viewSetPurchasePdf = async (id) => {
-    // tokenAuth(this.props.token);
+  viewSetPurchasePdf = async id => {
     try {
-      // await clienteAxios.get(`shops/${id}/pdf`, { responseType: 'blob' })
-      await api.get(`shops/${id}/pdf`, { responseType: 'blob' }).then((res) => {
+      await api.get(`shops/${id}/pdf`, { responseType: 'blob' }).then(res => {
         //Create a Blob from the PDF Stream
-        const file = new Blob([res.data], { type: 'application/pdf' });
+        const file = new Blob([res.data], { type: 'application/pdf' })
         //Build a URL from the file
-        const fileURL = URL.createObjectURL(file);
+        const fileURL = URL.createObjectURL(file)
         //Open the URL on new Window
-        window.open(fileURL);
-      });
+        window.open(fileURL)
+      })
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
-  generateSignSetPurchase = async (id) => {
-    // tokenAuth(this.props.token);
+  generateSignSetPurchase = async id => {
     try {
-      // await clienteAxios.get(`shops/${id}/xml`)
-      await api.get(`shops/${id}/xml`).then((res) => this.reloadPage());
+      await api.get(`shops/${id}/xml`).then(res => this.reloadPage())
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
-  sendToSriSetPurchase = async (id) => {
-    // tokenAuth(this.props.token);
+  sendToSriSetPurchase = async id => {
     try {
-      // await clienteAxios.get(`shops/${id}/sendsri`)
-      await api.get(`shops/${id}/sendsri`).then((res) => this.reloadPage());
+      await api.get(`shops/${id}/sendsri`).then(res => this.reloadPage())
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
-  autorizedFromSriSetPurchase = async (id) => {
-    // tokenAuth(this.props.token);
+  autorizedFromSriSetPurchase = async id => {
     try {
-      // await clienteAxios.get(`shops/${id}/authorize`)
-      await api.get(`shops/${id}/authorize`).then((res) => this.reloadPage());
+      await api.get(`shops/${id}/authorize`).then(res => this.reloadPage())
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
-  canceledSetPurchase = async (id) => {
-    // tokenAuth(this.props.token);
+  canceledSetPurchase = async id => {
     try {
-      // await clienteAxios.get(`shops/${id}/cancel`)
-      await api.get(`shops/${id}/cancel`).then((res) => {
-        let { state } = res.data;
+      await api.get(`shops/${id}/cancel`).then(res => {
+        let { state } = res.data
         if (state === 'OK') {
-          this.reloadPage();
+          this.reloadPage()
         } else {
           alert(
             'Para anular el comprobante en este sistema primero se debe anular en el Sistema del SRI'
-          );
+          )
         }
-      });
+      })
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
-  downloadXmlSetPurchase = async (id) => {
-    // tokenAuth(this.props.token);
+  downloadXmlSetPurchase = async id => {
     try {
-      // await clienteAxios.get(`shops/${id}/download`)
-      await api.get(`shops/${id}/download`).then((res) => {
-        var a = document.createElement('a'); //Create <a>
-        a.href = 'data:text/xml;base64,' + res.data.xml; //Image Base64 Goes here
-        a.download = 'LC.xml'; //File name Here
-        a.click(); //Downloaded file
-      });
+      await api.get(`shops/${id}/download`).then(res => {
+        var a = document.createElement('a') //Create <a>
+        a.href = 'data:text/xml;base64,' + res.data.xml //Image Base64 Goes here
+        a.download = 'LC.xml' //File name Here
+        a.click() //Downloaded file
+      })
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
   // Fin liquidación en compra
 
-  importFromTxt = () => document.getElementById('file_txt').click();
+  importFromTxt = () => document.getElementById('file_txt').click()
 
-  handleSelectFile = (e) => {
-    let input = e.target;
+  handleSelectFile = e => {
+    let input = e.target
 
-    let reader = new FileReader();
-    reader.onload = () => this.uploadTxtReport(reader.result);
-    reader.readAsText(input.files[0]);
-  };
+    let reader = new FileReader()
+    reader.onload = () => this.uploadTxtReport(reader.result)
+    reader.readAsText(input.files[0])
+  }
 
-  uploadTxtReport = (txt) => {
-    let lines = txt.split(/\r\n|\n/);
-    let codekeys = [];
-    let i = 0;
+  uploadTxtReport = txt => {
+    let lines = txt.split(/\r\n|\n/)
+    let codekeys = []
+    let i = 0
 
     for (let line in lines) {
       if (i > 0 && i % 2 === 0 && i < lines.length - 1) {
-        let words = lines[line].split('\t');
+        let words = lines[line].split('\t')
         if (words[9].length === 49 || words[9].length === 13) {
-          codekeys.push(words[words[9].length === 49 ? 9 : 10]);
+          codekeys.push(words[words[9].length === 49 ? 9 : 10])
         }
       }
-      i++;
+      i++
     }
-    this.saveFromTxt(codekeys);
-  };
+    this.saveFromTxt(codekeys)
+  }
 
-  saveFromTxt = async (codekeys) => {
-    let data = { clave_accs: codekeys };
-    // tokenAuth(this.props.token)
+  saveFromTxt = async codekeys => {
+    let data = { clave_accs: codekeys }
     try {
-      // await clienteAxios.post('shops/import', data)
-      await api.post('shops/import', data).then((res) => this.reloadPage());
+      await api.post('shops/import', data).then(res => this.reloadPage())
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
   //Layout
   render = () => {
-    let { shops, links, meta, dropdowns, search } = this.state;
+    let { shops, links, meta, dropdowns, search } = this.state
 
     return (
       <Fragment>
@@ -501,7 +461,7 @@ class Documents extends Component {
               action: this.importFromTxt,
               icon: 'import',
               msmTooltip: 'Importar desde .txt reporte SRI',
-              color: 'success',
+              color: 'success'
             },
             {
               type: 'button',
@@ -509,34 +469,34 @@ class Documents extends Component {
               action: this.addDocument,
               icon: 'plus',
               msmTooltip: 'Agregar documento',
-              color: 'primary',
-            },
+              color: 'primary'
+            }
           ]}
-          heading="Compras"
-          subheading="Lista de todas las compras"
-          icon="pe-7s-repeat icon-gradient bg-mean-fruit"
+          heading='Compras'
+          subheading='Lista de todas las compras'
+          icon='pe-7s-repeat icon-gradient bg-mean-fruit'
         />
         <ReactCSSTransitionGroup
-          component="div"
-          transitionName="TabsAnimation"
+          component='div'
+          transitionName='TabsAnimation'
           transitionAppear={true}
           transitionAppearTimeout={0}
           transitionEnter={false}
           transitionLeave={false}
         >
           <Row>
-            <Col lg="12" className="mb-4">
+            <Col lg='12' className='mb-4'>
               <Card>
-                <div className="card-header">
+                <div className='card-header'>
                   Busqueda
-                  <div className="btn-actions-pane-right">
-                    <Form className="text-right">
-                      <InputGroup size="sm">
+                  <div className='btn-actions-pane-right'>
+                    <Form className='text-right'>
+                      <InputGroup size='sm'>
                         <Input
                           value={search}
                           onChange={this.onChangeSearch}
-                          placeholder="Buscar"
-                          className="search-input"
+                          placeholder='Buscar'
+                          className='search-input'
                         />
                       </InputGroup>
                     </Form>
@@ -549,10 +509,10 @@ class Documents extends Component {
           <Input
             onChange={this.handleSelectFile}
             style={{ display: 'none' }}
-            type="file"
-            name="invoicestxt"
-            id="file_txt"
-            accept=".txt"
+            type='file'
+            name='invoicestxt'
+            id='file_txt'
+            accept='.txt'
           />
           {shops === null ? (
             <p>Cargando ...</p>
@@ -560,10 +520,10 @@ class Documents extends Component {
             <p>No existe documentos registrados</p>
           ) : (
             <Row>
-              <Col lg="12">
-                <Card className="main-card mb-3">
+              <Col lg='12'>
+                <Card className='main-card mb-3'>
                   <CardBody>
-                    <Table striped size="sm" responsive>
+                    <Table striped size='sm' responsive>
                       <thead>
                         <tr>
                           <th>Emisión</th>
@@ -591,11 +551,11 @@ class Documents extends Component {
                             <td style={{ 'text-align': 'right' }}>
                               ${voucher.atts.total}
                             </td>
-                            <td className="font-icon-wrapper font-icon-sm border-right-0 border-left-0">
+                            <td className='font-icon-wrapper font-icon-sm border-right-0 border-left-0'>
                               {voucher.atts.send_mail_retention === 1 ? (
                                 <i
                                   title={`Enviado al correo ${voucher.provider.email}`}
-                                  className="pe-7s-mail icon-gradient bg-plum-plate"
+                                  className='pe-7s-mail icon-gradient bg-plum-plate'
                                 >
                                   {' '}
                                 </i>
@@ -603,7 +563,7 @@ class Documents extends Component {
                             </td>
                             <td>
                               <ButtonDropdown
-                                direction="left"
+                                direction='left'
                                 isOpen={dropdowns[index]}
                                 toggle={() => this.handleDrops(index)}
                               >
@@ -635,13 +595,8 @@ class Documents extends Component {
           )}
         </ReactCSSTransitionGroup>
       </Fragment>
-    );
-  };
+    )
+  }
 }
 
-// const mapStateToProps = state => ({
-//     token: state.AuthReducer.token
-// });
-
-// export default connect(mapStateToProps)(Documents);
-export default Documents;
+export default Documents
