@@ -1,6 +1,6 @@
-import React, { Component, Fragment } from 'react';
-import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+import React, { Component, Fragment } from 'react'
+import { connect } from 'react-redux'
+import { Link } from 'react-router-dom'
 import {
   Row,
   Col,
@@ -13,17 +13,17 @@ import {
   ButtonDropdown,
   DropdownMenu,
   DropdownItem,
-  DropdownToggle,
-} from 'reactstrap';
-import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
+  DropdownToggle
+} from 'reactstrap'
+import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
-import PageTitle from '../../../Layout/AppMain/PageTitle';
+import PageTitle from '../../../Layout/AppMain/PageTitle'
 
-import clienteAxios from '../../../config/axios';
-import tokenAuth from '../../../config/token';
-import Paginate from '../../Components/Paginate/Index';
-import Stock from '../../Components/Modal/Stock';
-import api from '../../../services/api';
+import clienteAxios from '../../../config/axios'
+import tokenAuth from '../../../config/token'
+import Paginate from '../../Components/Paginate/Index'
+import Stock from '../../Components/Modal/Stock'
+import api from '../../../services/api'
 
 class Products extends Component {
   state = {
@@ -34,18 +34,18 @@ class Products extends Component {
     search: '',
     modal: false,
     product: null,
-    inventori: {},
-  };
+    inventori: {}
+  }
 
-  handleDrops = (index) => {
-    let { dropdowns } = this.state;
-    dropdowns[index] = !dropdowns[index];
-    this.setState({ dropdowns });
-  };
+  handleDrops = index => {
+    let { dropdowns } = this.state
+    dropdowns[index] = !dropdowns[index]
+    this.setState({ dropdowns })
+  }
 
-  async componentDidMount() {
+  async componentDidMount () {
     // tokenAuth(this.props.token);
-    let { search } = this.state;
+    let { search } = this.state
     try {
       // await clienteAxios
       await api
@@ -54,18 +54,18 @@ class Products extends Component {
           this.setState({
             products: data,
             links,
-            meta,
-          });
-        });
+            meta
+          })
+        })
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
   }
 
   reqNewPage = async (e, page) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    let { search, meta } = this.state;
+    let { search, meta } = this.state
 
     if (page !== null) {
       // tokenAuth(this.props.token);
@@ -73,58 +73,83 @@ class Products extends Component {
         // await clienteAxios
         await api
           .post(`${meta.path}?page=${page.substring(page.indexOf('=') + 1)}`, {
-            search,
+            search
           })
           .then(({ data: { data, links, meta } }) => {
             this.setState({
               ...this.state,
               products: data,
               links,
-              meta,
-            });
-          });
+              meta
+            })
+          })
       } catch (error) {
-        console.log(error);
+        console.log(error)
       }
     }
-  };
+  }
 
   reloadPage = async () => {
     let { current_page } = this.state.meta
     if (current_page !== null) {
-        // tokenAuth(this.props.token);
-        let { search , meta:{path}} = this.state
-        try {
-            // await clienteAxios.post(`${path}?page=${current_page}`, { search })
-            await api.post(`${path}?page=${current_page}`, { search })
-                .then(({data:{ data, links, meta }}) => {
-                    this.setState({
-                        products: data,
-                        links,
-                        meta,
-                    })
-                })
-        } catch (error) { console.log(error) }
+      // tokenAuth(this.props.token);
+      let {
+        search,
+        meta: { path }
+      } = this.state
+      try {
+        // await clienteAxios.post(`${path}?page=${current_page}`, { search })
+        await api
+          .post(`${path}?page=${current_page}`, { search })
+          .then(({ data: { data, links, meta } }) => {
+            this.setState({
+              products: data,
+              links,
+              meta
+            })
+          })
+      } catch (error) {
+        console.log(error)
+      }
     }
-}
+  }
 
-  importProducts = () => document.getElementById('file_csv').click();
+  importProducts = () => document.getElementById('file_csv').click()
 
-  handleSelectFile = (e) => {
-    let input = e.target;
+  exportProducts = async () => {
+    try {
+      await api
+        .get(`products_export`, { responseType: 'blob' })
+        .then(({ data }) => {
+          var blob = new Blob([data], {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;'
+          })
+          var a = document.createElement('a') //Create <a>
+          // a.href = 'data:text/xlsx;base64,' + res.data //Image Base64 Goes here
+          a.href = URL.createObjectURL(blob) //Image Base64 Goes here
+          a.download = `Productos.xlsx` //File name Here
+          a.click() //Downloaded file
+        })
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
-    let reader = new FileReader();
-    reader.onload = () => this.uploadCsv(reader.result);
-    reader.readAsText(input.files[0], 'ISO-8859-1');
-  };
+  handleSelectFile = e => {
+    let input = e.target
 
-  uploadCsv = (csv) => {
-    let lines = csv.split(/\r\n|\n/);
-    let products = [];
-    let i = 0;
+    let reader = new FileReader()
+    reader.onload = () => this.uploadCsv(reader.result)
+    reader.readAsText(input.files[0], 'ISO-8859-1')
+  }
+
+  uploadCsv = csv => {
+    let lines = csv.split(/\r\n|\n/)
+    let products = []
+    let i = 0
     for (let line in lines) {
       if (i > 0 && lines[line].length > 0) {
-        let words = lines[line].split(';');
+        let words = lines[line].split(';')
         let object = {
           code: words[0].trim(),
           type_product: words[1].trim(),
@@ -133,17 +158,17 @@ class Products extends Component {
           price1: words[4],
           price2: words[5] !== undefined ? words[5].trim() : null,
           price3: words[6] !== undefined ? words[6].trim() : null,
-          iva: words[7],
-        };
-        products.push(object);
+          iva: words[7]
+        }
+        products.push(object)
       }
-      i++;
+      i++
     }
-    this.saveProductsFromCsv(products);
-  };
+    this.saveProductsFromCsv(products)
+  }
 
-  saveProductsFromCsv = async (products) => {
-    let data = { products };
+  saveProductsFromCsv = async products => {
+    let data = { products }
 
     // tokenAuth(this.props.token);
     try {
@@ -154,17 +179,17 @@ class Products extends Component {
           this.setState({
             products: data,
             links,
-            meta,
-          });
-        });
+            meta
+          })
+        })
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
-  onChangeSearch = async (e) => {
+  onChangeSearch = async e => {
     // tokenAuth(this.props.token);
-    let { value } = e.target;
+    let { value } = e.target
 
     try {
       // await clienteAxios
@@ -175,89 +200,89 @@ class Products extends Component {
             search: value,
             products: data,
             links,
-            meta,
-          });
-        });
+            meta
+          })
+        })
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
-  addProduct = () => this.props.history.push('/inventarios/nuevoproducto');
+  addProduct = () => this.props.history.push('/inventarios/nuevoproducto')
 
   //Mostrar y cerrar la modal
-  toggle = () => this.setState((state) => ({ modal: !state.modal }));
+  toggle = () => this.setState(state => ({ modal: !state.modal }))
 
-  editStock = (product) => {
+  editStock = product => {
     this.setState({
       product,
       inventori: { type: 'Compra', quantity: '', price: '' },
-      modal: true,
-    });
-  };
+      modal: true
+    })
+  }
 
   // Cuando el tipo cambia de estado se reinicia la cantidad
-  onChangeInventoriType = (e) => {
+  onChangeInventoriType = e => {
     this.setState({
       inventori: {
         ...this.state.inventori,
         type: e.target.value,
-        quantity: '',
-      },
-    });
-  };
+        quantity: ''
+      }
+    })
+  }
 
-  onChangeInventoriNumber = (e) => {
+  onChangeInventoriNumber = e => {
     if (isNaN(e.target.value)) {
-      alert('Solo se permite el ingreso del valor numérico');
-      return;
+      alert('Solo se permite el ingreso del valor numérico')
+      return
     } else {
       let {
         inventori: { type },
         product: {
-          atts: { stock },
-        },
-      } = this.state;
-      let quantity = e.target.value;
+          atts: { stock }
+        }
+      } = this.state
+      let quantity = e.target.value
       //Utilizamos para válidar cuando se seleccione el precio
       if (e.target.name === 'price') {
-        this.onChangeInventori(e);
-        return;
+        this.onChangeInventori(e)
+        return
       }
       //Utilizamos para válidar cuando se modifique la cantidad y el tipo sea compra o devolución en venta
       if (type === 'Compra' || type === 'Devolución en venta') {
-        this.onChangeInventori(e);
-        return;
+        this.onChangeInventori(e)
+        return
       }
       //Utilizamos para válidar cuando se modifique la cantidad y el tipo sea venta o devolución en compra
       if (quantity === '') {
-        quantity = 0;
+        quantity = 0
       }
       if (Number(quantity) > Number(stock)) {
-        alert('El nuevo stock no puede ser negativo');
-        return;
+        alert('El nuevo stock no puede ser negativo')
+        return
       } else {
-        this.onChangeInventori(e);
+        this.onChangeInventori(e)
       }
     }
-  };
+  }
   //Utilizado para cambiar el estado de la función anterior
-  onChangeInventori = (e) => {
+  onChangeInventori = e => {
     this.setState({
       inventori: {
         ...this.state.inventori,
-        [e.target.name]: e.target.value,
-      },
-    });
-  };
+        [e.target.name]: e.target.value
+      }
+    })
+  }
 
   submit = async () => {
-    let { inventori, product } = this.state;
-    inventori.product_id = product.id;
+    let { inventori, product } = this.state
+    inventori.product_id = product.id
 
     if (inventori.quantity === '' || inventori.price === '') {
-      alert('La cantidad y precio son obligatorios');
-      return;
+      alert('La cantidad y precio son obligatorios')
+      return
     }
     // tokenAuth(this.props.token);
     try {
@@ -266,16 +291,16 @@ class Products extends Component {
         this.setState({
           product: null,
           modal: false,
-          inventori: {},
-        });
-        this.reloadPage();
-      });
+          inventori: {}
+        })
+        this.reloadPage()
+      })
     } catch (error) {
-      console.log(error);
+      console.log(error)
     }
-  };
+  }
 
-  render() {
+  render () {
     let {
       products,
       links,
@@ -284,8 +309,8 @@ class Products extends Component {
       dropdowns,
       modal,
       product,
-      inventori,
-    } = this.state;
+      inventori
+    } = this.state
 
     return (
       <Fragment>
@@ -297,7 +322,15 @@ class Products extends Component {
               action: this.importProducts,
               icon: 'import',
               msmTooltip: 'Importar productos',
-              color: 'success',
+              color: 'success'
+            },
+            {
+              type: 'button',
+              id: 'tooltip-export-contact',
+              action: this.exportProducts,
+              icon: 'export',
+              msmTooltip: 'Exportar productos',
+              color: 'info'
             },
             {
               type: 'button',
@@ -305,16 +338,16 @@ class Products extends Component {
               action: this.addProduct,
               icon: 'plus',
               msmTooltip: 'Agregar producto',
-              color: 'primary',
-            },
+              color: 'primary'
+            }
           ]}
-          heading="Productos"
-          subheading="Lista de todos los productos"
-          icon="pe-7s-note2 icon-gradient bg-mean-fruit"
+          heading='Productos'
+          subheading='Lista de todos los productos'
+          icon='pe-7s-note2 icon-gradient bg-mean-fruit'
         />
         <ReactCSSTransitionGroup
-          component="div"
-          transitionName="TabsAnimation"
+          component='div'
+          transitionName='TabsAnimation'
           transitionAppear={true}
           transitionAppearTimeout={0}
           transitionEnter={false}
@@ -330,18 +363,18 @@ class Products extends Component {
             submit={this.submit}
           />
           <Row>
-            <Col lg="12" className="mb-4">
+            <Col lg='12' className='mb-4'>
               <Card>
-                <div className="card-header">
+                <div className='card-header'>
                   Busqueda
-                  <div className="btn-actions-pane-right">
-                    <Form className="text-right">
-                      <InputGroup size="sm">
+                  <div className='btn-actions-pane-right'>
+                    <Form className='text-right'>
+                      <InputGroup size='sm'>
                         <Input
                           value={search}
                           onChange={this.onChangeSearch}
-                          placeholder="Buscar"
-                          className="search-input"
+                          placeholder='Buscar'
+                          className='search-input'
                         />
                       </InputGroup>
                     </Form>
@@ -354,10 +387,10 @@ class Products extends Component {
           <Input
             onChange={this.handleSelectFile}
             style={{ display: 'none' }}
-            type="file"
-            name="contactscsv"
-            id="file_csv"
-            accept=".csv"
+            type='file'
+            name='contactscsv'
+            id='file_csv'
+            accept='.csv'
           />
 
           {products === null ? (
@@ -366,10 +399,10 @@ class Products extends Component {
             <p>No existe productos empiece por agregar el primer producto</p>
           ) : (
             <Row>
-              <Col lg="12">
-                <Card className="main-card mb-3">
+              <Col lg='12'>
+                <Card className='main-card mb-3'>
                   <CardBody>
-                    <Table striped size="sm" responsive>
+                    <Table striped size='sm' responsive>
                       <thead>
                         <tr>
                           <th>Código</th>
@@ -402,7 +435,7 @@ class Products extends Component {
                             </td>
                             <td>
                               <ButtonDropdown
-                                direction="left"
+                                direction='left'
                                 isOpen={dropdowns[index]}
                                 toggle={() => this.handleDrops(index)}
                               >
@@ -440,14 +473,14 @@ class Products extends Component {
           )}
         </ReactCSSTransitionGroup>
       </Fragment>
-    );
+    )
   }
 }
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   // token: state.AuthReducer.token,
-  inventory:state.AuthReducer.inventory
-});
+  inventory: state.AuthReducer.inventory
+})
 
-export default connect(mapStateToProps)(Products);
+export default connect(mapStateToProps)(Products)
 // export default Products;

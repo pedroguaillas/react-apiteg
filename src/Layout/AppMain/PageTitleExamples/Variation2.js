@@ -3,7 +3,7 @@ import {
     UncontrolledDropdown, DropdownToggle, DropdownMenu, UncontrolledTooltip,
     Nav, NavItem, NavLink, Button
 } from 'reactstrap';
-import { faFilePdf, faPlus, faSave, faBusinessTime, faFileImport } from '@fortawesome/free-solid-svg-icons';
+import { faFilePdf, faPlus, faSave, faBusinessTime, faFileImport, faFileExport } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default class TitleComponent2 extends Component {
@@ -31,6 +31,7 @@ export default class TitleComponent2 extends Component {
             case 'save': return faSave
             case 'plus': return faPlus
             case 'import': return faFileImport
+            case 'export': return faFileExport
         }
     }
 
