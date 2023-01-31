@@ -250,8 +250,8 @@ class CreateInvoice extends Component {
         alert('La "Cantidad" debe ser mayor a cero');
         return;
       }
-      if (productouts[i].price <= 0 || productouts[i].price === '') {
-        alert('El "Costo unitario" debe ser mayor a cero');
+      if (productouts[i].price < 0 || productouts[i].price === '') {
+        alert('El "Costo unitario" debe ser mayor o igual a cero');
         return;
       }
       i++;
