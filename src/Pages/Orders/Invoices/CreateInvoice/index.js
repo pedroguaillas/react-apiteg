@@ -20,8 +20,6 @@ import PageTitle from '../../../../Layout/AppMain/PageTitle';
 import ListProducts from './ListProducts';
 import InfoDocument from './InfoDocument';
 
-import clienteAxios from '../../../../config/axios';
-import tokenAuth from '../../../../config/token';
 import Aditionals from './Aditionals';
 import api from '../../../../services/api';
 
@@ -111,13 +109,11 @@ class CreateInvoice extends Component {
     xmlDoc.getElementsByTagName(tag)[0].childNodes[0].nodeValue;
 
   async componentDidMount() {
-    // tokenAuth(this.props.token);
     const {
       match: { params },
     } = this.props;
     if (params.id) {
       try {
-        // await clienteAxios.get(`orders/${params.id}`).then((res) => {
         await api.get(`orders/${params.id}`).then((res) => {
           let { data } = res;
           let { series } = data;
@@ -135,7 +131,6 @@ class CreateInvoice extends Component {
       }
     } else {
       try {
-        // await clienteAxios.get('orders/create').then((res) => {
         await api.get('orders/create').then((res) => {
           let { data } = res;
           let { series } = data;
@@ -484,10 +479,8 @@ class CreateInvoice extends Component {
   getMasive = async (prods) => {
     let data = { prods };
 
-    // tokenAuth(this.props.token);
     try {
       // Enviar a traer solo esos productos
-      // await clienteAxios.post('products/getmasive', data).then((res) => {
       await api.post('products/getmasive', data).then((res) => {
         let { products, order_items } = res.data;
         let newpros = [];
