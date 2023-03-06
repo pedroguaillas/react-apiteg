@@ -1,12 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import { connect } from 'react-redux';
 import { Row, Col, Card, CardBody, Table, Button, Input, Form, InputGroup } from 'reactstrap'
 import PageTitle from '../../../Layout/AppMain/PageTitle'
 import ReactCSSTransitionGroup from "react-addons-css-transition-group"
 import { Link } from 'react-router-dom';
 
-import clienteAxios from '../../../config/axios';
-import tokenAuth from '../../../config/token';
 import Paginate from '../../Components/Paginate/Index';
 import api from '../../../services/api';
 
@@ -16,14 +13,13 @@ class Customers extends Component {
         customers: null,
         links: null,
         meta: null,
-        search: ''
+        search: '',
+        searching: false
     }
 
     async componentDidMount() {
-        // tokenAuth(this.props.token);
         let { search } = this.state
         try {
-            // await clienteAxios.post('customerlist', { search })
             await api.post('customerlist', { search })
                 .then(res => {
                     let { data, links, meta } = res.data
@@ -40,10 +36,8 @@ class Customers extends Component {
         e.preventDefault();
 
         if (page !== null) {
-            // tokenAuth(this.props.token);
             let { search } = this.state
             try {
-                // await clienteAxios.post(`customerlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search })
                 await api.post(`customerlist?page=${page.substring((page.indexOf('=')) + 1)}`, { search })
                     .then(res => {
                         let { data, links, meta } = res.data
@@ -58,24 +52,29 @@ class Customers extends Component {
     }
 
     onChangeSearch = async (e) => {
-        // tokenAuth(this.props.token)
-        let {
-            value
-        } = e.target
+        let { value } = e.target
 
-        try {
-            // await clienteAxios.post('customerlist', { search: value })
-            await api.post('customerlist', { search: value })
-                .then(res => {
-                    let { data, links, meta } = res.data
-                    this.setState({
-                        search: value,
-                        customers: data,
-                        links,
-                        meta,
+        this.setState({ search: value })
+
+        if (!this.state.searching) {
+            try {
+                // Agregado Inicio
+                this.setState({ searching: true })
+                // Agregado Fin
+                await api.post('customerlist', { search: value })
+                    .then(res => {
+                        let { data, links, meta } = res.data
+                        this.setState({
+                            // Eliminado
+                            // search: value,
+                            customers: data,
+                            links,
+                            meta,
+                            searching: false
+                        })
                     })
-                })
-        } catch (error) { console.log(error) }
+            } catch (error) { console.log(error) }
+        }
     }
 
     importContacts = () => document.getElementById('file_csv').click()
@@ -113,9 +112,7 @@ class Customers extends Component {
 
         let data = { customers }
 
-        // tokenAuth(this.props.token)
         try {
-            // await clienteAxios.post('customers_import_csv', data)
             await api.post('customers_import_csv', data)
                 .then(res => {
                     let { data, links, meta } = res.data
@@ -223,9 +220,4 @@ class Customers extends Component {
     }
 }
 
-// const mapStateToProps = state => ({
-//     token: state.AuthReducer.token
-// });
-
-// export default connect(mapStateToProps)(Customers);
 export default Customers;

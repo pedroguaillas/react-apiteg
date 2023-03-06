@@ -19,8 +19,6 @@ import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 
 import PageTitle from '../../../Layout/AppMain/PageTitle'
 
-import clienteAxios from '../../../config/axios'
-import tokenAuth from '../../../config/token'
 import Paginate from '../../Components/Paginate/Index'
 import Stock from '../../Components/Modal/Stock'
 import api from '../../../services/api'
@@ -34,7 +32,8 @@ class Products extends Component {
     search: '',
     modal: false,
     product: null,
-    inventori: {}
+    inventori: {},
+    searching: false
   }
 
   handleDrops = index => {
@@ -43,11 +42,9 @@ class Products extends Component {
     this.setState({ dropdowns })
   }
 
-  async componentDidMount () {
-    // tokenAuth(this.props.token);
+  async componentDidMount() {
     let { search } = this.state
     try {
-      // await clienteAxios
       await api
         .post('productlist', { search })
         .then(({ data: { data, links, meta } }) => {
@@ -68,9 +65,7 @@ class Products extends Component {
     let { search, meta } = this.state
 
     if (page !== null) {
-      // tokenAuth(this.props.token);
       try {
-        // await clienteAxios
         await api
           .post(`${meta.path}?page=${page.substring(page.indexOf('=') + 1)}`, {
             search
@@ -92,13 +87,11 @@ class Products extends Component {
   reloadPage = async () => {
     let { current_page } = this.state.meta
     if (current_page !== null) {
-      // tokenAuth(this.props.token);
       let {
         search,
         meta: { path }
       } = this.state
       try {
-        // await clienteAxios.post(`${path}?page=${current_page}`, { search })
         await api
           .post(`${path}?page=${current_page}`, { search })
           .then(({ data: { data, links, meta } }) => {
@@ -125,7 +118,6 @@ class Products extends Component {
             type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;'
           })
           var a = document.createElement('a') //Create <a>
-          // a.href = 'data:text/xlsx;base64,' + res.data //Image Base64 Goes here
           a.href = URL.createObjectURL(blob) //Image Base64 Goes here
           a.download = `Productos.xlsx` //File name Here
           a.click() //Downloaded file
@@ -170,9 +162,7 @@ class Products extends Component {
   saveProductsFromCsv = async products => {
     let data = { products }
 
-    // tokenAuth(this.props.token);
     try {
-      // await clienteAxios
       await api
         .post('products_import', data)
         .then(({ data: { data, links, meta } }) => {
@@ -188,23 +178,30 @@ class Products extends Component {
   }
 
   onChangeSearch = async e => {
-    // tokenAuth(this.props.token);
     let { value } = e.target
 
-    try {
-      // await clienteAxios
-      await api
-        .post('productlist', { search: value })
-        .then(({ data: { data, links, meta } }) => {
-          this.setState({
-            search: value,
-            products: data,
-            links,
-            meta
+    this.setState({ search: value })
+
+    if (!this.state.searching) {
+      try {
+        // Agregado Inicio
+        this.setState({ searching: true })
+        // Agregado Fin
+        await api
+          .post('productlist', { search: value })
+          .then(({ data: { data, links, meta } }) => {
+            this.setState({
+              // Eliminado
+              // search: value,
+              products: data,
+              links,
+              meta,
+              searching: false
+            })
           })
-        })
-    } catch (error) {
-      console.log(error)
+      } catch (error) {
+        console.log(error)
+      }
     }
   }
 
@@ -284,9 +281,7 @@ class Products extends Component {
       alert('La cantidad y precio son obligatorios')
       return
     }
-    // tokenAuth(this.props.token);
     try {
-      // await clienteAxios.post('inventories', this.state.inventori).then(() => {
       await api.post('inventories', this.state.inventori).then(() => {
         this.setState({
           product: null,
@@ -300,7 +295,7 @@ class Products extends Component {
     }
   }
 
-  render () {
+  render() {
     let {
       products,
       links,
@@ -430,8 +425,8 @@ class Products extends Component {
                               {product.atts.iva == 0
                                 ? '0%'
                                 : product.atts.iva == 2
-                                ? '12%'
-                                : 'no iva'}
+                                  ? '12%'
+                                  : 'no iva'}
                             </td>
                             <td>
                               <ButtonDropdown
@@ -478,9 +473,7 @@ class Products extends Component {
 }
 
 const mapStateToProps = state => ({
-  // token: state.AuthReducer.token,
   inventory: state.AuthReducer.inventory
 })
 
 export default connect(mapStateToProps)(Products)
-// export default Products;

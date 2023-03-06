@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import { connect } from 'react-redux';
 import {
   Row,
   Col,
@@ -14,8 +13,6 @@ import {
 import PageTitle from '../../../Layout/AppMain/PageTitle';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
-import clienteAxios from '../../../config/axios';
-import tokenAuth from '../../../config/token';
 import api from '../../../services/api';
 
 class FormCustomer extends Component {
@@ -30,9 +27,7 @@ class FormCustomer extends Component {
       match: { params },
     } = this.props;
     if (params.id) {
-      // tokenAuth(this.props.token);
       try {
-        // await clienteAxios.get(`customers/${params.id}/edit`)
         await api.get(`customers/${params.id}/edit`).then((res) => {
           this.setState({ form: res.data.customer });
         });
@@ -44,7 +39,6 @@ class FormCustomer extends Component {
 
   submit = async () => {
     if (this.validate()) {
-      // tokenAuth(this.props.token);
       try {
         let { form } = this.state;
 
@@ -53,7 +47,6 @@ class FormCustomer extends Component {
         form.identication = form.identication.trim();
 
         if (form.id) {
-          // await clienteAxios.put(`customers/${form.id}`, form)
           await api.put(`customers/${form.id}`, form).then((res) => {
             if (res.data.message === 'KEY_DUPLICATE') {
               alert('Ya existe un cliente con esa identificación');
@@ -62,7 +55,6 @@ class FormCustomer extends Component {
             this.props.history.push('/contactos/clientes');
           });
         } else {
-          // await clienteAxios.post('customers', this.state.form)
           await api.post('customers', this.state.form).then((res) => {
             if (res.data.message === 'KEY_DUPLICATE') {
               alert('Ya existe un cliente con esa identificación');
@@ -123,13 +115,39 @@ class FormCustomer extends Component {
     this.setState({
       form: {
         ...this.state.form,
-        [e.target.name]: e.target.value,
-      },
-    });
-  };
+        [e.target.name]: e.target.value
+      }
+    })
+  }
+
+  //Change data in to input form
+  handleChangeIdentification = (e) => {
+    this.setState({
+      form: {
+        ...this.state.form,
+        [e.target.name]: e.target.value
+      }
+    })
+    this.searchBySri(e.target.value)
+  }
+
+  searchBySri = (identication) => {
+    let { type_identification } = this.state.form
+    if (identication !== undefined && ((type_identification === 'cédula' && identication.length === 10) || (type_identification === 'ruc' && identication.length === 13))) {
+      fetch(`https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/Persona/obtenerPorTipoIdentificacion?numeroIdentificacion=${identication}&tipoIdentificacion=${identication.length === 10 ? 'C' : 'R'}`, {
+        mode: 'no-cors'
+      })
+        .then(res => res.json())
+        .then(data => console.log(data))
+        .catch(err => {
+          console.log('Error en FETCH')
+          console.log(err)
+        })
+    }
+  }
 
   render() {
-    let { form } = this.state;
+    let { form } = this.state
 
     return (
       <Fragment>
@@ -194,7 +212,7 @@ class FormCustomer extends Component {
                       <Col sm={6}>
                         <Input
                           bsSize="sm"
-                          onChange={this.handleChange}
+                          onChange={this.handleChangeIdentification}
                           value={form.identication}
                           type="text"
                           id="identication"
@@ -282,9 +300,4 @@ class FormCustomer extends Component {
   }
 }
 
-// const mapStateToProps = state => ({
-//     token: state.AuthReducer.token
-// });
-
-// export default connect(mapStateToProps)(FormCustomer);
 export default FormCustomer;
