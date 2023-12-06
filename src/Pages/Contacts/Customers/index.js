@@ -125,6 +125,24 @@ class Customers extends Component {
         } catch (error) { console.log(error) }
     }
 
+    exportCustomers = async () => {
+        try {
+            await api
+                .get(`customers/export`, { responseType: 'blob' })
+                .then(({ data }) => {
+                    var blob = new Blob([data], {
+                        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;'
+                    })
+                    var a = document.createElement('a') //Create <a>
+                    a.href = URL.createObjectURL(blob) //Image Base64 Goes here
+                    a.download = `Clientes.xlsx` //File name Here
+                    a.click() //Downloaded file
+                })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     addCustomer = () => this.props.history.push("/contactos/nuevocliente")
 
     render() {
@@ -136,6 +154,14 @@ class Customers extends Component {
                 <PageTitle
                     options={[
                         { type: 'button', id: 'tooltip-import-contact', action: this.importContacts, icon: 'import', msmTooltip: 'Importar contactos', color: 'success' },
+                        {
+                            type: 'button',
+                            id: 'tooltip-export-customers',
+                            action: this.exportCustomers,
+                            icon: 'export',
+                            msmTooltip: 'Exportar clientes',
+                            color: 'info'
+                        },
                         { type: 'button', id: 'tooltip-add-contact', action: this.addCustomer, icon: 'plus', msmTooltip: 'Agregar cliente', color: 'primary' }
                     ]}
                     heading="Clientes"
