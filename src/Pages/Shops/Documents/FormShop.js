@@ -11,6 +11,7 @@ import {
   FormGroup,
   Label,
   CustomInput,
+  CardText,
 } from 'reactstrap';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
@@ -21,8 +22,6 @@ import RetentionForm from './RetentionForm';
 import ListRetention from './ListRetention';
 import InfoDocument from './InfoDocument';
 
-import clienteAxios from '../../../config/axios';
-import tokenAuth from '../../../config/token';
 import Description from './Description';
 import api from '../../../services/api';
 
@@ -73,6 +72,7 @@ class FormShop extends Component {
       series: {},
       edit: false,
       apply_inventory: false,
+      loading: 'success'
     };
   }
 
@@ -155,46 +155,45 @@ class FormShop extends Component {
   };
 
   async componentDidMount() {
-    // tokenAuth(this.props.token);
     const {
       match: { params },
     } = this.props;
     if (params.id) {
       try {
-        // await clienteAxios.get(`shops/${params.id}`).then((res) => {
-        await api.get(`shops/${params.id}`).then((res) => {
-          let { data } = res;
-          let { series } = data;
-          this.setState({
-            productinputs: data.products,
-            productouts: data.shopitems,
-            taxes_request: data.taxes,
-            taxes: data.shopretentionitems,
-            providers: data.providers,
-            form: data.shop,
-            series,
-            app_retention: data.taxes.length > 0,
+        await api.get(`shops/${params.id}`)
+          .then(({ data }) => {
+            let { series } = data;
+            this.setState({
+              productinputs: data.products,
+              productouts: data.shopitems,
+              taxes_request: data.taxes,
+              taxes: data.shopretentionitems,
+              providers: data.providers,
+              form: data.shop,
+              series,
+              app_retention: data.taxes.length > 0,
+            });
           });
-        });
       } catch (error) {
+        this.setState({ loading: 'error' })
         console.log(error);
       }
     } else {
       try {
-        // await clienteAxios.get('shops/create').then((res) => {
-        await api.get('shops/create').then((res) => {
-          let { data } = res;
-          let { series } = data;
-          this.setState({
-            taxes_request: data.taxes,
-            form: {
-              ...this.state.form,
-              serie_retencion: series.retention,
-            },
-            series,
+        await api.get('shops/create')
+          .then(({ data }) => {
+            let { series } = data;
+            this.setState({
+              taxes_request: data.taxes,
+              form: {
+                ...this.state.form,
+                serie_retencion: series.retention,
+              },
+              series,
+            });
           });
-        });
       } catch (error) {
+        this.setState({ loading: 'error' })
         console.log(error);
       }
     }
@@ -214,12 +213,10 @@ class FormShop extends Component {
       form.app_retention = app_retention;
       form.send = send;
 
-      // tokenAuth(this.props.token);
       if (form.id) {
         try {
           document.getElementById('btn-save').disabled = true;
           document.getElementById('btn-save-send').disabled = true;
-          // await clienteAxios
           await api
             .put(`shops/${form.id}`, form)
             .then((res) => this.props.history.push('/compras/facturas'));
@@ -230,7 +227,6 @@ class FormShop extends Component {
         try {
           document.getElementById('btn-save').disabled = true;
           document.getElementById('btn-save-send').disabled = true;
-          // await clienteAxios
           await api
             .post('shops', form)
             .then((res) => this.props.history.push('/compras/facturas'));
@@ -619,8 +615,6 @@ class FormShop extends Component {
 
   registerProvider = async (provider) => {
     try {
-      // tokenAuth(this.props.token);
-      // await clienteAxios.post('providers', provider).then((res) => {
       await api.post('providers', provider).then((res) => {
         if (res.data.message === 'KEY_DUPLICATE') {
           let { id, identication, name } = res.data.provider;
@@ -657,7 +651,7 @@ class FormShop extends Component {
 
   //...............Layout
   render = () => {
-    let { form, providers, edit, app_retention, apply_inventory } = this.state;
+    let { loading, form, providers, edit, app_retention, apply_inventory } = this.state;
 
     let { format } = this.formatter;
 
@@ -680,237 +674,247 @@ class FormShop extends Component {
             <Col lg="12">
               <Card className="main-card mb-3">
                 <CardBody>
-                  <Form className="text-right">
-                    <Row form>
-                      <p className="mt-2">
-                        <strong>Nota:</strong> Los campos marcados con * son
-                        obligatorios
-                      </p>
-                    </Row>
+                  {loading === 'success' ?
+                    <Fragment>
+                      <Form className="text-right">
+                        <Row form>
+                          <p className="mt-2">
+                            <strong>Nota:</strong> Los campos marcados con * son
+                            obligatorios
+                          </p>
+                        </Row>
 
-                    <Row form style={{ 'border-top': '1px solid #ced4da' }}>
-                      <strong className="mt-2">Datos generales</strong>
-                    </Row>
-                    <InfoDocument
-                      edit={edit}
-                      form={form}
-                      handleChange={this.handleChange}
-                      providers={providers}
-                      selectProvider={this.selectProvider}
-                      selectDocXml={this.selectDocXml}
-                      registerProvider={this.registerProvider}
-                    />
+                        <Row form style={{ 'border-top': '1px solid #ced4da' }}>
+                          <strong className="mt-2">Datos generales</strong>
+                        </Row>
+                        <InfoDocument
+                          edit={edit}
+                          form={form}
+                          handleChange={this.handleChange}
+                          providers={providers}
+                          selectProvider={this.selectProvider}
+                          selectDocXml={this.selectDocXml}
+                          registerProvider={this.registerProvider}
+                        />
 
-                    <Row
-                      form
-                      className="my-3 pt-2"
-                      style={{ 'border-top': '1px solid #ced4da' }}
-                    >
-                      <div className="col-sm-6 text-left">
-                        <strong>Productos / Servicios</strong>
-                      </div>
-                      {this.props.inventory ? (
-                        <Col md={3}>
-                          <FormGroup>
-                            <Label>
-                              <CustomInput
-                                onChange={this.handleChangeCheckInventory}
-                                checked={apply_inventory}
-                                type="checkbox"
-                                id="apply_inventory"
-                                name="apply_inventory"
-                                label="Aplicar inventario"
-                              />
-                            </Label>
-                          </FormGroup>
+                        <Row
+                          form
+                          className="my-3 pt-2"
+                          style={{ 'border-top': '1px solid #ced4da' }}
+                        >
+                          <div className="col-sm-6 text-left">
+                            <strong>Productos / Servicios</strong>
+                          </div>
+                          {this.props.inventory ? (
+                            <Col md={3}>
+                              <FormGroup>
+                                <Label>
+                                  <CustomInput
+                                    onChange={this.handleChangeCheckInventory}
+                                    checked={apply_inventory}
+                                    type="checkbox"
+                                    id="apply_inventory"
+                                    name="apply_inventory"
+                                    label="Aplicar inventario"
+                                  />
+                                </Label>
+                              </FormGroup>
+                            </Col>
+                          ) : null}
+                        </Row>
+
+                        <ListProducts
+                          edit={edit}
+                          productinputs={this.state.productinputs}
+                          productouts={this.state.productouts}
+                          addProduct={this.addProduct}
+                          selectProduct={this.selectProduct}
+                          deleteProduct={this.deleteProduct}
+                          handleChangeItem={this.handleChangeItem}
+                          apply_inventory={apply_inventory}
+                        />
+
+                        <Row
+                          form
+                          className="my-3"
+                          style={{ 'border-top': '1px solid #ced4da' }}
+                        >
+                          <strong className="mt-2">Retención</strong>
+                        </Row>
+                        <Row>
+                          <Col md={3}>
+                            <FormGroup>
+                              <Label>
+                                <CustomInput
+                                  onChange={this.handleChangeCheck}
+                                  checked={app_retention}
+                                  type="checkbox"
+                                  id="accounting"
+                                  name="accounting"
+                                  label="Aplicar retención"
+                                />
+                              </Label>
+                            </FormGroup>
+                          </Col>
+                        </Row>
+                        <Row form hidden={!app_retention}>
+                          <RetentionForm
+                            form={form}
+                            handleChange={this.handleChange}
+                          />
+                          <ListRetention
+                            edit={edit}
+                            taxes={this.state.taxes}
+                            deleteTax={this.deleteTax}
+                            handleChangeTax={this.handleChangeTax}
+                            retentions={this.state.taxes_request}
+                            selectRetention={this.selectRetention}
+                            handleChangeOthersTax={this.handleChangeOthersTax}
+                          />
+                        </Row>
+                        <Button
+                          hidden={!app_retention}
+                          color="primary"
+                          onClick={this.addTax}
+                          className="mr-2 btn-transition"
+                        >
+                          Añadir impuesto
+                        </Button>
+
+                        <Row
+                          form
+                          className="my-3"
+                          style={{ 'border-top': '1px solid #ced4da' }}
+                        >
+                          {/* <strong className='mt-2'>Formas de pago</strong> */}
+                        </Row>
+
+                        <Description
+                          edit={edit}
+                          form={form}
+                          handleChange={this.handleChange}
+                        />
+                      </Form>
+
+                      <Row
+                        form
+                        className="my-3"
+                        style={{ 'border-top': '1px solid #ced4da' }}
+                      ></Row>
+                      <Row>
+                        <Col lg={8}></Col>
+                        <Col lg={4}>
+                          <Table bordered>
+                            <thead>
+                              <tr>
+                                <th style={{ 'text-align': 'center' }}>
+                                  Resultados
+                                </th>
+                                <th style={{ 'text-align': 'center' }}>Monto</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>Subtotal 12% ($)</td>
+                                <td style={{ 'text-align': 'right' }}>
+                                  <input
+                                    onChange={this.onChangeNumber}
+                                    name="base12"
+                                    value={form.base12}
+                                    type="text"
+                                    style={{
+                                      width: '7.5em',
+                                      'text-align': 'right',
+                                    }}
+                                    bsSize="sm"
+                                  />
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Subtotal 0% ($)</td>
+                                <td style={{ 'text-align': 'right' }}>
+                                  <input
+                                    onChange={this.onChangeNumber}
+                                    name="base0"
+                                    value={form.base0}
+                                    type="text"
+                                    style={{
+                                      width: '7.5em',
+                                      'text-align': 'right',
+                                    }}
+                                    bsSize="sm"
+                                  />
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Monto IVA</td>
+                                <td style={{ 'text-align': 'right' }}>
+                                  {format(form.iva)}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>No objeto de IVA ($)</td>
+                                <td style={{ 'text-align': 'right' }}>
+                                  <input
+                                    onChange={this.onChangeNumber}
+                                    name="no_iva"
+                                    value={form.no_iva}
+                                    type="text"
+                                    style={{
+                                      width: '7.5em',
+                                      'text-align': 'right',
+                                    }}
+                                    bsSize="sm"
+                                  />
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Monto ICE</td>
+                                <td style={{ 'text-align': 'right' }}>
+                                  {format(form.ice)}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Descuento</td>
+                                <td style={{ 'text-align': 'right' }}>
+                                  {format(form.discount)}
+                                </td>
+                              </tr>
+                              <tr>
+                                <th style={{ 'text-align': 'center' }}>TOTAL</th>
+                                <th style={{ 'text-align': 'right' }}>
+                                  {format(form.total)}
+                                </th>
+                              </tr>
+                            </tbody>
+                          </Table>
+                          <Button
+                            color="secondary"
+                            id="btn-save"
+                            onClick={() => this.submit(false)}
+                            className="mr-2 btn-transition"
+                            disable
+                          >
+                            Guardar
+                          </Button>
+                          <Button
+                            color="success"
+                            id="btn-save-send"
+                            onClick={() => this.submit(true)}
+                            className="mr-2 btn-transition"
+                          >
+                            Guardar y procesar
+                          </Button>
                         </Col>
-                      ) : null}
+                      </Row>
+                    </Fragment>
+                    :
+                    <Row className='m-1'>
+                      <CardText className='text-danger'>
+                        Error con el internet!
+                      </CardText>
                     </Row>
-
-                    <ListProducts
-                      edit={edit}
-                      productinputs={this.state.productinputs}
-                      productouts={this.state.productouts}
-                      addProduct={this.addProduct}
-                      selectProduct={this.selectProduct}
-                      deleteProduct={this.deleteProduct}
-                      handleChangeItem={this.handleChangeItem}
-                      apply_inventory={apply_inventory}
-                    />
-
-                    <Row
-                      form
-                      className="my-3"
-                      style={{ 'border-top': '1px solid #ced4da' }}
-                    >
-                      <strong className="mt-2">Retención</strong>
-                    </Row>
-                    <Row>
-                      <Col md={3}>
-                        <FormGroup>
-                          <Label>
-                            <CustomInput
-                              onChange={this.handleChangeCheck}
-                              checked={app_retention}
-                              type="checkbox"
-                              id="accounting"
-                              name="accounting"
-                              label="Aplicar retención"
-                            />
-                          </Label>
-                        </FormGroup>
-                      </Col>
-                    </Row>
-                    <Row form hidden={!app_retention}>
-                      <RetentionForm
-                        form={form}
-                        handleChange={this.handleChange}
-                      />
-                      <ListRetention
-                        edit={edit}
-                        taxes={this.state.taxes}
-                        deleteTax={this.deleteTax}
-                        handleChangeTax={this.handleChangeTax}
-                        retentions={this.state.taxes_request}
-                        selectRetention={this.selectRetention}
-                        handleChangeOthersTax={this.handleChangeOthersTax}
-                      />
-                    </Row>
-                    <Button
-                      hidden={!app_retention}
-                      color="primary"
-                      onClick={this.addTax}
-                      className="mr-2 btn-transition"
-                    >
-                      Añadir impuesto
-                    </Button>
-
-                    <Row
-                      form
-                      className="my-3"
-                      style={{ 'border-top': '1px solid #ced4da' }}
-                    >
-                      {/* <strong className='mt-2'>Formas de pago</strong> */}
-                    </Row>
-
-                    <Description
-                      edit={edit}
-                      form={form}
-                      handleChange={this.handleChange}
-                    />
-                  </Form>
-
-                  <Row
-                    form
-                    className="my-3"
-                    style={{ 'border-top': '1px solid #ced4da' }}
-                  ></Row>
-                  <Row>
-                    <Col lg={8}></Col>
-                    <Col lg={4}>
-                      <Table bordered>
-                        <thead>
-                          <tr>
-                            <th style={{ 'text-align': 'center' }}>
-                              Resultados
-                            </th>
-                            <th style={{ 'text-align': 'center' }}>Monto</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>Subtotal 12% ($)</td>
-                            <td style={{ 'text-align': 'right' }}>
-                              <input
-                                onChange={this.onChangeNumber}
-                                name="base12"
-                                value={form.base12}
-                                type="text"
-                                style={{
-                                  width: '7.5em',
-                                  'text-align': 'right',
-                                }}
-                                bsSize="sm"
-                              />
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>Subtotal 0% ($)</td>
-                            <td style={{ 'text-align': 'right' }}>
-                              <input
-                                onChange={this.onChangeNumber}
-                                name="base0"
-                                value={form.base0}
-                                type="text"
-                                style={{
-                                  width: '7.5em',
-                                  'text-align': 'right',
-                                }}
-                                bsSize="sm"
-                              />
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>Monto IVA</td>
-                            <td style={{ 'text-align': 'right' }}>
-                              {format(form.iva)}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>No objeto de IVA ($)</td>
-                            <td style={{ 'text-align': 'right' }}>
-                              <input
-                                onChange={this.onChangeNumber}
-                                name="no_iva"
-                                value={form.no_iva}
-                                type="text"
-                                style={{
-                                  width: '7.5em',
-                                  'text-align': 'right',
-                                }}
-                                bsSize="sm"
-                              />
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>Monto ICE</td>
-                            <td style={{ 'text-align': 'right' }}>
-                              {format(form.ice)}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>Descuento</td>
-                            <td style={{ 'text-align': 'right' }}>
-                              {format(form.discount)}
-                            </td>
-                          </tr>
-                          <tr>
-                            <th style={{ 'text-align': 'center' }}>TOTAL</th>
-                            <th style={{ 'text-align': 'right' }}>
-                              {format(form.total)}
-                            </th>
-                          </tr>
-                        </tbody>
-                      </Table>
-                      <Button
-                        color="secondary"
-                        id="btn-save"
-                        onClick={() => this.submit(false)}
-                        className="mr-2 btn-transition"
-                        disable
-                      >
-                        Guardar
-                      </Button>
-                      <Button
-                        color="success"
-                        id="btn-save-send"
-                        onClick={() => this.submit(true)}
-                        className="mr-2 btn-transition"
-                      >
-                        Guardar y procesar
-                      </Button>
-                    </Col>
-                  </Row>
+                  }
                 </CardBody>
               </Card>
             </Col>
@@ -922,9 +926,7 @@ class FormShop extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  // token: state.AuthReducer.token,
   inventory: state.AuthReducer.inventory,
 });
 
 export default connect(mapStateToProps)(FormShop);
-// export default FormShop;

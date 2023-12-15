@@ -29,7 +29,7 @@ class Documents extends Component {
     search: ''
   }
 
-  async componentDidMount () {
+  async componentDidMount() {
     let { search } = this.state
     try {
       await api.post('shoplist', { search }).then(res => {
@@ -162,19 +162,19 @@ class Documents extends Component {
           <DropdownItem
             onClick={() =>
               state_retencion === null ||
-              state_retencion === 'CREADO' ||
-              state_retencion === 'DEVUELTA' ||
-              state_retencion === 'NO AUTORIZADO'
+                state_retencion === 'CREADO' ||
+                state_retencion === 'DEVUELTA' ||
+                state_retencion === 'NO AUTORIZADO'
                 ? this.generateSignRetention(id)
                 : state_retencion === 'FIRMADO'
-                ? this.sendToSriRetention(id)
-                : state_retencion === 'ENVIADO' ||
-                  state_retencion === 'RECIBIDO' ||
-                  state_retencion === 'EN_PROCESO'
-                ? this.autorizedFromSriRetention(id)
-                : state_retencion === 'AUTORIZADO'
-                ? this.canceledRetention(id)
-                : null
+                  ? this.sendToSriRetention(id)
+                  : state_retencion === 'ENVIADO' ||
+                    state_retencion === 'RECIBIDO' ||
+                    state_retencion === 'EN_PROCESO'
+                    ? this.autorizedFromSriRetention(id)
+                    : state_retencion === 'AUTORIZADO'
+                      ? this.canceledRetention(id)
+                      : null
             }
             title={extra_detail_retention}
           >
@@ -315,18 +315,18 @@ class Documents extends Component {
           <DropdownItem
             onClick={() =>
               state === 'CREADO' ||
-              state === 'DEVUELTA' ||
-              state === 'NO AUTORIZADO'
+                state === 'DEVUELTA' ||
+                state === 'NO AUTORIZADO'
                 ? this.generateSignSetPurchase(id)
                 : state === 'FIRMADO'
-                ? this.sendToSriSetPurchase(id)
-                : state === 'ENVIADO' ||
-                  state === 'RECIBIDA' ||
-                  state === 'EN_PROCESO'
-                ? this.autorizedFromSriSetPurchase(id)
-                : state === 'AUTORIZADO'
-                ? this.canceledSetPurchase(id)
-                : null
+                  ? this.sendToSriSetPurchase(id)
+                  : state === 'ENVIADO' ||
+                    state === 'RECIBIDA' ||
+                    state === 'EN_PROCESO'
+                    ? this.autorizedFromSriSetPurchase(id)
+                    : state === 'AUTORIZADO'
+                      ? this.canceledSetPurchase(id)
+                      : null
             }
             title={extra_detail}
           >
@@ -488,7 +488,7 @@ class Documents extends Component {
             <Col lg='12' className='mb-4'>
               <Card>
                 <div className='card-header'>
-                  Busqueda
+                  Filtros
                   <div className='btn-actions-pane-right'>
                     <Form className='text-right'>
                       <InputGroup size='sm'>

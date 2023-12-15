@@ -29,7 +29,7 @@ class Invoices extends Component {
     search: ''
   }
 
-  async componentDidMount () {
+  async componentDidMount() {
     let { search } = this.state
     try {
       await api
@@ -99,6 +99,25 @@ class Invoices extends Component {
         let { data, links, meta } = res.data
         this.setState({
           search: value,
+          orders: data,
+          links,
+          meta
+        })
+      })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  onChangeDate = async e => {
+    let { value } = e.target
+    let { search } = this.state
+
+    try {
+      await api.post('orderlist', { search, date: value }).then(res => {
+        let { data, links, meta } = res.data
+        this.setState({
+          date: value,
           orders: data,
           links,
           meta
@@ -188,18 +207,18 @@ class Invoices extends Component {
       <DropdownItem
         onClick={() =>
           state === 'CREADO' ||
-          state === 'DEVUELTA' ||
-          state === 'NO AUTORIZADO'
+            state === 'DEVUELTA' ||
+            state === 'NO AUTORIZADO'
             ? this.generateSign(id)
             : state === 'FIRMADO'
-            ? this.sendToSri(id)
-            : state === 'ENVIADO' ||
-              state === 'RECIBIDA' ||
-              state === 'EN_PROCESO'
-            ? this.autorizedFromSri(id)
-            : state === 'AUTORIZADO'
-            ? this.canceled(id)
-            : null
+              ? this.sendToSri(id)
+              : state === 'ENVIADO' ||
+                state === 'RECIBIDA' ||
+                state === 'EN_PROCESO'
+                ? this.autorizedFromSri(id)
+                : state === 'AUTORIZADO'
+                  ? this.canceled(id)
+                  : null
         }
         title={extra_detail}
       >
@@ -286,7 +305,7 @@ class Invoices extends Component {
 
   //Layout
   render = () => {
-    let { orders, dropdowns, links, meta, search } = this.state
+    let { orders, dropdowns, links, meta, search, date } = this.state
 
     return (
       <Fragment>
@@ -317,7 +336,19 @@ class Invoices extends Component {
             <Col lg='12' className='mb-4'>
               <Card>
                 <div className='card-header'>
-                  Busqueda
+                  Filtros
+                  <div>
+                    <Form>
+                      <InputGroup size='sm ml-1'>
+                        <Input
+                          type='date'
+                          value={date}
+                          onChange={this.onChangeDate}
+                          className='input'
+                        />
+                      </InputGroup>
+                    </Form>
+                  </div>
                   <div className='btn-actions-pane-right'>
                     <Form className='text-right'>
                       <InputGroup size='sm'>
@@ -362,9 +393,8 @@ class Invoices extends Component {
                             <td>{order.atts.date}</td>
                             <td>
                               <Link to={'/ventas/factura/' + order.id}>
-                                {`${this.cal_prefix(order.atts.voucher_type)} ${
-                                  order.atts.serie
-                                }`}
+                                {`${this.cal_prefix(order.atts.voucher_type)} ${order.atts.serie
+                                  }`}
                               </Link>
                             </td>
                             <td>{order.customer.name}</td>
@@ -403,7 +433,7 @@ class Invoices extends Component {
                                     </DropdownItem>
                                   ) : null}
                                   {order.customer.name !==
-                                  'Consumidor Final' ? (
+                                    'Consumidor Final' ? (
                                     <DropdownItem
                                       onClick={() => this.sendMail(order)}
                                     >

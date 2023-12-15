@@ -12,6 +12,7 @@ import {
   Label,
   FormGroup,
   CustomInput,
+  CardText,
 } from 'reactstrap';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 
@@ -79,6 +80,7 @@ class CreateInvoice extends Component {
       series: {},
       edit: true,
       breakdown: false,
+      loading: 'success'
     };
   }
 
@@ -114,35 +116,37 @@ class CreateInvoice extends Component {
     } = this.props;
     if (params.id) {
       try {
-        await api.get(`orders/${params.id}`).then((res) => {
-          let { data } = res;
-          let { series } = data;
-          this.setState({
-            productinputs: data.products,
-            productouts: data.order_items,
-            customers: data.customers,
-            aditionals: data.order_aditionals,
-            form: data.order,
-            series,
+        await api.get(`orders/${params.id}`)
+          .then(({ data }) => {
+            let { series } = data;
+            this.setState({
+              productinputs: data.products,
+              productouts: data.order_items,
+              customers: data.customers,
+              aditionals: data.order_aditionals,
+              form: data.order,
+              series
+            });
           });
-        });
       } catch (error) {
+        this.setState({ loading: 'error' })
         console.log(error);
       }
     } else {
       try {
-        await api.get('orders/create').then((res) => {
-          let { data } = res;
-          let { series } = data;
-          this.setState({
-            form: {
-              ...this.state.form,
-              serie: series.invoice,
-            },
-            series,
+        await api.get('orders/create').
+          then(({ data }) => {
+            let { series } = data
+            this.setState({
+              form: {
+                ...this.state.form,
+                serie: series.invoice,
+              },
+              series
+            });
           });
-        });
       } catch (error) {
+        this.setState({ loading: 'error' })
         console.log(error);
       }
     }
@@ -160,18 +164,15 @@ class CreateInvoice extends Component {
       form.send = send;
       form.aditionals = aditionals;
 
-      // tokenAuth(this.props.token);
       try {
         document.getElementById('btn-save').disabled = true;
         document.getElementById('btn-save-send').disabled = true;
 
         if (form.id) {
-          // await clienteAxios
           await api
             .put(`orders/${form.id}`, form)
             .then((res) => this.props.history.push('/ventas/facturas'));
         } else {
-          // await clienteAxios
           await api
             .post('orders', form)
             .then((res) => this.props.history.push('/ventas/facturas'));
@@ -355,7 +356,7 @@ class CreateInvoice extends Component {
   handleChangeItem = (index) => (e) => {
     let { productouts } = this.state;
     let { name, value } = e.target;
-    let {decimal} = this.props;
+    let { decimal } = this.props;
     if (!isNaN(value)) {
       switch (name) {
         case 'quantity':
@@ -385,8 +386,8 @@ class CreateInvoice extends Component {
             productouts[index].price =
               productouts[index].iva === 2
                 ? parseFloat(
-                    (value / productouts[index].quantity / 1.12).toFixed(decimal)
-                  )
+                  (value / productouts[index].quantity / 1.12).toFixed(decimal)
+                )
                 : parseFloat((value / productouts[index].quantity).toFixed(decimal));
           }
           break;
@@ -545,7 +546,7 @@ class CreateInvoice extends Component {
 
   //...............Layout
   render = () => {
-    let { form, aditionals, breakdown } = this.state;
+    let { loading, form, aditionals, breakdown } = this.state;
 
     let { format } = this.formatter;
 
@@ -576,147 +577,157 @@ class CreateInvoice extends Component {
             <Col lg="12">
               <Card className="main-card mb-3">
                 <CardBody>
-                  <Form className="text-right">
-                    <Row form>
-                      <p className="mt-2">
-                        <strong>Nota:</strong> Los campos marcados con * son
-                        obligatorios
-                      </p>
-                    </Row>
+                  {loading === 'success' ?
+                    <Fragment>
+                      <Form className="text-right">
+                        <Row form>
+                          <p className="mt-2">
+                            <strong>Nota:</strong> Los campos marcados con * son
+                            obligatorios
+                          </p>
+                        </Row>
 
-                    <Row form style={{ 'border-top': '1px solid #ced4da' }}>
-                      <strong className="mt-2">Datos generales</strong>
-                    </Row>
-                    <InfoDocument
-                      form={form}
-                      handleChange={this.handleChange}
-                      customers={this.state.customers}
-                      selectCustomer={this.selectCustomer}
-                    />
+                        <Row form style={{ 'border-top': '1px solid #ced4da' }}>
+                          <strong className="mt-2">Datos generales</strong>
+                        </Row>
+                        <InfoDocument
+                          form={form}
+                          handleChange={this.handleChange}
+                          customers={this.state.customers}
+                          selectCustomer={this.selectCustomer}
+                        />
 
-                    <Row
-                      form
-                      className="my-3 pt-2"
-                      style={{ 'border-top': '1px solid #ced4da' }}
-                    >
-                      <div className="col-sm-1 text-left">
-                        <strong>Productos</strong>
-                      </div>
-                      <Col md={3}>
-                        <FormGroup>
-                          <Label>
-                            <CustomInput
-                              onChange={this.handleChangeCheck}
-                              checked={breakdown}
-                              type="checkbox"
-                              id="breakdown"
-                              name="breakdown"
-                              label="Desglose"
-                            />
-                          </Label>
-                        </FormGroup>
-                      </Col>
+                        <Row
+                          form
+                          className="my-3 pt-2"
+                          style={{ 'border-top': '1px solid #ced4da' }}
+                        >
+                          <div className="col-sm-1 text-left">
+                            <strong>Productos</strong>
+                          </div>
+                          <Col md={3}>
+                            <FormGroup>
+                              <Label>
+                                <CustomInput
+                                  onChange={this.handleChangeCheck}
+                                  checked={breakdown}
+                                  type="checkbox"
+                                  id="breakdown"
+                                  name="breakdown"
+                                  label="Desglose"
+                                />
+                              </Label>
+                            </FormGroup>
+                          </Col>
 
-                      <div className="col-sm-8">
-                        <Button onClick={this.importFromCsv}>Importar</Button>
-                      </div>
-                    </Row>
+                          <div className="col-sm-8">
+                            <Button onClick={this.importFromCsv}>Importar</Button>
+                          </div>
+                        </Row>
 
-                    <ListProducts
-                      productinputs={this.state.productinputs}
-                      productouts={this.state.productouts}
-                      addProduct={this.addProduct}
-                      selectProduct={this.selectProduct}
-                      deleteProduct={this.deleteProduct}
-                      handleChangeItem={this.handleChangeItem}
-                      format={format}
-                      breakdown={breakdown}
-                      decimal = {this.props.decimal}
-                    />
-                  </Form>
+                        <ListProducts
+                          productinputs={this.state.productinputs}
+                          productouts={this.state.productouts}
+                          addProduct={this.addProduct}
+                          selectProduct={this.selectProduct}
+                          deleteProduct={this.deleteProduct}
+                          handleChangeItem={this.handleChangeItem}
+                          format={format}
+                          breakdown={breakdown}
+                          decimal={this.props.decimal}
+                        />
+                      </Form>
 
-                  <Row
-                    form
-                    className="my-3"
-                    style={{ 'border-top': '1px solid #ced4da' }}
-                  ></Row>
-                  <Row>
-                    <Col lg={8}>
-                      <Aditionals
-                        aditionals={aditionals}
-                        addAditional={this.addAditional}
-                        deleteAditional={this.deleteAditional}
-                        onChangeAditional={this.onChangeAditional}
-                      />
-                    </Col>
-                    <Col lg={4}>
-                      <Table bordered>
-                        <thead>
-                          <tr>
-                            <th style={{ 'text-align': 'center' }}>
-                              Resultados
-                            </th>
-                            <th style={{ 'text-align': 'center' }}>Monto</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>Subtotal 12%</td>
-                            <td style={{ 'text-align': 'right' }}>
-                              {format(form.base12)}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>Subtotal 0%</td>
-                            <td style={{ 'text-align': 'right' }}>
-                              {format(form.base0)}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>IVA</td>
-                            <td style={{ 'text-align': 'right' }}>
-                              {format(form.iva)}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>No objeto de IVA</td>
-                            <td style={{ 'text-align': 'right' }}>
-                              {format(form.no_iva)}
-                            </td>
-                          </tr>
-                          {/* <tr>
+                      <Row
+                        form
+                        className="my-3"
+                        style={{ 'border-top': '1px solid #ced4da' }}
+                      ></Row>
+                      <Row>
+                        <Col lg={8}>
+                          <Aditionals
+                            aditionals={aditionals}
+                            addAditional={this.addAditional}
+                            deleteAditional={this.deleteAditional}
+                            onChangeAditional={this.onChangeAditional}
+                          />
+                        </Col>
+                        <Col lg={4}>
+                          <Table bordered>
+                            <thead>
+                              <tr>
+                                <th style={{ 'text-align': 'center' }}>
+                                  Resultados
+                                </th>
+                                <th style={{ 'text-align': 'center' }}>Monto</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td>Subtotal 12%</td>
+                                <td style={{ 'text-align': 'right' }}>
+                                  {format(form.base12)}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Subtotal 0%</td>
+                                <td style={{ 'text-align': 'right' }}>
+                                  {format(form.base0)}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>IVA</td>
+                                <td style={{ 'text-align': 'right' }}>
+                                  {format(form.iva)}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>No objeto de IVA</td>
+                                <td style={{ 'text-align': 'right' }}>
+                                  {format(form.no_iva)}
+                                </td>
+                              </tr>
+                              {/* <tr>
                             <td>Descuento</td>
                             <td style={{ 'text-align': 'right' }}>
                               {format(form.discount)}
                             </td>
                           </tr> */}
-                          <tr>
-                            <th style={{ 'text-align': 'center' }}>TOTAL</th>
-                            <th style={{ 'text-align': 'right' }}>
-                              {format(form.total)}
-                            </th>
-                          </tr>
-                        </tbody>
-                      </Table>
-                      <Button
-                        color="secondary"
-                        id="btn-save"
-                        onClick={() => this.submit(false)}
-                        className="mr-2 btn-transition"
-                        disable
-                      >
-                        Guardar
-                      </Button>
-                      <Button
-                        color="success"
-                        id="btn-save-send"
-                        onClick={() => this.submit(true)}
-                        className="mr-2 btn-transition"
-                      >
-                        Guardar y procesar
-                      </Button>
-                    </Col>
-                  </Row>
+                              <tr>
+                                <th style={{ 'text-align': 'center' }}>TOTAL</th>
+                                <th style={{ 'text-align': 'right' }}>
+                                  {format(form.total)}
+                                </th>
+                              </tr>
+                            </tbody>
+                          </Table>
+                          <Button
+                            color="secondary"
+                            id="btn-save"
+                            onClick={() => this.submit(false)}
+                            className="mr-2 btn-transition"
+                            disable
+                          >
+                            Guardar
+                          </Button>
+                          <Button
+                            color="success"
+                            id="btn-save-send"
+                            onClick={() => this.submit(true)}
+                            className="mr-2 btn-transition"
+                          >
+                            Guardar y procesar
+                          </Button>
+                        </Col>
+                      </Row>
+                    </Fragment>
+                    :
+                    <Row className='m-1'>
+                      <CardText className='text-danger'>
+                        Error con el internet!
+                      </CardText>
+                    </Row>
+                  }
                 </CardBody>
               </Card>
             </Col>
@@ -728,9 +739,7 @@ class CreateInvoice extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  // token: state.AuthReducer.token,
   decimal: state.AuthReducer.decimal
 });
 
 export default connect(mapStateToProps)(CreateInvoice);
-// export default CreateInvoice;
