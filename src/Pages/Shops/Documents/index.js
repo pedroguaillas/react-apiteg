@@ -169,7 +169,7 @@ class Documents extends Component {
                 : state_retencion === 'FIRMADO'
                   ? this.sendToSriRetention(id)
                   : state_retencion === 'ENVIADO' ||
-                    state_retencion === 'RECIBIDO' ||
+                    state_retencion === 'RECIBIDA' ||
                     state_retencion === 'EN_PROCESO'
                     ? this.autorizedFromSriRetention(id)
                     : state_retencion === 'AUTORIZADO'

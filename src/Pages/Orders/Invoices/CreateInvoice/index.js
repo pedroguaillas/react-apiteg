@@ -41,6 +41,7 @@ class CreateInvoice extends Component {
         base0: 0,
         base12: 0,
         iva: 0,
+        ice: 0,
         sub_total: 0,
         discount: 0,
         total: 0,
@@ -119,9 +120,15 @@ class CreateInvoice extends Component {
         await api.get(`orders/${params.id}`)
           .then(({ data }) => {
             let { series } = data;
+            let productouts = data.order_items
+            productouts.forEach(po => {
+              if (po.codice === null) {
+                delete po.ice
+              }
+            })
             this.setState({
               productinputs: data.products,
-              productouts: data.order_items,
+              productouts,
               customers: data.customers,
               aditionals: data.order_aditionals,
               form: data.order,
@@ -334,6 +341,9 @@ class CreateInvoice extends Component {
           item.iva = product.atts.iva;
           item.stock = product.stock > 0 ? product.stock : 1;
           item.total_iva = parseFloat(product.atts.price1);
+          if (product.atts.ice !== null) {
+            item.ice = '';
+          }
         }
         return item;
       });
@@ -391,6 +401,11 @@ class CreateInvoice extends Component {
                 : parseFloat((value / productouts[index].quantity).toFixed(decimal));
           }
           break;
+        case 'ice':
+          if (value >= 0) {
+            productouts[index].ice = value;
+          }
+          break;
         default:
           break;
       }
@@ -404,6 +419,7 @@ class CreateInvoice extends Component {
     let base0 = 0;
     let base12 = 0;
     let discount = 0;
+    let ice = 0;
 
     productouts.forEach((item) => {
       let sub_total = parseFloat(item.quantity) * parseFloat(item.price);
@@ -413,6 +429,7 @@ class CreateInvoice extends Component {
           : 0;
       let total = sub_total - dis;
       discount += dis;
+      ice += item.ice !== undefined ? item.ice : 0
       switch (item.iva) {
         case 0:
           base0 += total;
@@ -428,9 +445,9 @@ class CreateInvoice extends Component {
       }
     });
 
-    let iva = Number((base12 * 0.12).toFixed(2));
+    let iva = Number(((base12 + Number(ice)) * 0.12).toFixed(2));
     let sub_total = no_iva + base0 + base12;
-    let total = sub_total + iva;
+    let total = sub_total + Number(ice) + iva;
 
     this.setState({
       productouts,
@@ -442,7 +459,8 @@ class CreateInvoice extends Component {
         iva,
         sub_total,
         discount,
-        total,
+        ice,
+        total
       },
     });
   };
@@ -675,6 +693,15 @@ class CreateInvoice extends Component {
                                   {format(form.base0)}
                                 </td>
                               </tr>
+                              {form.ice > 0
+                                ?
+                                <tr>
+                                  <td>Monto ICE</td>
+                                  <td style={{ 'text-align': 'right' }}>
+                                    {format(form.ice)}
+                                  </td>
+                                </tr>
+                                : null}
                               <tr>
                                 <td>IVA</td>
                                 <td style={{ 'text-align': 'right' }}>
