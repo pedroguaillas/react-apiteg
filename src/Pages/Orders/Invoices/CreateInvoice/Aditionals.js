@@ -37,7 +37,6 @@ class Aditionals extends React.Component {
                                     </Button>
                                 </td>
                             </tr>
-
                         ))}
                     </tbody>
                 </Table>

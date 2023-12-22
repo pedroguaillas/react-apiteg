@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import {
@@ -11,12 +10,10 @@ import {
   ButtonDropdown,
   DropdownMenu,
   DropdownItem,
-  DropdownToggle,
+  DropdownToggle
 } from 'reactstrap';
 
 import PageTitle from '../../../Layout/AppMain/PageTitle';
-import clienteAxios from '../../../config/axios';
-import tokenAuth from '../../../config/token';
 import Paginate from '../../Components/Paginate/Index';
 import api from '../../../services/api';
 
@@ -29,9 +26,7 @@ class Invoices extends Component {
   };
 
   async componentDidMount() {
-    // tokenAuth(this.props.token);
     try {
-      // await clienteAxios.get('referralguides')
       await api.get('referralguides').then((res) => {
         let { data, links, meta } = res.data;
         this.setState({
@@ -49,9 +44,7 @@ class Invoices extends Component {
     e.preventDefault();
 
     if (page !== null) {
-      // tokenAuth(this.props.token);
       try {
-        // await clienteAxios.get(`referralguides?page=${page.substring((page.indexOf('=')) + 1)}`)
         await api
           .get(`referralguides?page=${page.substring(page.indexOf('=') + 1)}`)
           .then((res) => {
@@ -71,9 +64,7 @@ class Invoices extends Component {
   reloadPage = async () => {
     let { current_page } = this.state.meta;
     if (current_page !== null) {
-      // tokenAuth(this.props.token);
       try {
-        // await clienteAxios.get(`referralguides?page=${current_page}`)
         await api.get(`referralguides?page=${current_page}`).then((res) => {
           let { data, links, meta } = res.data;
           this.setState({
@@ -91,9 +82,7 @@ class Invoices extends Component {
   addDocument = () => this.props.history.push('/guiasremision/nuevo');
 
   viewInvoicePdf = async (id) => {
-    // tokenAuth(this.props.token);
     try {
-      // await clienteAxios.get(`referralguides/${id}/pdf`, { responseType: 'blob' })
       await api
         .get(`referralguides/${id}/pdf`, { responseType: 'blob' })
         .then((res) => {
@@ -115,20 +104,19 @@ class Invoices extends Component {
     this.setState({ dropdowns });
   };
 
-  renderproccess = ({ id, atts: { state, extra_detail } }) => (
+  renderproccess = ({ id, atts: { state } }) => (
     <DropdownItem
       onClick={() =>
         state === 'CREADO' || state === 'DEVUELTA' || state === 'NO AUTORIZADO'
           ? this.generateSign(id)
           : state === 'FIRMADO'
-          ? this.sendToSri(id)
-          : state === 'ENVIADO' ||
-            state === 'RECIBIDA' ||
-            state === 'EN_PROCESO'
-          ? this.autorizedFromSri(id)
-          : null
+            ? this.sendToSri(id)
+            : state === 'ENVIADO' ||
+              state === 'RECIBIDA' ||
+              state === 'EN_PROCESO'
+              ? this.autorizedFromSri(id)
+              : null
       }
-      title = {extra_detail}
     >
       {this.renderSwith(state)}
     </DropdownItem>
@@ -156,9 +144,7 @@ class Invoices extends Component {
   };
 
   generateSign = async (id) => {
-    // tokenAuth(this.props.token);
     try {
-      // await clienteAxios.get('referralguides/xml/' + id)
       await api
         .get('referralguides/xml/' + id)
         .then((res) => this.reloadPage());
@@ -168,9 +154,7 @@ class Invoices extends Component {
   };
 
   sendToSri = async (id) => {
-    // tokenAuth(this.props.token);
     try {
-      // await clienteAxios.get('referralguides/sendsri/' + id)
       await api
         .get('referralguides/sendsri/' + id)
         .then((res) => this.reloadPage());
@@ -180,10 +164,8 @@ class Invoices extends Component {
   };
 
   autorizedFromSri = async (id) => {
-    // tokenAuth(this.props.token);
     // Recargar la pagina actual .......................
     try {
-      // await clienteAxios.get(`referralguides/authorize/${id}`)
       await api
         .get(`referralguides/authorize/${id}`)
         .then((res) => this.reloadPage());
@@ -193,9 +175,7 @@ class Invoices extends Component {
   };
 
   downloadXml = async (id) => {
-    // tokenAuth(this.props.token);
     try {
-      // await clienteAxios.get('referralguides/download/' + id)
       await api.get('referralguides/download/' + id).then((res) => {
         var a = document.createElement('a'); //Create <a>
         a.href = 'data:text/xml;base64,' + res.data.xml; //Image Base64 Goes here
@@ -268,7 +248,13 @@ class Invoices extends Component {
                               </Link>
                             </td>
                             <td>{referralguide.customer.name}</td>
-                            <td>{referralguide.atts.state}</td>
+                            <td className='font-icon-wrapper'>
+                              {referralguide.atts.state}
+                              {referralguide.atts.state === 'DEVUELTA' || referralguide.atts.state === 'NO AUTORIZADO' ?
+                                <i className='pe-7s-info icon-gradient bg-plum-plate' style={{ cursor: 'help' }} title={referralguide.atts.extra_detail}> </i>
+                                : null}
+
+                            </td>
                             <td>{referralguide.carrier.name}</td>
                             <td>
                               <ButtonDropdown
@@ -319,9 +305,4 @@ class Invoices extends Component {
   };
 }
 
-// const mapStateToProps = state => ({
-//     token: state.AuthReducer.token
-// });
-
-// export default connect(mapStateToProps)(Invoices);
 export default Invoices;

@@ -16,9 +16,7 @@ import {
   DropdownToggle
 } from 'reactstrap'
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
-
 import PageTitle from '../../../Layout/AppMain/PageTitle'
-
 import Paginate from '../../Components/Paginate/Index'
 import Stock from '../../Components/Modal/Stock'
 import api from '../../../services/api'
@@ -112,7 +110,7 @@ class Products extends Component {
   exportProducts = async () => {
     try {
       await api
-        .get(`products_export`, { responseType: 'blob' })
+        .get(`products/export`, { responseType: 'blob' })
         .then(({ data }) => {
           var blob = new Blob([data], {
             type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;'
@@ -164,7 +162,7 @@ class Products extends Component {
 
     try {
       await api
-        .post('products_import', data)
+        .post('products/import', data)
         .then(({ data: { data, links, meta } }) => {
           this.setState({
             products: data,

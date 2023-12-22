@@ -13,50 +13,45 @@ import {
   Button,
 } from 'reactstrap';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-
 import PageTitle from '../../../Layout/AppMain/PageTitle';
-
-import clienteAxios from '../../../config/axios';
-import tokenAuth from '../../../config/token';
 import api from '../../../services/api';
+
 class FormProduct extends Component {
   state = {
-    unities: [],
-    categories: [],
+    iceCataloges: [],
     form: {
       code: null,
       type_product: 1,
       name: null,
       unity_id: null,
       iva: 2,
+      ice: null,
       stock: '',
-      price1: '',
+      price1: ''
     },
   };
 
   async componentDidMount() {
-    // tokenAuth(this.props.token);
     const {
       match: { params },
     } = this.props;
+
     if (params.id) {
       try {
-        // await clienteAxios
         await api
-          .get('products/' + params.id)
-          .then(({ data: { accounts, product, categories, unities } }) => {
-            this.setState({ form: product, unities, categories, accounts });
+          .get('product/' + params.id)
+          .then(({ data: { product, iceCataloges } }) => {
+            this.setState({ form: product, iceCataloges });
           });
       } catch (error) {
         console.log(error);
       }
     } else {
       try {
-        // await clienteAxios
         await api
-          .get('productscreate')
-          .then(({ data: { unities, categories } }) => {
-            this.setState({ unities, categories });
+          .get('product/create')
+          .then(({ data: { iceCataloges } }) => {
+            this.setState({ iceCataloges });
           });
       } catch (error) {
         console.log(error);
@@ -69,13 +64,11 @@ class FormProduct extends Component {
       match: { params },
     } = this.props;
     if (this.validate()) {
-      // tokenAuth(this.props.token);
       try {
         let { form } = this.state;
         if (form.id) {
           delete form.stock;
-          // await clienteAxios
-          await api.put('products/' + params.id, form).then((res) => {
+          await api.put('product/' + params.id, form).then((res) => {
             if (res.data.message === 'KEY_DUPLICATE') {
               alert('Ya existe un producto con ese código');
               return;
@@ -86,8 +79,7 @@ class FormProduct extends Component {
           if (form.stock === '') {
             delete form.stock;
           }
-          // await clienteAxios
-          await api.post('products', form).then((res) => {
+          await api.post('product', form).then((res) => {
             if (res.data.message === 'KEY_DUPLICATE') {
               alert('Ya existe un producto con ese código');
               return;
@@ -168,7 +160,7 @@ class FormProduct extends Component {
   };
 
   render() {
-    var { form } = this.state;
+    var { form, iceCataloges } = this.state;
 
     return (
       <Fragment>
@@ -192,7 +184,7 @@ class FormProduct extends Component {
                   <Form className="text-right">
                     <Row form>
                       <p className="mt-2">
-                        <strong>Nota:</strong> Todos los campos son obligatorios
+                        <strong>Nota:</strong> Todos los campos marcado con * son obligatorios
                       </p>
                     </Row>
                     <Row form style={{ 'border-top': '1px solid #ced4da' }}>
@@ -202,7 +194,7 @@ class FormProduct extends Component {
                       <Col sm={6}>
                         <FormGroup className="mb-1" row>
                           <Label for="code" sm={4}>
-                            Código
+                            Código *
                           </Label>
                           <Col sm={6}>
                             <Input
@@ -236,7 +228,7 @@ class FormProduct extends Component {
                         </FormGroup>
                         <FormGroup className="mb-1" row>
                           <Label for="name" sm={4}>
-                            Nombre
+                            Nombre *
                           </Label>
                           <Col sm={6}>
                             <Input
@@ -254,7 +246,7 @@ class FormProduct extends Component {
                       <Col md={6}>
                         <FormGroup className="mb-1" row>
                           <Label for="price1" sm={4}>
-                            Precio
+                            Precio *
                           </Label>
                           <Col sm={6}>
                             <Input
@@ -314,6 +306,28 @@ class FormProduct extends Component {
                           </Col>
                         </FormGroup>
                       </Col>
+                      <Col md={4}>
+                        <FormGroup row>
+                          <Label for="ice" sm={4}>
+                            Imp. ICE
+                          </Label>
+                          <Col sm={7}>
+                            <CustomInput
+                              bsSize="sm"
+                              onChange={this.handleChange}
+                              value={form.ice}
+                              type="select"
+                              name="ice"
+                              id="ice"
+                            >
+                              <option value="">Seleccione</option>
+                              {iceCataloges.map((ice, i) => (
+                                <option value={ice.code} key={`cataloge${i}`}>{ice.description}</option>
+                              ))}
+                            </CustomInput>
+                          </Col>
+                        </FormGroup>
+                      </Col>
                     </Row>
                     <Button onClick={this.submit} color="primary" type="button">
                       Guardar
@@ -330,9 +344,7 @@ class FormProduct extends Component {
 }
 
 const mapStateToProps = (state) => ({
-  // token: state.AuthReducer.token,
   inventory: state.AuthReducer.inventory,
 });
 
 export default connect(mapStateToProps)(FormProduct);
-// export default FormProduct;

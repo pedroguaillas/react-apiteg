@@ -147,8 +147,7 @@ class Documents extends Component {
       state_retencion,
       serie_retencion,
       xml_retention,
-      send_mail_retention,
-      extra_detail_retention
+      send_mail_retention
     },
     provider: { email }
   }) =>
@@ -176,7 +175,6 @@ class Documents extends Component {
                       ? this.canceledRetention(id)
                       : null
             }
-            title={extra_detail_retention}
           >
             {this.renderSwith(state_retencion)}
           </DropdownItem>
@@ -547,10 +545,13 @@ class Documents extends Component {
                               </Link>
                             </td>
                             <td>{voucher.provider.name}</td>
-                            <td>{voucher.atts.state_retencion}</td>
-                            <td style={{ 'text-align': 'right' }}>
-                              ${voucher.atts.total}
+                            <td className='font-icon-wrapper'>
+                              {`${voucher.atts.state_retencion} `}
+                              {voucher.atts.state_retencion === 'DEVUELTA' || voucher.atts.state_retencion === 'NO AUTORIZADO' ?
+                                <i className='pe-7s-info icon-gradient bg-plum-plate' style={{ cursor: 'help' }} title={voucher.atts.extra_detail_retention}> </i>
+                                : null}
                             </td>
+                            <td style={{ 'text-align': 'right' }}>{voucher.atts.total}</td>
                             <td className='font-icon-wrapper font-icon-sm border-right-0 border-left-0'>
                               {voucher.atts.send_mail_retention === 1 ? (
                                 <i

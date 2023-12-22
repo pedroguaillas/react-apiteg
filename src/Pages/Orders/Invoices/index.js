@@ -220,7 +220,6 @@ class Invoices extends Component {
                   ? this.canceled(id)
                   : null
         }
-        title={extra_detail}
       >
         {this.renderSwith(state)}
       </DropdownItem>
@@ -398,7 +397,13 @@ class Invoices extends Component {
                               </Link>
                             </td>
                             <td>{order.customer.name}</td>
-                            <td>{order.atts.state}</td>
+                            <td className='font-icon-wrapper'>
+                              {`${order.atts.state} `}
+                              {order.atts.state === 'DEVUELTA' || order.atts.state === 'NO AUTORIZADO' ?
+                                // <Tooltip item={placement: "left-end",text: "left-end"} />
+                                <i className='pe-7s-info icon-gradient bg-plum-plate' style={{ cursor: 'help' }} title={order.atts.extra_detail}> </i>
+                                : null}
+                            </td>
                             <td style={{ 'text-align': 'right' }}>
                               ${order.atts.total}
                             </td>

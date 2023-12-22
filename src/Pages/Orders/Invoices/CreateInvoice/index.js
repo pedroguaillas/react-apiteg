@@ -50,8 +50,10 @@ class CreateInvoice extends Component {
         received: 0,
         doc_realeted: 0,
         voucher_type: 1,
+        pay_method: null
       },
       customers: [],
+      methodOfPayments: [],
       productinputs: [],
       productouts: [
         {
@@ -119,7 +121,7 @@ class CreateInvoice extends Component {
       try {
         await api.get(`orders/${params.id}`)
           .then(({ data }) => {
-            let { series } = data;
+            let { series, methodOfPayments } = data;
             let productouts = data.order_items
             productouts.forEach(po => {
               if (po.codice === null) {
@@ -132,7 +134,8 @@ class CreateInvoice extends Component {
               customers: data.customers,
               aditionals: data.order_aditionals,
               form: data.order,
-              series
+              series,
+              methodOfPayments
             });
           });
       } catch (error) {
@@ -143,12 +146,14 @@ class CreateInvoice extends Component {
       try {
         await api.get('orders/create').
           then(({ data }) => {
-            let { series } = data
+            let { series, methodOfPayments, pay_method } = data
             this.setState({
               form: {
                 ...this.state.form,
                 serie: series.invoice,
+                pay_method
               },
+              methodOfPayments,
               series
             });
           });
@@ -564,7 +569,7 @@ class CreateInvoice extends Component {
 
   //...............Layout
   render = () => {
-    let { loading, form, aditionals, breakdown } = this.state;
+    let { loading, form, aditionals, breakdown, methodOfPayments } = this.state;
 
     let { format } = this.formatter;
 
@@ -663,6 +668,17 @@ class CreateInvoice extends Component {
                       ></Row>
                       <Row>
                         <Col lg={8}>
+                          <FormGroup className="mb-1" row>
+                            <Label style={{ 'font-weight': 'bold' }} for="serie" sm={4}>Forma de pago</Label>
+                            <Col sm={6}>
+                              <Input value={form.pay_method} bsSize="sm" onChange={this.handleChange} type="select"
+                                id="pay_method" name="pay_method">
+                                {methodOfPayments.map((mp, i) => (
+                                  <option value={mp.code} key={`mp${i}`}>{mp.description}</option>
+                                ))}
+                              </Input>
+                            </Col>
+                          </FormGroup>
                           <Aditionals
                             aditionals={aditionals}
                             addAditional={this.addAditional}
@@ -714,12 +730,6 @@ class CreateInvoice extends Component {
                                   {format(form.no_iva)}
                                 </td>
                               </tr>
-                              {/* <tr>
-                            <td>Descuento</td>
-                            <td style={{ 'text-align': 'right' }}>
-                              {format(form.discount)}
-                            </td>
-                          </tr> */}
                               <tr>
                                 <th style={{ 'text-align': 'center' }}>TOTAL</th>
                                 <th style={{ 'text-align': 'right' }}>
