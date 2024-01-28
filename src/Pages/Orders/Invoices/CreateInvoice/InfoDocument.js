@@ -8,7 +8,7 @@ class InfoDocument extends Component {
 
     render() {
 
-        let { form, handleChange, selectCustomer, customers } = this.props
+        let { form, customers, points, selectPoint, handleChange, selectCustomer, changePoint } = this.props
 
         let type_vouchers = [
             { code: 1, description: 'Factura' },
@@ -29,12 +29,20 @@ class InfoDocument extends Component {
                                 min={date.toISOString().substring(0, 10)} />
                         </Col>
                     </FormGroup>
-                    <FormGroup className="mb-1" row>
-                        <Label style={{ 'font-weight': 'bold' }} for="serie" sm={4}>Número de serie</Label>
-                        <Col sm={6}>
-                            <Input bsSize="sm" onChange={handleChange} value={form.serie} type="text"
-                                id="serie" name="serie" maxlength={17} />
+                    <FormGroup className="mb-1" row hidden={form.id || points.length < 2}>
+                        <Label style={{ 'font-weight': 'bold' }} for="point" sm={4}>Punto Emi</Label>
+                        <Col sm={8}>
+                            <CustomInput type="select" bsSize="sm" name="point_id" id="point_id" value={selectPoint.id} onChange={changePoint}>
+                                <option value="">Seleccione</option>
+                                {points.map((point, i) => (
+                                    <option value={point.id} key={`point${i}`}>{`${point.store}-${point.point ?? 'Cree un punto de emisión'} ${point.recognition ?? ''}`}</option>
+                                ))}
+                            </CustomInput>
                         </Col>
+                    </FormGroup>
+                    <FormGroup className={`mb-1 ${form.id !== undefined || selectPoint.id ? '' : 'text-danger'}`} row>
+                        <Label style={{ 'font-weight': 'bold' }} for="serie" sm={4}>N° de serie</Label>
+                        <Label style={{ 'text-align': 'left' }} sm={5}>{form.serie}</Label>
                     </FormGroup>
                     <FormGroup className="mb-1" row>
                         <Label style={{ 'font-weight': 'bold' }} for="customer_id" sm={4}>Cliente *</Label>
@@ -55,7 +63,7 @@ class InfoDocument extends Component {
                                 type="select" name="voucher_type" id="voucher_type">
                                 {
                                     type_vouchers.map((type_voucher, index) => (
-                                        <option value={type_voucher.code}>{type_voucher.description}</option>
+                                        <option value={type_voucher.code} key={`tvchert${index}`}>{type_voucher.description}</option>
                                     ))
                                 }
                             </CustomInput>

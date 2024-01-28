@@ -2,15 +2,8 @@ import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import {
-  Row,
-  Col,
-  Card,
-  CardBody,
-  Table,
-  ButtonDropdown,
-  DropdownMenu,
-  DropdownItem,
-  DropdownToggle
+  Row, Col, Card, CardBody, Table,
+  ButtonDropdown, DropdownMenu, DropdownItem, DropdownToggle
 } from 'reactstrap';
 
 import PageTitle from '../../../Layout/AppMain/PageTitle';
@@ -219,7 +212,7 @@ class Invoices extends Component {
           {referralguides === null ? (
             <p>Cargando ...</p>
           ) : referralguides.length === 0 ? (
-            <p>No existe guias de remsión registradas</p>
+            <p>No existe guias de remisión registradas</p>
           ) : (
             <Row>
               <Col lg="12">

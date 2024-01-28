@@ -1,26 +1,13 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import {
-  Row,
-  Col,
-  Card,
-  CardBody,
-  Table,
-  Form,
-  Button,
-  Input,
-  Label,
-  FormGroup,
-  CustomInput,
-  CardText,
+  Row, Col, Card, CardBody, Table, Form, Button, Input,
+  Label, FormGroup, CustomInput, CardText,
 } from 'reactstrap';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-
 import PageTitle from '../../../../Layout/AppMain/PageTitle';
-
 import ListProducts from './ListProducts';
 import InfoDocument from './InfoDocument';
-
 import Aditionals from './Aditionals';
 import api from '../../../../services/api';
 
@@ -34,7 +21,7 @@ class CreateInvoice extends Component {
 
     this.state = {
       form: {
-        serie: '001-010-000000001',
+        serie: 'Cree un punto de emisión',
         date,
         expiration_days: 0,
         no_iva: 0,
@@ -65,7 +52,6 @@ class CreateInvoice extends Component {
           total_iva: 0,
         },
       ],
-      taxes_request: [],
       taxes: [
         {
           code: null,
@@ -77,13 +63,10 @@ class CreateInvoice extends Component {
         },
       ],
       aditionals: [],
-      app_retention: false,
-      redirect: false,
-      hiddenreceived: true,
-      series: {},
-      edit: true,
+      points: [],
+      selectPoint: {},
       breakdown: false,
-      loading: 'success'
+      loading: 'success',
     };
   }
 
@@ -121,7 +104,7 @@ class CreateInvoice extends Component {
       try {
         await api.get(`orders/${params.id}`)
           .then(({ data }) => {
-            let { series, methodOfPayments } = data;
+            let { points, methodOfPayments } = data;
             let productouts = data.order_items
             productouts.forEach(po => {
               if (po.codice === null) {
@@ -134,7 +117,7 @@ class CreateInvoice extends Component {
               customers: data.customers,
               aditionals: data.order_aditionals,
               form: data.order,
-              series,
+              points,
               methodOfPayments
             });
           });
@@ -146,16 +129,16 @@ class CreateInvoice extends Component {
       try {
         await api.get('orders/create').
           then(({ data }) => {
-            let { series, methodOfPayments, pay_method } = data
+            let { points, methodOfPayments, pay_method } = data
             this.setState({
               form: {
                 ...this.state.form,
-                serie: series.invoice,
                 pay_method
               },
               methodOfPayments,
-              series
-            });
+              points
+            })
+            if (points.length === 1 && points[0].point) this.selectSerie(points[0])
           });
       } catch (error) {
         this.setState({ loading: 'error' })
@@ -164,10 +147,28 @@ class CreateInvoice extends Component {
     }
   }
 
+  changePoint = (e) => {
+    if (e.target.value === "") return
+    let point = this.state.points.filter(p => p.id == parseInt(e.target.value))[0]
+    if (point) this.selectSerie(point)
+  }
+
+  selectSerie = (point) => {
+    let serie = point.store + '-' + point.point + '-'
+    serie += ((this.state.form.voucher_type == 1 ? point.invoice : point.creditnote) + '').padStart(9, '0')
+    this.setState({
+      selectPoint: point,
+      form: {
+        ...this.state.form,
+        serie
+      },
+    })
+  }
+
   //Save sale
   submit = async (send) => {
     if (this.validate()) {
-      let { form, productouts, aditionals } = this.state;
+      let { form, productouts, aditionals, selectPoint } = this.state;
       form.products =
         productouts.length > 0
           ? productouts.filter((product) => product.product_id !== 0)
@@ -185,6 +186,7 @@ class CreateInvoice extends Component {
             .put(`orders/${form.id}`, form)
             .then((res) => this.props.history.push('/ventas/facturas'));
         } else {
+          form.point_id = selectPoint.id
           await api
             .post('orders', form)
             .then((res) => this.props.history.push('/ventas/facturas'));
@@ -197,12 +199,12 @@ class CreateInvoice extends Component {
 
   //Validate data to send save
   validate = () => {
-    let { form, productouts } = this.state;
+    let { form, productouts, selectPoint } = this.state;
 
-    // Validar que la serie contenga 17 caracteres
-    if (form.serie === undefined || form.serie.length < 17) {
+    // Validar exista un punto de emision seleccionada
+    if (form.id === undefined && selectPoint.id === undefined) {
       alert(
-        'El "Numero de Serie" debe contener el siguiente formato 000-000-000000000'
+        'Seleccione un punto de emisión'
       );
       return;
     }
@@ -273,21 +275,11 @@ class CreateInvoice extends Component {
     let { name, value } = e.target;
     if (name === 'voucher_type') {
       let voucher_type = Number(value);
-      let { series } = this.state;
-      let serie = '000-000-000000000';
+      let { selectPoint, form: { serie } } = this.state;
 
-      switch (voucher_type) {
-        case 1:
-          serie = series.invoice;
-          break;
-        case 4:
-          serie = series.cn;
-          break;
-        case 5:
-          serie = series.dn;
-          break;
-        default:
-          break;
+      if (selectPoint.id) {
+        let type = voucher_type == 1 ? selectPoint.invoice : selectPoint.creditnote
+        serie = `${serie.substring(0, 8)}${(type + '').padStart(9, '0')}`
       }
 
       this.setState({
@@ -569,7 +561,7 @@ class CreateInvoice extends Component {
 
   //...............Layout
   render = () => {
-    let { loading, form, aditionals, breakdown, methodOfPayments } = this.state;
+    let { loading, form, aditionals, breakdown, methodOfPayments, customers, points, selectPoint } = this.state;
 
     let { format } = this.formatter;
 
@@ -615,8 +607,11 @@ class CreateInvoice extends Component {
                         </Row>
                         <InfoDocument
                           form={form}
+                          points={points}
+                          selectPoint={selectPoint}
+                          customers={customers}
                           handleChange={this.handleChange}
-                          customers={this.state.customers}
+                          changePoint={this.changePoint}
                           selectCustomer={this.selectCustomer}
                         />
 
@@ -668,7 +663,7 @@ class CreateInvoice extends Component {
                       ></Row>
                       <Row>
                         <Col lg={8}>
-                          <FormGroup className="mb-1" row>
+                          <FormGroup className="mb-1" row hidden={form.voucher_type === 4}>
                             <Label style={{ 'font-weight': 'bold' }} for="serie" sm={4}>Forma de pago</Label>
                             <Col sm={6}>
                               <Input value={form.pay_method} bsSize="sm" onChange={this.handleChange} type="select"

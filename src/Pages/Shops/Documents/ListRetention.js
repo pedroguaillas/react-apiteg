@@ -8,6 +8,7 @@ class ListRetention extends Component {
       edit,
       taxes,
       retentions,
+      app_retention,
       handleChangeTax,
       deleteTax,
       handleChangeOthersTax,
@@ -15,7 +16,7 @@ class ListRetention extends Component {
     } = this.props;
 
     return (
-      <Table className="my-3" bordered responsive>
+      <Table className="my-3" bordered responsive hidden={!app_retention}>
         <thead>
           <tr style={{ textAlign: 'center' }}>
             <th style={{ width: '10em' }}>Impuesto</th>
@@ -31,28 +32,28 @@ class ListRetention extends Component {
             ? taxes.length === 0
               ? null
               : taxes.map((tax, index) => (
-                  <tr key={index}>
-                    <td style={{ textAlign: 'center' }}>
-                      {tax.code === '1' ? 'IVA' : 'Renta'}
-                    </td>
-                    <td>
-                      <SelectRetention
-                        index={index}
-                        code={tax.code}
-                        tax_code={tax.tax_code}
-                        retentions={retentions}
-                        {...functions}
-                      />
-                      {/* {retentions.filter(retention => retention.tax_code === tax.tax_code)[0].conception} */}
-                    </td>
-                    <td>{`${tax.porcentage}%`}</td>
-                    <td>{tax.base}</td>
-                    <td>{parseFloat(tax.value).toFixed(2)}</td>
-                  </tr>
-                ))
+                <tr key={index}>
+                  <td style={{ textAlign: 'center' }}>
+                    {tax.code === '1' ? 'IVA' : 'Renta'}
+                  </td>
+                  <td>
+                    <SelectRetention
+                      index={index}
+                      code={tax.code}
+                      tax_code={tax.tax_code}
+                      retentions={retentions}
+                      {...functions}
+                    />
+                    {/* {retentions.filter(retention => retention.tax_code === tax.tax_code)[0].conception} */}
+                  </td>
+                  <td>{`${tax.porcentage}%`}</td>
+                  <td>{tax.base}</td>
+                  <td>{parseFloat(tax.value).toFixed(2)}</td>
+                </tr>
+              ))
             : taxes.length === 0
-            ? null
-            : taxes.map((tax, index) => (
+              ? null
+              : taxes.map((tax, index) => (
                 <tr key={index}>
                   <td>
                     <CustomInput
@@ -89,10 +90,9 @@ class ListRetention extends Component {
                         required
                       />
                     ) : (
-                      `${
-                        tax.porcentage === undefined || tax.porcentage === null
-                          ? 0
-                          : tax.porcentage
+                      `${tax.porcentage === undefined || tax.porcentage === null
+                        ? 0
+                        : tax.porcentage
                       }%`
                     )}
                   </td>

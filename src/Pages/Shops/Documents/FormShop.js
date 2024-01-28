@@ -1,27 +1,15 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import {
-  Row,
-  Col,
-  Card,
-  CardBody,
-  Table,
-  Form,
-  Button,
-  FormGroup,
-  Label,
-  CustomInput,
-  CardText,
+  Row, Col, Card, CardBody, Table, Form, Button,
+  FormGroup, Label, CustomInput, CardText
 } from 'reactstrap';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-
 import PageTitle from '../../../Layout/AppMain/PageTitle';
-
 import ListProducts from './ListProducts';
 import RetentionForm from './RetentionForm';
 import ListRetention from './ListRetention';
 import InfoDocument from './InfoDocument';
-
 import Description from './Description';
 import api from '../../../services/api';
 
@@ -51,7 +39,7 @@ class FormShop extends Component {
         provider_id: 0,
 
         // Retencion
-        serie_retencion: '001-010-000000001',
+        serie_retencion: 'Cree un punto de emisión',
         date_retention: date,
       },
       providers: [],
@@ -72,7 +60,9 @@ class FormShop extends Component {
       series: {},
       edit: false,
       apply_inventory: false,
-      loading: 'success'
+      loading: 'success',
+      points: [],
+      selectPoint: {}
     };
   }
 
@@ -162,7 +152,6 @@ class FormShop extends Component {
       try {
         await api.get(`shops/${params.id}`)
           .then(({ data }) => {
-            let { series } = data;
             this.setState({
               productinputs: data.products,
               productouts: data.shopitems,
@@ -170,7 +159,6 @@ class FormShop extends Component {
               taxes: data.shopretentionitems,
               providers: data.providers,
               form: data.shop,
-              series,
               app_retention: data.taxes.length > 0,
             });
           });
@@ -182,15 +170,16 @@ class FormShop extends Component {
       try {
         await api.get('shops/create')
           .then(({ data }) => {
-            let { series } = data;
+            let { points } = data;
             this.setState({
               taxes_request: data.taxes,
               form: {
                 ...this.state.form,
-                serie_retencion: series.retention,
+                // serie_retencion: series.retention,
               },
-              series,
+              points,
             });
+            if (points.length === 1 && points[0].point) this.selectSerie(points[0])
           });
       } catch (error) {
         this.setState({ loading: 'error' })
@@ -199,10 +188,40 @@ class FormShop extends Component {
     }
   }
 
+  changePoint = (e) => {
+    if (e.target.value === "") return
+    let point = this.state.points.filter(p => p.id == parseInt(e.target.value))[0]
+    if (point) this.selectSerie(point)
+  }
+
+  selectSerie = (point) => {
+
+    let { form, app_retention } = this.state
+
+    // Si es liquidación en compra
+    if (form.voucher_type === 3) {
+      let serie = point.store + '-' + point.point + '-'
+      serie += (point.settlementonpurchase + '').padStart(9, '0')
+      form.serie = serie
+    }
+
+    // Si aplica retención
+    if (app_retention) {
+      let serie_retencion = point.store + '-' + point.point + '-'
+      serie_retencion += (point.retention + '').padStart(9, '0')
+      form.serie_retencion = serie_retencion
+    }
+
+    this.setState({
+      selectPoint: point,
+      form,
+    })
+  }
+
   //Save sale
   submit = async (send) => {
     if (this.validate()) {
-      let { form, productouts, taxes, app_retention } = this.state;
+      let { form, productouts, taxes, app_retention, selectPoint } = this.state;
       form.products =
         productouts.length > 0
           ? productouts.filter((product) => product.product_id !== 0)
@@ -212,6 +231,10 @@ class FormShop extends Component {
       }
       form.app_retention = app_retention;
       form.send = send;
+
+      if (!app_retention) {
+        delete form.serie_retencion
+      }
 
       if (form.id) {
         try {
@@ -227,6 +250,7 @@ class FormShop extends Component {
         try {
           document.getElementById('btn-save').disabled = true;
           document.getElementById('btn-save-send').disabled = true;
+          if (app_retention || form.voucher_type === 3) form.point_id = selectPoint.id
           await api
             .post('shops', form)
             .then((res) => this.props.history.push('/compras/facturas'));
@@ -244,11 +268,11 @@ class FormShop extends Component {
 
   //Validate data to send save
   validate = () => {
-    let { form, productouts, taxes, app_retention } = this.state;
+    let { form, productouts, taxes, app_retention, selectPoint } = this.state;
 
-    // Validar que se la serie contenga 17 caracteres
-    if (form.serie.trim().length < 17) {
-      alert('La serie debe contener el siguiente formato 000-000-000000000');
+    // Si selecciono aplicar retención y la compra es nueva y no tiene seleccionado un punto de emisión
+    if ((app_retention || form.voucher_type === 3) && form.id === undefined && selectPoint.id === undefined) {
+      alert('Seleccione un punto de emisión');
       return;
     }
 
@@ -373,16 +397,21 @@ class FormShop extends Component {
   };
 
   //Info sale handle
-  handleChange = (e) => {
+  handleChange = e => {
     let { name, value } = e.target;
 
     if (name === 'voucher_type') {
       let voucher_type = Number(value);
-      let { series } = this.state;
       let serie = '000-010-000000001';
+      let { points } = this.state
 
       if (voucher_type === 3) {
-        serie = series.set_purchase;
+        if (points.length === 0) serie = 'Cree un punto de emisión'
+        else if (points.length === 1 && points[0].point) {
+          serie = points[0].store + '-' + points[0].point + '-'
+          serie += (points[0].settlementonpurchase + '').padStart(9, '0')
+        }
+        else serie = 'Seleccione el punto emisión'
       }
       this.setState({
         form: {
@@ -403,9 +432,7 @@ class FormShop extends Component {
 
   onChangeNumber = (e) => {
     let { name, value } = e.target;
-    if (isNaN(value)) {
-      return;
-    }
+    if (isNaN(value)) return;
 
     let { form } = this.state;
     form[name] = value;
@@ -560,8 +587,17 @@ class FormShop extends Component {
 
   //Retention successs
   handleChangeCheck = (e) => {
-    this.setState((state) => ({ app_retention: !state.app_retention }));
-  };
+    let { form, app_retention, selectPoint } = this.state
+
+    // Si aplica retención
+    if (!app_retention && selectPoint.id) {
+      let serie_retencion = selectPoint.store + '-' + selectPoint.point + '-'
+      serie_retencion += (selectPoint.retention + '').padStart(9, '0')
+      form.serie_retencion = serie_retencion
+    }
+
+    this.setState((state) => ({ app_retention: !state.app_retention, form }));
+  }
 
   //Activar el inventario
   handleChangeCheckInventory = (e) => {
@@ -651,7 +687,7 @@ class FormShop extends Component {
 
   //...............Layout
   render = () => {
-    let { loading, form, providers, edit, app_retention, apply_inventory } = this.state;
+    let { loading, form, providers, edit, app_retention, apply_inventory, points, selectPoint } = this.state;
 
     let { format } = this.formatter;
 
@@ -690,11 +726,14 @@ class FormShop extends Component {
                         <InfoDocument
                           edit={edit}
                           form={form}
-                          handleChange={this.handleChange}
                           providers={providers}
+                          points={points}
+                          selectPoint={selectPoint}
+                          handleChange={this.handleChange}
                           selectProvider={this.selectProvider}
                           selectDocXml={this.selectDocXml}
                           registerProvider={this.registerProvider}
+                          changePoint={this.changePoint}
                         />
 
                         <Row
@@ -760,18 +799,22 @@ class FormShop extends Component {
                         <Row form hidden={!app_retention}>
                           <RetentionForm
                             form={form}
+                            points={points}
+                            selectPoint={selectPoint}
                             handleChange={this.handleChange}
-                          />
-                          <ListRetention
-                            edit={edit}
-                            taxes={this.state.taxes}
-                            deleteTax={this.deleteTax}
-                            handleChangeTax={this.handleChangeTax}
-                            retentions={this.state.taxes_request}
-                            selectRetention={this.selectRetention}
-                            handleChangeOthersTax={this.handleChangeOthersTax}
+                            changePoint={this.changePoint}
                           />
                         </Row>
+                        <ListRetention
+                          edit={edit}
+                          taxes={this.state.taxes}
+                          retentions={this.state.taxes_request}
+                          app_retention={this.state.app_retention}
+                          deleteTax={this.deleteTax}
+                          handleChangeTax={this.handleChangeTax}
+                          selectRetention={this.selectRetention}
+                          handleChangeOthersTax={this.handleChangeOthersTax}
+                        />
                         <Button
                           hidden={!app_retention}
                           color="primary"

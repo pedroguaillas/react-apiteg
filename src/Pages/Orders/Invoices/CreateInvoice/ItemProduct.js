@@ -20,7 +20,7 @@ class ItemProduct extends Component {
     let discount = sub_total * product.discount * 0.01;
 
     return (
-      <tr key={index}>
+      <tr>
         <td>
           <Input
             size="sm"

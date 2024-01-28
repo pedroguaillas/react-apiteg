@@ -389,7 +389,7 @@ class Products extends Component {
           {products === null ? (
             <p>Cargando ...</p>
           ) : products.length < 1 ? (
-            <p>No existe productos empiece por agregar el primer producto</p>
+            <p>No existe productos registrado</p>
           ) : (
             <Row>
               <Col lg='12'>

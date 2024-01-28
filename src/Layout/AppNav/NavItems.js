@@ -1,7 +1,7 @@
 export const MainNav = [
     {
         icon: 'pe-7s-rocket',
-        label: 'Dashboard',
+        label: 'Inicio',
         to: '#/dashboard/dashboard',
     },
 ];
@@ -24,25 +24,8 @@ export const ProfileNav = [
 export const InventoriesNav = [
     {
         icon: 'pe-7s-note2',
-        label: 'Inventarios',
-        content: [
-            {
-                label: 'Productos',
-                to: '#/inventarios/productos',
-            },
-            // {
-            //     label: 'Movimientos',
-            //     to: '#/inventarios/movimientos',
-            // },
-            // {
-            //     label: 'Categorias',
-            //     to: '#/inventarios/categorias',
-            // },
-            // {
-            //     label: 'Unidades',
-            //     to: '#/inventarios/unidades',
-            // }
-        ],
+        label: 'Productos',
+        to: '#/inventarios/productos',
     },
 ];
 export const InvoicesNav = [

@@ -2,20 +2,9 @@ import React, { Component, Fragment } from 'react'
 import { Link } from 'react-router-dom'
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 import {
-  Row,
-  Col,
-  Card,
-  CardBody,
-  Table,
-  Input,
-  Form,
-  InputGroup,
-  ButtonDropdown,
-  DropdownMenu,
-  DropdownItem,
-  DropdownToggle
+  Row, Col, Card, CardBody, Table, Input, Form, InputGroup,
+  ButtonDropdown, DropdownMenu, DropdownItem, DropdownToggle
 } from 'reactstrap'
-
 import PageTitle from '../../../Layout/AppMain/PageTitle'
 import Paginate from '../../Components/Paginate/Index'
 import api from '../../../services/api'
@@ -515,7 +504,7 @@ class Documents extends Component {
           {shops === null ? (
             <p>Cargando ...</p>
           ) : shops.length === 0 ? (
-            <p>No existe documentos registrados</p>
+            <p>No existe compras registradas</p>
           ) : (
             <Row>
               <Col lg='12'>
@@ -527,8 +516,8 @@ class Documents extends Component {
                           <th>Emisión</th>
                           <th>Documento</th>
                           <th>Persona</th>
-                          <th>Estado Ret Elec</th>
-                          <th>Total</th>
+                          <th style={{ 'text-align': 'center' }}>Estado Ret</th>
+                          <th style={{ 'text-align': 'center' }}>Total</th>
                           <th style={{ width: '1em' }}></th>
                           <th style={{ width: '1em' }}></th>
                         </tr>
@@ -546,7 +535,7 @@ class Documents extends Component {
                             </td>
                             <td>{voucher.provider.name}</td>
                             <td className='font-icon-wrapper'>
-                              {`${voucher.atts.state_retencion} `}
+                              {`${voucher.atts.state_retencion ?? ''} `}
                               {voucher.atts.state_retencion === 'DEVUELTA' || voucher.atts.state_retencion === 'NO AUTORIZADO' ?
                                 <i className='pe-7s-info icon-gradient bg-plum-plate' style={{ cursor: 'help' }} title={voucher.atts.extra_detail_retention}> </i>
                                 : null}

@@ -1,14 +1,9 @@
 import React, { Component, Fragment } from 'react';
-import {
-  Row, Col, Card, CardBody, Form, Button, CardText
-} from 'reactstrap';
+import { Row, Col, Card, CardBody, Form, Button, CardText } from 'reactstrap';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-
 import PageTitle from '../../../../Layout/AppMain/PageTitle';
-
 import ListProducts from './ListProducts';
 import InfoDocument from './InfoDocument';
-
 import api from '../../../../services/api';
 
 class CreateInvoice extends Component {
@@ -22,7 +17,7 @@ class CreateInvoice extends Component {
 
     this.state = {
       form: {
-        serie: '001-010-000000001',
+        serie: 'Cree un punto de emisión',
         date_start: date,
         date_end: date,
         carrier_id: 0,
@@ -34,10 +29,9 @@ class CreateInvoice extends Component {
       productouts: [
         { product_id: 0, quantity: 1 }
       ],
-      redirect: false,
-      hiddenreceived: true,
-      edit: true,
-      loading: 'success'
+      loading: 'success',
+      points: [],
+      selectPoint: {}
     }
   }
 
@@ -62,13 +56,10 @@ class CreateInvoice extends Component {
     } else {
       try {
         await api.get('referralguides/create')
-          .then(({ data: { serie } }) => {
-            this.setState({
-              form: {
-                ...this.state.form,
-                serie
-              },
-            })
+          .then(({ data: { points } }) => {
+            this.setState({ points })
+            if (points.length === 1 && points[0].point)
+              this.generateSerie(points[0])
           })
       } catch (error) {
         this.setState({ loading: 'error' })
@@ -77,11 +68,23 @@ class CreateInvoice extends Component {
     }
   }
 
+  generateSerie = (point) => {
+    let serie = point.store + '-' + point.point + '-'
+    serie += (point.referralguide + '').padStart(9, '0')
+    this.setState({
+      selectPoint: point,
+      form: {
+        ...this.state.form,
+        serie
+      }
+    })
+  }
+
   //Save sale
   submit = async (send) => {
 
     if (this.validate()) {
-      let { form, productouts } = this.state
+      let { form, productouts, selectPoint } = this.state
       form.products = productouts.length > 0 ? productouts.filter(product => product.product_id !== 0) : []
 
       form.send = send
@@ -94,6 +97,7 @@ class CreateInvoice extends Component {
           await api.put(`referralguides/${form.id}`, form)
             .then(res => this.props.history.push('/guiasremision/index'))
         } else {
+          form.point_id = selectPoint.id
           await api.post('referralguides', form)
             .then(res => this.props.history.push('/guiasremision/index'))
         }
@@ -104,11 +108,11 @@ class CreateInvoice extends Component {
   //Validate data to send save
   validate = () => {
 
-    let { form, productouts } = this.state
+    let { form, productouts, selectPoint } = this.state
 
-    // Validar que se la serie contenga 17 caracteres
-    if (form.serie.trim().length < 17) {
-      alert('La serie debe contener el siguiente formato 000-000-000000000')
+    // Cuando se va registrar y no ha seleccionado un punto de emisión
+    if (form.id === undefined && selectPoint.id === undefined) {
+      alert('La seleccione un punto de emisión')
       return
     }
 
@@ -147,6 +151,12 @@ class CreateInvoice extends Component {
     }
 
     return true
+  }
+
+  changePoint = e => {
+    if (e.target.value === "") return
+    let point = this.state.points.filter(p => p.id == parseInt(e.target.value))[0]
+    if (point) this.generateSerie(point)
   }
 
   //Info sale handle
@@ -222,7 +232,7 @@ class CreateInvoice extends Component {
   //...............Layout
   render = () => {
 
-    let { loading, form } = this.state
+    let { loading, form, points, selectPoint } = this.state
 
     return (
       <Fragment>
@@ -256,11 +266,14 @@ class CreateInvoice extends Component {
                         </Row>
                         <InfoDocument
                           form={form}
-                          handleChange={this.handleChange}
                           carriers={this.state.carriers}
                           customers={this.state.customers}
+                          points={points}
+                          selectPoint={selectPoint}
+                          handleChange={this.handleChange}
                           selectCarrier={this.selectCarrier}
                           selectCustomer={this.selectCustomer}
+                          changePoint={this.changePoint}
                         />
 
                         <Row form className="my-3 pt-2" style={{ 'breferralguide-top': '1px solid #ced4da', 'border-top': '1px solid #ced4da' }}>

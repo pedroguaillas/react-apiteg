@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import {
-    Row, Col, FormGroup, Label, Input
+    Row, Col, FormGroup, Label, Input,
+    CustomInput
 } from 'reactstrap'
 import SelectCustomer from '../../../Components/Modal/SelectCustomer'
 import SelectCarrier from '../../../Components/Modal/SelectCarrier'
@@ -9,7 +10,7 @@ class InfoDocument extends Component {
 
     render() {
 
-        let { form, handleChange, carriers, customers, selectCarrier, selectCustomer } = this.props
+        let { form, carriers, customers, points, selectPoint, handleChange, selectCarrier, selectCustomer, changePoint } = this.props
 
         let date = new Date()
         date.setMonth(date.getMonth() - 3)
@@ -18,12 +19,20 @@ class InfoDocument extends Component {
             <Fragment>
                 <Row form>
                     <Col md={6}>
-                        <FormGroup className="mb-1" row>
-                            <Label style={{ 'font-weight': 'bold' }} for="serie" sm={4}>Serie *</Label>
+                        <FormGroup className="mb-1" row hidden={form.id || points.length < 2}>
+                            <Label style={{ 'font-weight': 'bold' }} for="point_id" sm={4}>Pto emisión *</Label>
                             <Col sm={6}>
-                                <Input bsSize="sm" onChange={handleChange} value={form.serie} type="text"
-                                    id="serie" name="serie" maxlength={17} />
+                                <CustomInput type="select" bsSize="sm" name="point_id" id="point_id" value={selectPoint.id} onChange={changePoint}>
+                                    <option value="">Seleccione</option>
+                                    {points.map((point, i) => (
+                                        <option value={point.id} key={`point${i}`}>{`${point.store}-${point.point ?? 'Cree un punto de emisión'} ${point.recognition ?? ''}`}</option>
+                                    ))}
+                                </CustomInput>
                             </Col>
+                        </FormGroup>
+                        <FormGroup className="mb-1" row>
+                            <Label style={{ 'font-weight': 'bold' }} for="serie" sm={4}>Serie</Label>
+                            <Label style={{ 'text-align': 'left' }} sm={4}>{form.serie}</Label>
                         </FormGroup>
                         <FormGroup className="mb-1" row>
                             <Label style={{ 'font-weight': 'bold' }} for="carrier_id" sm={4}>Transportista *</Label>

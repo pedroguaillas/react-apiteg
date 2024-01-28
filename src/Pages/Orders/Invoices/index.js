@@ -202,7 +202,7 @@ class Invoices extends Component {
     return prefix
   }
 
-  renderproccess = ({ id, atts: { state, extra_detail } }) =>
+  renderproccess = ({ id, atts: { state } }) =>
     state !== 'ANULADO' ? (
       <DropdownItem
         onClick={() =>
@@ -368,7 +368,7 @@ class Invoices extends Component {
           {orders === null ? (
             <p>Cargando ...</p>
           ) : orders.length === 0 ? (
-            <p>No existe facturas registradas</p>
+            <p>No existe ventas registradas</p>
           ) : (
             <Row>
               <Col lg='12'>
@@ -380,8 +380,8 @@ class Invoices extends Component {
                           <th style={{ width: '7em' }}>Emisión</th>
                           <th>Documento</th>
                           <th>Cliente / Razón social</th>
-                          <th>Estado</th>
-                          <th>Total</th>
+                          <th style={{ 'text-align': 'center' }}>Estado</th>
+                          <th style={{ 'text-align': 'center' }}>Total</th>
                           <th style={{ width: '1em' }}></th>
                           <th style={{ width: '1em' }}></th>
                         </tr>

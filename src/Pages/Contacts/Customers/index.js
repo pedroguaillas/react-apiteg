@@ -195,7 +195,7 @@ class Customers extends Component {
                     <Input onChange={this.handleSelectFile} style={{ 'display': 'none' }} type="file" name="contactscsv" id="file_csv" accept=".csv" />
                     {
                         (customers === null) ? (<p>Cargando ...</p>) :
-                            (customers.length < 1) ? (<p>No existe registro de documentos</p>) :
+                            (customers.length < 1) ? (<p>No existe registro de clientes</p>) :
                                 (<Row>
                                     <Col lg="12">
                                         <Card className="main-card mb-3">

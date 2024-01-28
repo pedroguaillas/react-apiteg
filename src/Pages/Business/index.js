@@ -7,7 +7,7 @@ import AppSidebar from '../../Layout/AppSidebar/';
 
 import Profile from "./Profile";
 import Branch from "./Branch";
-import CreateBranch from './Branch/CreateBranch';
+import Point from "./Branch/Point";
 
 const Business = ({ match }) => (
     <Fragment>
@@ -18,7 +18,7 @@ const Business = ({ match }) => (
                 <div className="app-main__inner">
                     <Route path={`${match.url}/perfil`} component={Profile} />
                     <Route path={`${match.url}/establecimientos`} component={Branch} />
-                    <Route path={`${match.url}/nuevo-establecimiento`} component={CreateBranch} />
+                    <Route path={`${match.url}/establecimiento/:id`} component={Point} />
                 </div>
             </div>
         </div>

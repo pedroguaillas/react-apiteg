@@ -68,7 +68,7 @@ const AppMain = () => {
           </div>
         }
       >
-        <Route path='/inventarios' component={Inventories} />
+        <PrivateRoute path='/inventarios' component={Inventories} />
       </Suspense>
 
       {/* Orders */}
@@ -84,7 +84,7 @@ const AppMain = () => {
           </div>
         }
       >
-        <Route path='/ventas' component={Orders} />
+        <PrivateRoute path='/ventas' component={Orders} />
       </Suspense>
 
       {/* Shops */}
@@ -100,7 +100,7 @@ const AppMain = () => {
           </div>
         }
       >
-        <Route path='/compras' component={Shops} />
+        <PrivateRoute path='/compras' component={Shops} />
       </Suspense>
 
       {/* Invoices */}
@@ -116,7 +116,7 @@ const AppMain = () => {
           </div>
         }
       >
-        <Route path='/guiasremision' component={ReferralGuides} />
+        <PrivateRoute path='/guiasremision' component={ReferralGuides} />
       </Suspense>
 
       {/* Contacts */}
@@ -133,7 +133,7 @@ const AppMain = () => {
           </div>
         }
       >
-        <Route path='/contactos' component={Contacts} />
+        <PrivateRoute path='/contactos' component={Contacts} />
       </Suspense>
 
       {/* Contacts */}
@@ -150,7 +150,7 @@ const AppMain = () => {
           </div>
         }
       >
-        <Route path='/sri' component={Sri} />
+        <PrivateRoute path='/sri' component={Sri} />
       </Suspense>
 
       <Suspense
@@ -165,7 +165,7 @@ const AppMain = () => {
           </div>
         }
       >
-        <Route path='/components' component={Components} />
+        <PrivateRoute path='/components' component={Components} />
       </Suspense>
 
       {/* Login */}
