@@ -27,31 +27,31 @@ class FormPoint extends Component {
                     <FormGroup row>
                         <Label form='invoice' sm={4}>Factura</Label>
                         <Col sm={3}>
-                            <Input onChange={handleChangeNumber} value={form.invoice} name="invoice" maxlength={3} className="text-right" bsSize="sm" />
+                            <Input onChange={handleChangeNumber} value={form.invoice} name="invoice" maxlength={9} className="text-right" bsSize="sm" />
                         </Col>
                     </FormGroup>
                     <FormGroup row>
                         <Label form='creditnote' sm={4}>Nota crédito</Label>
                         <Col sm={3}>
-                            <Input onChange={handleChangeNumber} value={form.creditnote} name="creditnote" maxlength={3} className="text-right" bsSize="sm" />
+                            <Input onChange={handleChangeNumber} value={form.creditnote} name="creditnote" maxlength={9} className="text-right" bsSize="sm" />
                         </Col>
                     </FormGroup>
                     <FormGroup row>
                         <Label form='retention' sm={4}>Retención</Label>
                         <Col sm={3}>
-                            <Input onChange={handleChangeNumber} value={form.retention} name="retention" maxlength={3} className="text-right" bsSize="sm" />
+                            <Input onChange={handleChangeNumber} value={form.retention} name="retention" maxlength={9} className="text-right" bsSize="sm" />
                         </Col>
                     </FormGroup>
                     <FormGroup row>
                         <Label form='settlementonpurchase' sm={4}>Liquidación compra</Label>
                         <Col sm={3}>
-                            <Input onChange={handleChangeNumber} value={form.settlementonpurchase} name="settlementonpurchase" maxlength={3} className="text-right" bsSize="sm" />
+                            <Input onChange={handleChangeNumber} value={form.settlementonpurchase} name="settlementonpurchase" maxlength={9} className="text-right" bsSize="sm" />
                         </Col>
                     </FormGroup>
                     <FormGroup row>
                         <Label form='referralguide' sm={4}>Guía remisión</Label>
                         <Col sm={3}>
-                            <Input onChange={handleChangeNumber} value={form.referralguide} name="referralguide" maxlength={3} className="text-right" bsSize="sm" />
+                            <Input onChange={handleChangeNumber} value={form.referralguide} name="referralguide" maxlength={9} className="text-right" bsSize="sm" />
                         </Col>
                     </FormGroup>
                     <FormGroup row>

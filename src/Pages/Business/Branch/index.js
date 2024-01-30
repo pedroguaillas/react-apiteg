@@ -31,6 +31,7 @@ class Branches extends Component {
 
         let branch = { store: 0, address: null, name: null, type: 'matriz' }
 
+        // Solo cuando va crear la primera sucursar permitir crear el consumidor fimal
         if (this.state.branches.length === 0) branch.cf = false
 
         this.setState({ branch })
@@ -96,6 +97,7 @@ class Branches extends Component {
             return
         }
 
+        // Validar
         if (type === 'matriz' && branches.filter(b => b.type === 'matriz').length > 0) {
             alert('No se puede tener dos establecimientos MATRIZ')
             return
