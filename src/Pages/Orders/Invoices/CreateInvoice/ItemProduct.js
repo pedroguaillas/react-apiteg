@@ -16,9 +16,6 @@ class ItemProduct extends Component {
       decimal,
       enabledice
     } = this.props;
-    let sub_total = product.quantity * product.price;
-    let discount = sub_total * product.discount * 0.01;
-
     return (
       <tr>
         <td>
@@ -57,6 +54,18 @@ class ItemProduct extends Component {
             />
           )}
         </td>
+        <td>
+          <Input
+            size="sm"
+            onChange={handleChangeItem(index)}
+            name="discount"
+            className="form-control"
+            type="number"
+            value={product.discount}
+            min={0}
+            required
+          />
+        </td>
         {breakdown ? (
           <td>{format(product.price * (product.iva === 2 ? 0.12 : 0))}</td>
         ) : null}
@@ -73,7 +82,7 @@ class ItemProduct extends Component {
               required
             />
           ) : (
-            format(sub_total - discount)
+            format(product.total_iva)
           )}
         </td>
         {enabledice ?

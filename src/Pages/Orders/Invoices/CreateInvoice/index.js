@@ -106,7 +106,8 @@ class CreateInvoice extends Component {
           .then(({ data }) => {
             let { points, methodOfPayments } = data;
             let productouts = data.order_items
-            productouts.forEach(po => {
+            productouts.forEach((po, i) => {
+              productouts[i].total_iva = productouts[i].price * productouts[i].quantity - productouts[i].discount
               if (po.codice === null) {
                 delete po.ice
               }
@@ -335,6 +336,7 @@ class CreateInvoice extends Component {
           item.product_id = product.id;
           item.price = parseFloat(product.atts.price1);
           item.quantity = 1;
+          item.discount = 0;
           item.iva = product.atts.iva;
           item.stock = product.stock > 0 ? product.stock : 1;
           item.total_iva = parseFloat(product.atts.price1);
@@ -361,53 +363,69 @@ class CreateInvoice extends Component {
 
   //add quatity to product
   handleChangeItem = (index) => (e) => {
-    let { productouts } = this.state;
     let { name, value } = e.target;
-    let { decimal } = this.props;
-    if (!isNaN(value)) {
-      switch (name) {
-        case 'quantity':
-          if (value >= 0) {
-            productouts[index].quantity = value;
-            productouts[index].total_iva = parseFloat(
-              (value * productouts[index].price).toFixed(2)
-            );
-          }
-          break;
-        case 'price':
-          if (value >= 0) {
-            productouts[index].price = value;
-            productouts[index].total_iva = parseFloat(
-              (value * productouts[index].quantity).toFixed(2)
-            );
-          }
-          break;
-        case 'discount':
-          if (value >= 0 && value <= 10) {
-            productouts[index].discount = value;
-          }
-          break;
-        case 'total_iva':
-          if (value >= 0) {
-            productouts[index].total_iva = value;
-            productouts[index].price =
-              productouts[index].iva === 2
-                ? parseFloat(
-                  (value / productouts[index].quantity / 1.12).toFixed(decimal)
-                )
-                : parseFloat((value / productouts[index].quantity).toFixed(decimal));
-          }
-          break;
-        case 'ice':
-          if (value >= 0) {
-            productouts[index].ice = value;
-          }
-          break;
-        default:
-          break;
-      }
-      this.recalculate(productouts);
+    if (value < 0) return
+    let { productouts } = this.state;
+    productouts[index][name] = value
+    let { price, quantity, discount, iva } = productouts[index]
+    price = price === '' ? 0 : price;
+    quantity = quantity === '' ? 0 : quantity;
+    discount = discount === '' ? 0 : discount;
+    if (name === 'total_iva') {
+      productouts[index].price = parseFloat((value / quantity / (iva === 2 ? 1.12 : 1)).toFixed(this.props.decimal))
+    } else if (name !== 'ice') {
+      productouts[index].total_iva = price * quantity - discount
     }
+
+    // this.setState({ productouts })
+    // let { decimal } = this.props;
+    // let { price, quantity, iva } = productouts[index]
+    // if (!isNaN(value)) {
+    //   switch (name) {
+    //     case 'quantity':
+    //       if (value >= 0) {
+    //         productouts[index].quantity = value;
+    //         productouts[index].total_iva = parseFloat(
+    //           (value * price).toFixed(2)
+    //         );
+    //       }
+    //       break;
+    //     case 'price':
+    //       if (value >= 0) {
+    //         productouts[index].price = value;
+    //         productouts[index].total_iva = parseFloat(
+    //           (value * quantity).toFixed(2)
+    //         );
+    //       }
+    //       break;
+    //     case 'discount':
+    //       if (value >= 0 && value < price) {
+    //         productouts[index].discount = value;
+    //         productouts[index].total_iva = parseFloat(
+    //           ((price * quantity) - Number(value)).toFixed(2)
+    //         );
+    //       }
+    //       break;
+    //     case 'total_iva':
+    //       if (value >= 0) {
+    //         productouts[index].total_iva = value;
+    //         productouts[index].price = iva === 2
+    //           ? parseFloat(
+    //             (value / quantity / 1.12).toFixed(decimal)
+    //           )
+    //           : parseFloat((value / quantity).toFixed(decimal));
+    //       }
+    //       break;
+    //     case 'ice':
+    //       if (value >= 0) {
+    //         productouts[index].ice = value;
+    //       }
+    //       break;
+    //     default:
+    //       break;
+    //   }
+    this.recalculate(productouts);
+    // }
   };
 
   //Method caculate totals & modify state all.
@@ -415,36 +433,33 @@ class CreateInvoice extends Component {
     let no_iva = 0;
     let base0 = 0;
     let base12 = 0;
-    let discount = 0;
-    let ice = 0;
+    let totalDiscount = 0;
+    let totalIce = 0;
 
-    productouts.forEach((item) => {
-      let sub_total = parseFloat(item.quantity) * parseFloat(item.price);
-      let dis =
-        item.discount > 0
-          ? Number((sub_total * item.discount * 0.01).toFixed(2))
-          : 0;
-      let total = sub_total - dis;
-      discount += dis;
-      ice += item.ice !== undefined ? item.ice : 0
-      switch (item.iva) {
-        case 0:
-          base0 += total;
-          break;
-        case 2:
-          base12 += total;
-          break;
-        case 6:
-          no_iva += total;
-          break;
-        default:
-          break;
-      }
+    productouts.forEach(({ ice, discount, total_iva, iva }) => {
+      totalIce += ice !== undefined ? ice : 0
+      totalDiscount += discount !== '' ? Number(discount) : 0
+      base0 += iva === 0 ? total_iva : 0;
+      base12 += iva === 2 ? total_iva : 0;
+      no_iva += iva === 6 ? total_iva : 0;
+      // switch (iva) {
+      //   case 0:
+      //     base0 += total_iva;
+      //     break;
+      //   case 2:
+      //     base12 += total_iva;
+      //     break;
+      //   case 6:
+      //     no_iva += total_iva;
+      //     break;
+      //   default:
+      //     break;
+      // }
     });
 
-    let iva = Number(((base12 + Number(ice)) * 0.12).toFixed(2));
+    let iva = Number(((base12 + Number(totalIce)) * 0.12).toFixed(2));
     let sub_total = no_iva + base0 + base12;
-    let total = sub_total + Number(ice) + iva;
+    let total = sub_total + Number(totalIce) + iva;
 
     this.setState({
       productouts,
@@ -455,8 +470,8 @@ class CreateInvoice extends Component {
         base12,
         iva,
         sub_total,
-        discount,
-        ice,
+        discount: totalDiscount,
+        ice: totalIce,
         total
       },
     });
@@ -704,6 +719,15 @@ class CreateInvoice extends Component {
                                   {format(form.base0)}
                                 </td>
                               </tr>
+                              {form.discount > 0
+                                ?
+                                <tr>
+                                  <td>Descuento</td>
+                                  <td style={{ 'text-align': 'right' }}>
+                                    {format(form.discount)}
+                                  </td>
+                                </tr>
+                                : null}
                               {form.ice > 0
                                 ?
                                 <tr>

@@ -34,11 +34,12 @@ class ListProducts extends React.Component {
         <Table responsive bordered>
           <thead>
             <tr style={{ textAlign: 'center' }}>
-              <th style={{ width: '9em' }}>Cantidad</th>
+              <th style={{ width: '8em' }}>Cantidad</th>
               <th>Nombre</th>
-              <th style={{ width: '9em' }}>Precio unitario</th>
+              <th style={{ width: '8em' }}>Precio</th>
+              <th style={{ width: '8em' }}>Descuento</th>
               {breakdown ? <th style={{ width: '5em' }}>IVA</th> : null}
-              <th style={{ width: '9em' }}>Total</th>
+              <th style={{ width: '8em' }}>Total</th>
               {enabledice ? <th style={{ width: '9em' }}>ICE</th> : null}
               <th style={{ width: '1em' }}></th>
             </tr>
