@@ -204,9 +204,7 @@ class CreateInvoice extends Component {
 
     // Validar exista un punto de emision seleccionada
     if (form.id === undefined && selectPoint.id === undefined) {
-      alert(
-        'Seleccione un punto de emisión'
-      );
+      alert('Seleccione un punto de emisión');
       return;
     }
 
@@ -257,12 +255,20 @@ class CreateInvoice extends Component {
         alert('No puedes dejar un item vacio de los productos');
         return;
       }
-      if (productouts[i].quantity <= 0 || productouts[i].quantity === '') {
-        alert('La "Cantidad" debe ser mayor a cero');
+      if (productouts[i].quantity === '') {
+        alert('La "Cantidad" del producto debe tener un valor');
         return;
       }
-      if (productouts[i].price < 0 || productouts[i].price === '') {
-        alert('El "Costo unitario" debe ser mayor o igual a cero');
+      if (productouts[i].price === '') {
+        alert('El "Precio" del producto debe tener un valor');
+        return;
+      }
+      if (productouts[i].discount === '') {
+        alert('El "Descuento" del producto debe tener un valor');
+        return;
+      }
+      if (productouts[i].ice !== undefined && productouts[i].ice === '') {
+        alert('El "ICE" del producto debe tener un valor');
         return;
       }
       i++;
@@ -376,56 +382,7 @@ class CreateInvoice extends Component {
     } else if (name !== 'ice') {
       productouts[index].total_iva = price * quantity - discount
     }
-
-    // this.setState({ productouts })
-    // let { decimal } = this.props;
-    // let { price, quantity, iva } = productouts[index]
-    // if (!isNaN(value)) {
-    //   switch (name) {
-    //     case 'quantity':
-    //       if (value >= 0) {
-    //         productouts[index].quantity = value;
-    //         productouts[index].total_iva = parseFloat(
-    //           (value * price).toFixed(2)
-    //         );
-    //       }
-    //       break;
-    //     case 'price':
-    //       if (value >= 0) {
-    //         productouts[index].price = value;
-    //         productouts[index].total_iva = parseFloat(
-    //           (value * quantity).toFixed(2)
-    //         );
-    //       }
-    //       break;
-    //     case 'discount':
-    //       if (value >= 0 && value < price) {
-    //         productouts[index].discount = value;
-    //         productouts[index].total_iva = parseFloat(
-    //           ((price * quantity) - Number(value)).toFixed(2)
-    //         );
-    //       }
-    //       break;
-    //     case 'total_iva':
-    //       if (value >= 0) {
-    //         productouts[index].total_iva = value;
-    //         productouts[index].price = iva === 2
-    //           ? parseFloat(
-    //             (value / quantity / 1.12).toFixed(decimal)
-    //           )
-    //           : parseFloat((value / quantity).toFixed(decimal));
-    //       }
-    //       break;
-    //     case 'ice':
-    //       if (value >= 0) {
-    //         productouts[index].ice = value;
-    //       }
-    //       break;
-    //     default:
-    //       break;
-    //   }
     this.recalculate(productouts);
-    // }
   };
 
   //Method caculate totals & modify state all.
@@ -437,24 +394,11 @@ class CreateInvoice extends Component {
     let totalIce = 0;
 
     productouts.forEach(({ ice, discount, total_iva, iva }) => {
-      totalIce += ice !== undefined ? ice : 0
+      totalIce += ice !== undefined ? Number(ice) : 0
       totalDiscount += discount !== '' ? Number(discount) : 0
-      base0 += iva === 0 ? total_iva : 0;
-      base12 += iva === 2 ? total_iva : 0;
-      no_iva += iva === 6 ? total_iva : 0;
-      // switch (iva) {
-      //   case 0:
-      //     base0 += total_iva;
-      //     break;
-      //   case 2:
-      //     base12 += total_iva;
-      //     break;
-      //   case 6:
-      //     no_iva += total_iva;
-      //     break;
-      //   default:
-      //     break;
-      // }
+      base0 += iva === 0 ? Number(total_iva) : 0;
+      base12 += iva === 2 ? Number(total_iva) : 0;
+      no_iva += iva === 6 ? Number(total_iva) : 0;
     });
 
     let iva = Number(((base12 + Number(totalIce)) * 0.12).toFixed(2));

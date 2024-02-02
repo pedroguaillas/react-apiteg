@@ -67,7 +67,7 @@ class ItemProduct extends Component {
           />
         </td>
         {breakdown ? (
-          <td>{format(product.price * (product.iva === 2 ? 0.12 : 0))}</td>
+          <td>{format(product.iva === 2 ? (product.quantity * product.price - product.discount) * 0.12 : 0)}</td>
         ) : null}
         <td>
           {breakdown ? (
