@@ -393,11 +393,11 @@ class CreateInvoice extends Component {
     let totalDiscount = 0;
     let totalIce = 0;
 
-    productouts.forEach(({ ice, discount, total_iva, iva }) => {
+    productouts.forEach(({ quantity, price, discount, iva, total_iva, ice }) => {
       totalIce += ice !== undefined ? Number(ice) : 0
       totalDiscount += discount !== '' ? Number(discount) : 0
       base0 += iva === 0 ? Number(total_iva) : 0;
-      base12 += iva === 2 ? Number(total_iva) : 0;
+      base12 += iva === 2 ? Number(price * quantity - discount) : 0;
       no_iva += iva === 6 ? Number(total_iva) : 0;
     });
 
