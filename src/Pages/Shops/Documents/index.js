@@ -518,8 +518,9 @@ class Documents extends Component {
                           <th>Persona</th>
                           <th style={{ 'text-align': 'center' }}>Estado Ret</th>
                           <th style={{ 'text-align': 'center' }}>Total</th>
-                          <th style={{ width: '1em' }}></th>
-                          <th style={{ width: '1em' }}></th>
+                          <th style={{ 'text-align': 'center' }}>Ret</th>
+                          <th style={{ 'text-align': 'center' }}>Pagar</th>
+                          <th colSpan={2} style={{ width: '1em' }}></th>
                         </tr>
                       </thead>
                       <tbody>
@@ -541,6 +542,8 @@ class Documents extends Component {
                                 : null}
                             </td>
                             <td style={{ 'text-align': 'right' }}>{voucher.atts.total}</td>
+                            <td style={{ 'text-align': 'right' }}>{voucher.atts.retention ?? '0.00'}</td>
+                            <td style={{ 'text-align': 'right' }}>{(voucher.atts.total - (voucher.atts.retention ?? 0)).toFixed(2)}</td>
                             <td className='font-icon-wrapper font-icon-sm border-right-0 border-left-0'>
                               {voucher.atts.send_mail_retention === 1 ? (
                                 <i

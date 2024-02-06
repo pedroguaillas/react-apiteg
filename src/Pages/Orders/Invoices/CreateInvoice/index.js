@@ -412,10 +412,24 @@ class CreateInvoice extends Component {
         no_iva,
         base0,
         base12,
-        iva,
         sub_total,
-        discount: totalDiscount,
         ice: totalIce,
+        discount: totalDiscount,
+        iva,
+        total
+      },
+    });
+  };
+
+  onChangeNumber = (e) => {
+    let { value } = e.target
+    if (value < 0) return
+    let { sub_total, iva, ice } = this.state.form
+    let total = sub_total + Number(ice) + iva - Number(value);
+    this.setState({
+      form: {
+        ...this.state.form,
+        discount: value,
         total
       },
     });
@@ -663,15 +677,23 @@ class CreateInvoice extends Component {
                                   {format(form.base0)}
                                 </td>
                               </tr>
-                              {form.discount > 0
-                                ?
-                                <tr>
-                                  <td>Descuento</td>
-                                  <td style={{ 'text-align': 'right' }}>
-                                    {format(form.discount)}
-                                  </td>
-                                </tr>
-                                : null}
+                              <tr>
+                                <td>Descuento</td>
+                                <td style={{ 'text-align': 'right' }}>
+                                  <input
+                                    onChange={this.onChangeNumber}
+                                    name="discount"
+                                    value={form.discount}
+                                    type="number"
+                                    min={0}
+                                    max={form.total}
+                                    style={{
+                                      'text-align': 'right',
+                                    }}
+                                    bsSize="sm"
+                                  />
+                                </td>
+                              </tr>
                               {form.ice > 0
                                 ?
                                 <tr>
