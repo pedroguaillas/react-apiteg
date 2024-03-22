@@ -343,12 +343,13 @@ class CreateInvoice extends Component {
           item.price = parseFloat(product.atts.price1);
           item.quantity = 1;
           item.discount = 0;
-          item.iva = product.atts.iva;
           item.stock = product.stock > 0 ? product.stock : 1;
           item.total_iva = parseFloat(product.atts.price1);
           if (product.atts.ice !== null) {
             item.ice = '';
           }
+          item.iva = product.iva.code
+          item.percentage = product.iva.percentage
         }
         return item;
       });
@@ -373,12 +374,12 @@ class CreateInvoice extends Component {
     if (value < 0) return
     let { productouts } = this.state;
     productouts[index][name] = value
-    let { price, quantity, discount, iva } = productouts[index]
+    let { price, quantity, discount, percentage } = productouts[index]
     price = price === '' ? 0 : price;
     quantity = quantity === '' ? 0 : quantity;
     discount = discount === '' ? 0 : discount;
     if (name === 'total_iva') {
-      productouts[index].price = parseFloat((value / quantity / (iva === 2 ? 1.12 : 1)).toFixed(this.props.decimal))
+      productouts[index].price = parseFloat((value / quantity / (1 + (percentage / 100))).toFixed(this.props.decimal))
     } else if (name !== 'ice') {
       productouts[index].total_iva = price * quantity - discount
     }
@@ -389,20 +390,35 @@ class CreateInvoice extends Component {
   recalculate = (productouts) => {
     let no_iva = 0;
     let base0 = 0;
+    let base5 = 0;
     let base12 = 0;
+    let base13 = 0;
+    let base15 = 0;
     let totalDiscount = 0;
     let totalIce = 0;
 
     productouts.forEach(({ quantity, price, discount, iva, total_iva, ice }) => {
       totalIce += ice !== undefined ? Number(ice) : 0
       totalDiscount += discount !== '' ? Number(discount) : 0
-      base0 += iva === 0 ? Number(total_iva) : 0;
-      base12 += iva === 2 ? Number(price * quantity - discount) : 0;
-      no_iva += iva === 6 ? Number(total_iva) : 0;
+      if (iva !== undefined) {
+        // IVA = 0% el total_iva = price * quantity - discount + 0 (0% IVA)
+        no_iva += iva === 6 ? Number(total_iva) : 0;
+        base0 += iva === 0 ? Number(total_iva) : 0;
+        // IVA > 0% entonces total_iva = price * quantity - discount + Valor del IVA (5%-12%-13%-15%)
+        base5 += iva === 5 ? Number(price * quantity - discount) : 0;
+        base12 += iva === 2 ? Number(price * quantity - discount) : 0;
+        base13 += iva === 10 ? Number(price * quantity - discount) : 0;
+        base15 += iva === 4 ? Number(price * quantity - discount) : 0;
+      }
     });
+    let sub_total = no_iva + base0 + base5 + base12 + base13 + base15;
 
-    let iva = Number(((base12 + Number(totalIce)) * 0.12).toFixed(2));
-    let sub_total = no_iva + base0 + base12;
+    let iva5 = Number(((base5 + Number(totalIce)) * 0.05).toFixed(2));
+    let iva12 = Number(((base12 + Number(totalIce)) * 0.12).toFixed(2));
+    let iva13 = Number(((base13 + Number(totalIce)) * 0.13).toFixed(2));
+    let iva15 = Number(((base15 + Number(totalIce)) * 0.15).toFixed(2));
+    let iva = Number((iva5 + iva12 + iva13 + iva15).toFixed(2));
+
     let total = sub_total + Number(totalIce) + iva;
 
     this.setState({
@@ -411,7 +427,7 @@ class CreateInvoice extends Component {
         ...this.state.form,
         no_iva,
         base0,
-        base12,
+        base12: base5 + base12 + base13 + base15,
         sub_total,
         ice: totalIce,
         discount: totalDiscount,

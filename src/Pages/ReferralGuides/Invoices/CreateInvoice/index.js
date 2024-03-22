@@ -220,12 +220,10 @@ class CreateInvoice extends Component {
 
   //add quatity to product
   handleChangeItem = (index) => (e) => {
+    let { value } = e.target
+    if (value < 0) return
     let { productouts } = this.state
-    let { name, value } = e.target
-    if (!isNaN(value)) {
-      productouts[index].quantity = value > 0 ? value : productouts[index].quantity
-    }
-
+    productouts[index].quantity = value
     this.setState({ productouts })
   }
 

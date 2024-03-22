@@ -24,6 +24,7 @@ class ListProducts extends React.Component {
                         {
                             (productouts.length > 0) ? (productouts.map((product, i) => (
                                 <ItemProduct
+                                    key={`item${i}`}
                                     index={i}
                                     product={product}
                                     productinputs={productinputs}

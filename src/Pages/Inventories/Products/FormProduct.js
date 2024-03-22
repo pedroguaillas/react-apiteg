@@ -19,6 +19,7 @@ import api from '../../../services/api';
 class FormProduct extends Component {
   state = {
     iceCataloges: [],
+    ivaTaxes: [],
     form: {
       code: null,
       type_product: 1,
@@ -40,8 +41,8 @@ class FormProduct extends Component {
       try {
         await api
           .get('product/' + params.id)
-          .then(({ data: { product, iceCataloges } }) => {
-            this.setState({ form: product, iceCataloges });
+          .then(({ data: { product, iceCataloges, ivaTaxes } }) => {
+            this.setState({ form: product, iceCataloges, ivaTaxes });
           });
       } catch (error) {
         console.log(error);
@@ -50,8 +51,8 @@ class FormProduct extends Component {
       try {
         await api
           .get('product/create')
-          .then(({ data: { iceCataloges } }) => {
-            this.setState({ iceCataloges });
+          .then(({ data: { iceCataloges, ivaTaxes } }) => {
+            this.setState({ iceCataloges, ivaTaxes });
           });
       } catch (error) {
         console.log(error);
@@ -160,7 +161,7 @@ class FormProduct extends Component {
   };
 
   render() {
-    var { form, iceCataloges } = this.state;
+    var { form, iceCataloges, ivaTaxes } = this.state;
 
     return (
       <Fragment>
@@ -299,9 +300,12 @@ class FormProduct extends Component {
                               name="iva"
                               id="iva"
                             >
-                              <option value={2}>Iva 12%</option>
+                              {ivaTaxes.map((iva, iiva) => (
+                                <option value={iva.code} key={`iva${iiva}`}>Iva {iva.percentage}%</option>
+                              ))}
+                              {/* <option value={2}>Iva 12%</option>
                               <option value={0}>Iva 0%</option>
-                              <option value={6}>No objeto de Iva</option>
+                              <option value={6}>No objeto de Iva</option> */}
                             </CustomInput>
                           </Col>
                         </FormGroup>
