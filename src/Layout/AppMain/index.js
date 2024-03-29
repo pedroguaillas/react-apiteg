@@ -150,7 +150,7 @@ const AppMain = () => {
           </div>
         }
       >
-        <PrivateRoute path='/sri' component={Sri} />
+        <PrivateRoute path='/reportes' component={Sri} />
       </Suspense>
 
       <Suspense

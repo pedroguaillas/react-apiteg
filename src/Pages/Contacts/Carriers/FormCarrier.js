@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import { connect } from 'react-redux';
 import {
   Row,
   Col,
@@ -13,9 +12,6 @@ import {
 } from 'reactstrap';
 import PageTitle from '../../../Layout/AppMain/PageTitle';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-
-import clienteAxios from '../../../config/axios';
-import tokenAuth from '../../../config/token';
 import api from '../../../services/api';
 
 class FormCarrier extends Component {
@@ -30,9 +26,7 @@ class FormCarrier extends Component {
       match: { params },
     } = this.props;
     if (params.id) {
-      // tokenAuth(this.props.token);
       try {
-        // await clienteAxios.get(`carriers/${params.id}/edit`)
         await api.get(`carriers/${params.id}/edit`).then((res) => {
           this.setState({ form: res.data.carrier });
         });
@@ -44,7 +38,6 @@ class FormCarrier extends Component {
 
   submit = async () => {
     if (this.validate()) {
-      // tokenAuth(this.props.token);
       try {
         let { form } = this.state;
 
@@ -53,7 +46,6 @@ class FormCarrier extends Component {
         form.identication = form.identication.trim();
 
         if (form.id) {
-          // await clienteAxios.put(`carriers/${form.id}`, form)
           await api.put(`carriers/${form.id}`, form).then((res) => {
             if (res.data.message === 'KEY_DUPLICATE') {
               alert('Ya existe un transportista con esa identificación');
@@ -62,7 +54,6 @@ class FormCarrier extends Component {
             this.props.history.push('/contactos/transportistas');
           });
         } else {
-          // await clienteAxios.post('carriers', this.state.form)
           await api.post('carriers', this.state.form).then((res) => {
             if (res.data.message === 'KEY_DUPLICATE') {
               alert('Ya existe un transportista con esa identificación');
@@ -270,9 +261,4 @@ class FormCarrier extends Component {
   }
 }
 
-// const mapStateToProps = state => ({
-//     token: state.AuthReducer.token
-// });
-
-// export default connect(mapStateToProps)(FormCarrier);
 export default FormCarrier;

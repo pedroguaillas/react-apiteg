@@ -64,8 +64,8 @@ export const ReferralGuidesNav = [
 export const SriNav = [
     {
         icon: 'pe-7s-note2',
-        label: 'SRI',
-        to: '#/sri',
+        label: 'Reportes',
+        to: '#/reportes',
     },
 ];
 export const ContactsNav = [

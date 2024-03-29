@@ -1,21 +1,11 @@
 import React, { Component, Fragment } from 'react'
-import { connect } from 'react-redux'
 import {
-  Row,
-  Col,
-  Card,
-  CardBody,
-  Form,
-  FormGroup,
-  Input,
-  Button,
-  Label
+  Row, Col, Card, CardBody, Form,
+  FormGroup, Input, Button, Label
 } from 'reactstrap'
 
 import PageTitle from '../../../Layout/AppMain/PageTitle'
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
-import clienteAxios from '../../../config/axios'
-import tokenAuth from '../../../config/token'
 import api from '../../../services/api';
 
 class Profile extends Component {
@@ -25,10 +15,8 @@ class Profile extends Component {
     }
   }
 
-  async componentDidMount () {
-    // tokenAuth(this.props.token)
+  async componentDidMount() {
     try {
-      // await clienteAxios
       await api
         .get('companies')
         .then(({ data: { company } }) => this.setState({ form: company }))
@@ -74,7 +62,6 @@ class Profile extends Component {
         extention_cert: name.substring(length - 4, length)
       }
     })
-    // createImage(files[0], e.target.name);
   }
 
   onSubmit = async e => {
@@ -93,11 +80,6 @@ class Profile extends Component {
       extention_cert,
       pass_cert
     } = this.state.form
-    // if (ruc.trim() === '' ||
-    //     company.trim() === '') {
-    //     alert('Los campos con * son obligatorios')
-    //     return;
-    // }
 
     let data = new FormData()
     data.append('id', id)
@@ -121,11 +103,7 @@ class Profile extends Component {
       data.append('pass_cert', pass_cert)
     }
 
-    // Send
-    // tokenAuth(this.props.token)
-
     try {
-      // await clienteAxios
       await api
         .post('company_update', data, {
           headers: { 'Content-Type': 'multipart/form-data' }
@@ -137,9 +115,7 @@ class Profile extends Component {
   }
 
   downloadSign = async () => {
-    // tokenAuth(this.props.token)
     try {
-      // await clienteAxios.get('downloadsign').then(({ data: { cert } }) => {
       await api.get('downloadsign').then(({ data: { cert } }) => {
         var a = document.createElement('a') //Create <a>
         a.href = 'data:text/xml;base64,' + cert //Image Base64 Goes here
@@ -151,7 +127,7 @@ class Profile extends Component {
     }
   }
 
-  render () {
+  render() {
     let { form } = this.state
 
     return (
@@ -323,9 +299,4 @@ class Profile extends Component {
   }
 }
 
-// const mapStateToProps = state => ({
-//   token: state.AuthReducer.token
-// })
-
-// export default connect(mapStateToProps)(Profile)
 export default Profile;

@@ -1,23 +1,8 @@
 import React, { Component, Fragment } from 'react'
 import {
-  Button,
-  Modal,
-  ModalHeader,
-  ModalBody,
-  InputGroup,
-  Input,
-  InputGroupAddon,
-  Table,
-  Card,
-  Form,
-  Row,
-  Col,
-  ListGroup,
-  ListGroupItem,
-  FormGroup,
-  Label,
-  CustomInput,
-  ModalFooter
+  Button, Modal, ModalHeader, ModalBody, InputGroup, Input, InputGroupAddon, Table,
+  Card, Form, Row, Col, ListGroup, ListGroupItem, FormGroup, Label, CustomInput, ModalFooter,
+  Alert
 } from 'reactstrap'
 
 import Paginate from '../../Paginate/Index'
@@ -35,10 +20,11 @@ class SelectCustomer extends Component {
     links: null,
     meta: null,
     search: '',
-    searching: false
+    searching: false,
+    error: null
   }
 
-  componentDidUpdate (prevProps) {
+  componentDidUpdate(prevProps) {
     if (this.props.id !== prevProps.id && this.props.id > 0) {
       // Se actualiza el nombre del cliente una vez termine cargar la pagina
       // Este se utiliza solo cuando va ver un registro
@@ -58,7 +44,7 @@ class SelectCustomer extends Component {
             item:
               items.length !== 0
                 ? items.filter(customer => customer.id === props.id)[0].atts
-                    .name
+                  .name
                 : '',
             customers: [],
             suggestions: []
@@ -86,6 +72,62 @@ class SelectCustomer extends Component {
     })
   }
 
+  handleChangeIdentification = async e => {
+    let { name, value } = e.target
+    this.setState({
+      customer: {
+        ...this.state.customer,
+        [name]: value
+      }
+    })
+
+    if (value.length === 10 && this.state.customer.type_identification === 'cédula') {
+      try {
+        await api.get(`customers/searchByCedula/${value}`).then((res) => {
+          if (res.data.customer !== null) {
+            if (res.data.customer.branch_id === 0) {
+              const { name, address, email, phone } = res.data.customer
+              this.setState({
+                customer: {
+                  ...this.state.customer,
+                  name, address, email, phone,
+                },
+                error: null
+              })
+            } else {
+              this.setState({ error: 'El cliente ya esta registrado' })
+            }
+          }
+        });
+      } catch (err) {
+        console.log(err)
+      }
+    }
+
+    if (value.length === 13 && this.state.customer.type_identification === 'ruc') {
+      try {
+        await api.get(`customers/searchByRuc/${value}`).then((res) => {
+          if (res.data.customer !== null) {
+            if (res.data.customer.branch_id === 0) {
+              const { name, address, email, phone } = res.data.customer
+              this.setState({
+                customer: {
+                  ...this.state.customer,
+                  name, address, email, phone,
+                },
+                error: null
+              })
+            } else {
+              this.setState({ error: 'El cliente ya esta registrado' })
+            }
+          }
+        });
+      } catch (err) {
+        console.log(err)
+      }
+    }
+  }
+
   submit = async () => {
     if (this.validate()) {
       try {
@@ -103,7 +145,7 @@ class SelectCustomer extends Component {
         if (error.response.data.message === 'KEY_DUPLICATE') {
           alert(
             'Ya existe un cliente con la identificación ' +
-              this.state.customer.identication
+            this.state.customer.identication
           )
         }
         console.log(error)
@@ -258,7 +300,7 @@ class SelectCustomer extends Component {
   }
 
   render = () => {
-    let { customers, customer, suggestions, links, meta, item, search } =
+    let { customers, customer, suggestions, links, meta, item, search, error } =
       this.state
 
     return (
@@ -350,7 +392,7 @@ class SelectCustomer extends Component {
                 <Col sm={8}>
                   <Input
                     bsSize='sm'
-                    onChange={this.handleChange}
+                    onChange={this.handleChangeIdentification}
                     value={customer.identication}
                     type='text'
                     id='identication'
@@ -425,6 +467,9 @@ class SelectCustomer extends Component {
                   />
                 </Col>
               </FormGroup>
+              {
+                error !== null ? <Alert color='danger'>{error}</Alert> : null
+              }
             </Form>
           </ModalBody>
           <ModalFooter>

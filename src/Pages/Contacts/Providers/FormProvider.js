@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import { connect } from 'react-redux';
 import {
   Row,
   Col,
@@ -13,9 +12,6 @@ import {
 } from 'reactstrap';
 import PageTitle from '../../../Layout/AppMain/PageTitle';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-
-import clienteAxios from '../../../config/axios';
-import tokenAuth from '../../../config/token';
 import api from '../../../services/api';
 
 class FormProvider extends Component {
@@ -30,9 +26,7 @@ class FormProvider extends Component {
       match: { params },
     } = this.props;
     if (params.id) {
-      // tokenAuth(this.props.token)
       try {
-        // await clienteAxios.get(`providers/${params.id}/edit`)
         await api.get(`providers/${params.id}/edit`).then((res) => {
           this.setState({ form: res.data.provider });
         });
@@ -44,7 +38,6 @@ class FormProvider extends Component {
 
   submit = async () => {
     if (this.validate()) {
-      // tokenAuth(this.props.token);
       try {
         let { form } = this.state;
 
@@ -53,7 +46,6 @@ class FormProvider extends Component {
         form.identication = form.identication.trim();
 
         if (form.id) {
-          // await clienteAxios.put(`providers/${form.id}`, form)
           await api.put(`providers/${form.id}`, form).then((res) => {
             if (res.data.message === 'KEY_DUPLICATE') {
               alert('Ya existe un proveedor con esa identificación');
@@ -62,7 +54,6 @@ class FormProvider extends Component {
             this.props.history.push('/contactos/proveedores');
           });
         } else {
-          // await clienteAxios.post('providers', form)
           await api.post('providers', form).then((res) => {
             if (res.data.message === 'KEY_DUPLICATE') {
               alert('Ya existe un proveedor con esa identificación');
@@ -283,9 +274,4 @@ class FormProvider extends Component {
   }
 }
 
-// const mapStateToProps = state => ({
-//     token: state.AuthReducer.token
-// });
-
-// export default connect(mapStateToProps)(FormProvider);
 export default FormProvider;

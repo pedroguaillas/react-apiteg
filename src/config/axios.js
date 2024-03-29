@@ -1,6 +1,4 @@
 import axios from 'axios';
-import AuthReducer from '../reducers';
-import { refresthToken } from '../actions/AuthActions';
 
 const clientAxios = axios.create({
     baseURL: process.env.REACT_APP_BACKEND_URL

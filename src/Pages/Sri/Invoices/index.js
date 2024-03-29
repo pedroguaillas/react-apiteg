@@ -1,20 +1,10 @@
 import React, { Component, Fragment } from 'react'
-import { connect } from 'react-redux'
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 import {
-  Row,
-  Col,
-  Card,
-  CardBody,
-  Button,
-  FormGroup,
-  Label,
-  Input
+  Row, Col, Card, CardBody,
+  Button, FormGroup, Label, Input
 } from 'reactstrap'
-
 import PageTitle from '../../../Layout/AppMain/PageTitle'
-import tokenAuth from '../../../config/token'
-import clientAxios from '../../../config/axios'
 import api from '../../../services/api';
 
 class Invoices extends Component {
@@ -25,9 +15,7 @@ class Invoices extends Component {
   }
 
   donwloadExcel = async type => {
-    // tokenAuth(this.props.token)
     try {
-      // await clientAxios
       await api
         .get(
           type === 'Compras'
@@ -52,13 +40,29 @@ class Invoices extends Component {
     }
   }
 
+  donwloadAts = async () => {
+    try {
+      await api
+        .get(`ats/${this.state.month}`, { responseType: 'blob' })
+        .then(({ data }) => {
+          var blob = new Blob([data], { type: 'application/xml' })
+          var a = document.createElement('a') //Create <a>
+          a.href = URL.createObjectURL(blob) //Image Base64 Goes here
+          a.download = `ats.xml` //File name Here
+          a.click() //Downloaded file
+        })
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
   //Layout
   render = () => {
     let { month } = this.state
     return (
       <Fragment>
         <PageTitle
-          heading='Información para el SRI'
+          heading='Reportes'
           subheading='Reportes en excel y el ATS'
           icon='pe-7s-repeat icon-gradient bg-mean-fruit'
         />
@@ -74,7 +78,7 @@ class Invoices extends Component {
             <Col lg='12'>
               <Card className='main-card mb-3'>
                 <CardBody>
-                  <p>Descargar Compras</p>
+                  <p>Reporte de compras y ventas</p>
                   <Row form>
                     <Col md={6}>
                       <FormGroup className='mb-1' row>
@@ -108,7 +112,7 @@ class Invoices extends Component {
                   >
                     Ventas
                   </Button>
-                  <Button className='ml-2'>ATS</Button>
+                  <Button onClick={() => this.donwloadAts()} className='ml-2'>ATS</Button>
                 </CardBody>
               </Card>
             </Col>
@@ -119,9 +123,4 @@ class Invoices extends Component {
   }
 }
 
-// const mapStateToProps = state => ({
-//   token: state.AuthReducer.token
-// })
-
-// export default connect(mapStateToProps)(Invoices)
 export default Invoices;
