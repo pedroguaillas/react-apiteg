@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import {
   Button,
   Modal,
@@ -66,14 +65,14 @@ class Stock extends Component {
                   {product.atts.stock === null && inventori.quantity === ''
                     ? 0
                     : (product.atts.stock === null ? 0 : product.atts.stock) +
-                      Number(
-                        inventori.quantity === ''
-                          ? 0
-                          : inventori.type === 'Compra' ||
-                            inventori.type === 'Devolución en venta'
+                    Number(
+                      inventori.quantity === ''
+                        ? 0
+                        : inventori.type === 'Compra' ||
+                          inventori.type === 'Devolución en venta'
                           ? inventori.quantity
                           : inventori.quantity * -1
-                      )}
+                    )}
                 </Label>
               </Col>
             </Row>
@@ -89,7 +88,7 @@ class Stock extends Component {
                   type="select"
                   id="type"
                   name="type"
-                  // requiered
+                // requiered
                 >
                   <option value="Compra">Compra (+)</option>
                   <option value="Venta">Venta (-)</option>
@@ -160,9 +159,4 @@ class Stock extends Component {
   };
 }
 
-// const mapStateToProps = (state) => ({
-//   token: state.AuthReducer.token,
-// });
-
-// export default connect(mapStateToProps)(Stock);
 export default Stock;

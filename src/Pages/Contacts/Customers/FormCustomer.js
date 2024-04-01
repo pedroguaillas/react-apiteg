@@ -1,18 +1,11 @@
 import React, { Component, Fragment } from 'react';
 import {
-  Row,
-  Col,
-  Card,
-  CardBody,
-  Form,
-  FormGroup,
-  Label,
-  Input,
-  CustomInput,
+  Row, Col, Card, CardBody, Form,
+  FormGroup, Label, Input, CustomInput,
+  Alert,
 } from 'reactstrap';
 import PageTitle from '../../../Layout/AppMain/PageTitle';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
-
 import api from '../../../services/api';
 
 class FormCustomer extends Component {
@@ -20,6 +13,7 @@ class FormCustomer extends Component {
     form: {
       type_identification: 'cédula',
     },
+    error: null
   };
 
   async componentDidMount() {
@@ -128,26 +122,64 @@ class FormCustomer extends Component {
         [e.target.name]: e.target.value
       }
     })
-    this.searchBySri(e.target.value)
+
+    if (this.state.form.id === undefined) this.searchByIdentification(e.target.value)
   }
 
-  searchBySri = (identication) => {
+  searchByIdentification = async (identication) => {
     let { type_identification } = this.state.form
-    if (identication !== undefined && ((type_identification === 'cédula' && identication.length === 10) || (type_identification === 'ruc' && identication.length === 13))) {
-      fetch(`https://srienlinea.sri.gob.ec/sri-catastro-sujeto-servicio-internet/rest/Persona/obtenerPorTipoIdentificacion?numeroIdentificacion=${identication}&tipoIdentificacion=${identication.length === 10 ? 'C' : 'R'}`, {
-        mode: 'no-cors'
-      })
-        .then(res => res.json())
-        .then(data => console.log(data))
-        .catch(err => {
-          console.log('Error en FETCH')
+    if (identication !== undefined) {
+
+      if ((type_identification === 'cédula' && identication.length === 10)) {
+        try {
+          await api.get(`customers/searchByCedula/${identication}`).then((res) => {
+            if (res.data.customer !== null) {
+              if (res.data.customer.branch_id === 0) {
+                const { name, address, email, phone } = res.data.customer
+                this.setState({
+                  form: {
+                    ...this.state.form,
+                    name, address, email, phone,
+                  },
+                  error: null
+                })
+              } else {
+                this.setState({ error: 'El cliente ya esta registrado' })
+              }
+            }
+          });
+        } catch (err) {
           console.log(err)
-        })
+        }
+      }
+
+      if ((type_identification === 'ruc' && identication.length === 13)) {
+        try {
+          await api.get(`customers/searchByRuc/${identication}`).then((res) => {
+            if (res.data.customer !== null) {
+              if (res.data.customer.branch_id === 0) {
+                const { name, address, email, phone } = res.data.customer
+                this.setState({
+                  form: {
+                    ...this.state.form,
+                    name, address, email, phone,
+                  },
+                  error: null
+                })
+              } else {
+                this.setState({ error: 'El cliente ya esta registrado' })
+              }
+            }
+          });
+        } catch (err) {
+          console.log(err)
+        }
+      }
     }
   }
 
   render() {
-    let { form } = this.state
+    let { form, error } = this.state
 
     return (
       <Fragment>
@@ -289,6 +321,9 @@ class FormCustomer extends Component {
                         />
                       </Col>
                     </FormGroup>
+                    {
+                      error !== null ? <Alert color='danger'>{error}</Alert> : null
+                    }
                   </Form>
                 </CardBody>
               </Card>

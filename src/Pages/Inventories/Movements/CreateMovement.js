@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import { connect } from 'react-redux';
 import {
     Row, Col, Card, CardBody, Label,
     Form, FormGroup, Input, CustomInput, Button
@@ -8,9 +7,6 @@ import PageTitle from '../../../Layout/AppMain/PageTitle';
 import ReactCSSTransitionGroup from "react-addons-css-transition-group";
 
 import ListProducts from './ListProducts';
-
-import clienteAxios from '../../../config/axios';
-import tokenAuth from '../../../config/token';
 import api from '../../../services/api';
 
 class CreateMovement extends Component {
@@ -30,9 +26,7 @@ class CreateMovement extends Component {
     }
 
     async componentDidMount() {
-        // tokenAuth(this.props.token);
         try {
-            // await clienteAxios.get('movementscreate')
             await api.get('movementscreate')
                 .then(response => this.setState({
                     productinputs: response.data.products
@@ -46,9 +40,7 @@ class CreateMovement extends Component {
         let { form, productouts, total } = this.state
         form.products = productouts.filter(product => product.product_id > 0)
         form.sub_total = total
-        // tokenAuth(this.props.token);
         try {
-            // await clienteAxios.post('movements', form)
             await api.post('movements', form)
                 .then(res => this.props.history.push("/inventarios/movimientos"))
         } catch (error) {
@@ -217,9 +209,4 @@ class CreateMovement extends Component {
     }
 }
 
-// const mapStateToProps = state => ({
-//     token: state.AuthReducer.token
-// });
-
-// export default connect(mapStateToProps)(CreateMovement);
 export default CreateMovement;

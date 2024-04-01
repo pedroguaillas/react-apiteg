@@ -26,7 +26,9 @@ class CreateInvoice extends Component {
         expiration_days: 0,
         no_iva: 0,
         base0: 0,
+        base5: 0,
         base12: 0,
+        base15: 0,
         iva: 0,
         ice: 0,
         sub_total: 0,
@@ -343,12 +345,13 @@ class CreateInvoice extends Component {
           item.price = parseFloat(product.atts.price1);
           item.quantity = 1;
           item.discount = 0;
-          item.iva = product.atts.iva;
           item.stock = product.stock > 0 ? product.stock : 1;
           item.total_iva = parseFloat(product.atts.price1);
           if (product.atts.ice !== null) {
             item.ice = '';
           }
+          item.iva = product.iva.code
+          item.percentage = product.iva.percentage
         }
         return item;
       });
@@ -360,12 +363,10 @@ class CreateInvoice extends Component {
   };
 
   //Delete product
-  deleteProduct = (index) => {
-    let productouts = this.state.productouts.filter(
-      (product, i) => i !== index
-    );
-    this.recalculate(productouts);
-  };
+  deleteProduct = (product_id) => {
+    const productouts = this.state.productouts.filter(product => product.product_id !== product_id)
+    this.recalculate(productouts)
+  }
 
   //add quatity to product
   handleChangeItem = (index) => (e) => {
@@ -373,12 +374,12 @@ class CreateInvoice extends Component {
     if (value < 0) return
     let { productouts } = this.state;
     productouts[index][name] = value
-    let { price, quantity, discount, iva } = productouts[index]
+    let { price, quantity, discount, percentage } = productouts[index]
     price = price === '' ? 0 : price;
     quantity = quantity === '' ? 0 : quantity;
     discount = discount === '' ? 0 : discount;
     if (name === 'total_iva') {
-      productouts[index].price = parseFloat((value / quantity / (iva === 2 ? 1.12 : 1)).toFixed(this.props.decimal))
+      productouts[index].price = parseFloat((value / quantity / (1 + (percentage / 100))).toFixed(this.props.decimal))
     } else if (name !== 'ice') {
       productouts[index].total_iva = price * quantity - discount
     }
@@ -389,20 +390,35 @@ class CreateInvoice extends Component {
   recalculate = (productouts) => {
     let no_iva = 0;
     let base0 = 0;
+    let base5 = 0;
     let base12 = 0;
+    let base13 = 0;
+    let base15 = 0;
     let totalDiscount = 0;
     let totalIce = 0;
 
     productouts.forEach(({ quantity, price, discount, iva, total_iva, ice }) => {
       totalIce += ice !== undefined ? Number(ice) : 0
       totalDiscount += discount !== '' ? Number(discount) : 0
-      base0 += iva === 0 ? Number(total_iva) : 0;
-      base12 += iva === 2 ? Number(price * quantity - discount) : 0;
-      no_iva += iva === 6 ? Number(total_iva) : 0;
+      if (iva !== undefined) {
+        // IVA = 0% el total_iva = price * quantity - discount + 0 (0% IVA)
+        no_iva += iva === 6 ? Number(total_iva) : 0;
+        base0 += iva === 0 ? Number(total_iva) : 0;
+        // IVA > 0% entonces total_iva = price * quantity - discount + Valor del IVA (5%-12%-13%-15%)
+        base5 += iva === 5 ? Number(price * quantity - discount) : 0;
+        base12 += iva === 2 ? Number(price * quantity - discount) : 0;
+        // base13 += iva === 10 ? Number(price * quantity - discount) : 0;
+        base15 += iva === 4 ? Number(price * quantity - discount) : 0;
+      }
     });
+    let sub_total = no_iva + base0 + base5 + base12 + base13 + base15;
 
-    let iva = Number(((base12 + Number(totalIce)) * 0.12).toFixed(2));
-    let sub_total = no_iva + base0 + base12;
+    let iva5 = Number(((base5 + Number(totalIce)) * 0.05).toFixed(2));
+    let iva12 = Number(((base12 + Number(totalIce)) * 0.12).toFixed(2));
+    // let iva13 = Number(((base13 + Number(totalIce)) * 0.13).toFixed(2));
+    let iva15 = Number(((base15 + Number(totalIce)) * 0.15).toFixed(2));
+    let iva = Number((iva5 + iva12 + iva15).toFixed(2));
+
     let total = sub_total + Number(totalIce) + iva;
 
     this.setState({
@@ -411,10 +427,15 @@ class CreateInvoice extends Component {
         ...this.state.form,
         no_iva,
         base0,
+        base5,
         base12,
+        // base12: base5 + base12 + base13 + base15,
+        base15,
         sub_total,
         ice: totalIce,
         discount: totalDiscount,
+        iva5,
+        iva15,
         iva,
         total
       },
@@ -529,7 +550,15 @@ class CreateInvoice extends Component {
 
   //Desglose del valor total
   handleChangeCheck = (e) => {
-    this.setState((state) => ({ breakdown: !state.breakdown }));
+    let { breakdown, productouts } = this.state
+    productouts.forEach(item => {
+      let base = item.price * item.quantity - item.discount
+      item.total_iva = (breakdown ? base : base * (1 + item.percentage / 100)).toFixed(2)
+    })
+    this.setState((state) => ({
+      breakdown: !state.breakdown,
+      productouts
+    }));
   };
 
   //...............Layout
@@ -665,12 +694,27 @@ class CreateInvoice extends Component {
                               </tr>
                             </thead>
                             <tbody>
-                              <tr>
-                                <td>Subtotal 12%</td>
-                                <td style={{ 'text-align': 'right' }}>
-                                  {format(form.base12)}
-                                </td>
-                              </tr>
+                              {form.base5 > 0 ?
+                                <tr>
+                                  <td>Subtotal 5%</td>
+                                  <td style={{ 'text-align': 'right' }}>
+                                    {format(form.base5)}
+                                  </td>
+                                </tr> : null}
+                              {form.base12 > 0 ?
+                                <tr>
+                                  <td>Subtotal 12%</td>
+                                  <td style={{ 'text-align': 'right' }}>
+                                    {format(form.base12)}
+                                  </td>
+                                </tr> : null}
+                              {form.base15 > 0 ?
+                                <tr>
+                                  <td>Subtotal 15%</td>
+                                  <td style={{ 'text-align': 'right' }}>
+                                    {format(form.base15)}
+                                  </td>
+                                </tr> : null}
                               <tr>
                                 <td>Subtotal 0%</td>
                                 <td style={{ 'text-align': 'right' }}>

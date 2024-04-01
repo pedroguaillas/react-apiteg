@@ -91,7 +91,7 @@ class Customers extends Component {
         let lines = csv.split(/\r\n|\n/)
         let customers = []
         let i = 0
-
+        
         for (let line in lines) {
             if (i > 0 && lines[line].length > 0) {
                 let words = lines[line].split(';')
@@ -99,7 +99,9 @@ class Customers extends Component {
                     type_identification: words[0].trim(),
                     identication: words[1].trim(),
                     name: words[2].trim(),
-                    address: words[3].trim()
+                    address: words[3].trim(),
+                    email: words[4].trim(),
+                    phone: words[5].trim(),
                 }
                 customers.push(object)
             }

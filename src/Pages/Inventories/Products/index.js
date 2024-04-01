@@ -420,11 +420,12 @@ class Products extends Component {
                               ).toFixed(2)}
                             </td>
                             <td>
-                              {product.atts.iva == 0
+                              {`${product.iva.percentage}%`}
+                              {/* {product.atts.iva == 0
                                 ? '0%'
                                 : product.atts.iva == 2
                                   ? '12%'
-                                  : 'no iva'}
+                                  : 'no iva'} */}
                             </td>
                             <td>
                               <ButtonDropdown
