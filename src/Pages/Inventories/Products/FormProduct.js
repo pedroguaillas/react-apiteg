@@ -25,7 +25,7 @@ class FormProduct extends Component {
       type_product: 1,
       name: null,
       unity_id: null,
-      iva: 2,
+      iva: 4,
       ice: null,
       stock: '',
       price1: ''
@@ -40,7 +40,7 @@ class FormProduct extends Component {
     if (params.id) {
       try {
         await api
-          .get('product/' + params.id)
+          .get(`product/${params.id}`)
           .then(({ data: { product, iceCataloges, ivaTaxes } }) => {
             this.setState({ form: product, iceCataloges, ivaTaxes });
           });

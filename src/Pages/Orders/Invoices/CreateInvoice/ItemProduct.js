@@ -67,7 +67,7 @@ class ItemProduct extends Component {
           />
         </td>
         {breakdown ? (
-          <td>{format(product.iva === 2 ? (product.quantity * product.price - product.discount) * 0.12 : 0)}</td>
+          <td>{format(product.iva === 4 || product.iva === 5 ? (product.quantity * product.price - product.discount) * product.percentage / 100 : 0)}</td>
         ) : null}
         <td>
           {breakdown ? (
@@ -104,7 +104,7 @@ class ItemProduct extends Component {
         <td>
           <Button
             size="sm"
-            onClick={() => deleteProduct(index)}
+            onClick={() => deleteProduct(product.product_id)}
             className="mr-2 btn-transition"
             color="danger"
           >
