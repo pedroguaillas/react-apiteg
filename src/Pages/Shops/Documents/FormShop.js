@@ -29,8 +29,12 @@ class FormShop extends Component {
         voucher_type: 1,
         no_iva: 0,
         base0: 0,
+        base5: 0,
         base12: 0,
+        base15: 0,
         iva: 0,
+        iva5: 0,
+        iva15: 0,
         sub_total: 0,
         discount: 0,
         ice: 0,
@@ -75,7 +79,9 @@ class FormShop extends Component {
 
     let no_iva = 0;
     let base0 = 0;
+    let base5 = 0;
     let base12 = 0;
+    let base15 = 0;
     let ice = 0;
     let discount = 0;
 
@@ -95,8 +101,11 @@ class FormShop extends Component {
         case 2:
           base12 += parseFloat(this._getTag(impuestos[i], 'baseImponible'));
           break;
-        case 3:
-          base12 += parseFloat(this._getTag(impuestos[i], 'baseImponible'));
+        case 4:
+          base15 += parseFloat(this._getTag(impuestos[i], 'baseImponible'));
+          break;
+        case 5:
+          base5 += parseFloat(this._getTag(impuestos[i], 'baseImponible'));
           break;
         case 6:
           no_iva += parseFloat(this._getTag(impuestos[i], 'baseImponible'));
@@ -109,6 +118,8 @@ class FormShop extends Component {
     }
 
     let iva = Number((base12 * 0.12).toFixed(2));
+    let iva5 = Number((base5 * 0.05).toFixed(2));
+    let iva15 = Number((base15 * 0.15).toFixed(2));
     let sub_total = no_iva + base0 + base12;
     let total = parseFloat(
       this._getTag(xmlDoc, tv === 1 ? 'importeTotal' : 'valorTotal')
@@ -127,8 +138,12 @@ class FormShop extends Component {
         authorization,
         no_iva,
         base0,
+        base5,
         base12,
+        base15,
         iva,
+        iva5,
+        iva15,
         sub_total,
         discount,
         ice,
@@ -353,13 +368,23 @@ class FormShop extends Component {
         i++;
       }
 
+      if (form.base0 === '') {
+        alert('La base 0% no puede ser nulo');
+        return;
+      }
+
+      if (form.base5 === '') {
+        alert('La base 5% no puede ser nulo');
+        return;
+      }
+
       if (form.base12 === '') {
         alert('La base 12% no puede ser nulo');
         return;
       }
 
-      if (form.base0 === '') {
-        alert('La base 0% no puede ser nulo');
+      if (form.base15 === '') {
+        alert('La base 15% no puede ser nulo');
         return;
       }
 
@@ -380,8 +405,10 @@ class FormShop extends Component {
         sumb !==
         Number(
           (
-            Number(form.base12) +
             Number(form.base0) +
+            Number(form.base5) +
+            Number(form.base12) +
+            Number(form.base15) +
             Number(form.no_iva)
           ).toFixed(2)
         )
@@ -858,12 +885,44 @@ class FormShop extends Component {
                             </thead>
                             <tbody>
                               <tr>
+                                <td>Subtotal 5% ($)</td>
+                                <td style={{ 'text-align': 'right' }}>
+                                  <input
+                                    onChange={this.onChangeNumber}
+                                    name="base12"
+                                    value={form.base5}
+                                    type="text"
+                                    style={{
+                                      width: '7.5em',
+                                      'text-align': 'right',
+                                    }}
+                                    bsSize="sm"
+                                  />
+                                </td>
+                              </tr>
+                              <tr>
                                 <td>Subtotal 12% ($)</td>
                                 <td style={{ 'text-align': 'right' }}>
                                   <input
                                     onChange={this.onChangeNumber}
                                     name="base12"
                                     value={form.base12}
+                                    type="text"
+                                    style={{
+                                      width: '7.5em',
+                                      'text-align': 'right',
+                                    }}
+                                    bsSize="sm"
+                                  />
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>Subtotal 15% ($)</td>
+                                <td style={{ 'text-align': 'right' }}>
+                                  <input
+                                    onChange={this.onChangeNumber}
+                                    name="base12"
+                                    value={form.base15}
                                     type="text"
                                     style={{
                                       width: '7.5em',
@@ -890,9 +949,21 @@ class FormShop extends Component {
                                 </td>
                               </tr>
                               <tr>
-                                <td>Monto IVA</td>
+                                <td>IVA 5</td>
+                                <td style={{ 'text-align': 'right' }}>
+                                  {format(form.iva5)}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>IVA 12</td>
                                 <td style={{ 'text-align': 'right' }}>
                                   {format(form.iva)}
+                                </td>
+                              </tr>
+                              <tr>
+                                <td>IVA 15</td>
+                                <td style={{ 'text-align': 'right' }}>
+                                  {format(form.iva15)}
                                 </td>
                               </tr>
                               <tr>

@@ -515,12 +515,13 @@ class Documents extends Component {
                         <tr>
                           <th>Emisión</th>
                           <th>Documento</th>
-                          <th>Persona</th>
+                          <th>Razon social</th>
                           <th style={{ 'text-align': 'center' }}>Estado Ret</th>
                           <th style={{ 'text-align': 'center' }}>Total</th>
                           <th style={{ 'text-align': 'center' }}>Ret</th>
                           <th style={{ 'text-align': 'center' }}>Pagar</th>
-                          <th colSpan={2} style={{ width: '1em' }}></th>
+                          <th></th>
+                          <th style={{ width: '1rem' }}></th>
                         </tr>
                       </thead>
                       <tbody>
