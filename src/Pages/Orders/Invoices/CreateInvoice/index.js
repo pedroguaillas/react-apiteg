@@ -130,8 +130,8 @@ class CreateInvoice extends Component {
       }
     } else {
       try {
-        await api.get('orders/create').
-          then(({ data }) => {
+        await api.get('orders/create')
+        .then(({ data }) => {
             let { points, methodOfPayments, pay_method } = data
             this.setState({
               form: {
