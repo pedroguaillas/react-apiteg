@@ -464,9 +464,11 @@ class FormShop extends Component {
     let { form } = this.state;
     form[name] = value;
     form.iva = Number((Number(form.base12) * 0.12).toFixed(2));
+    form.iva5 = Number((Number(form.base5) * 0.05).toFixed(2));
+    form.iva15 = Number((Number(form.base15) * 0.15).toFixed(2));
     form.sub_total =
       Number(form.base12) + Number(form.base0) + Number(form.no_iva);
-    form.total = Number(form.base12) + Number(form.base0) + Number(form.iva);
+    form.total = Number(form.base0) + Number(form.base5) + Number(form.base12) + Number(form.base15) + Number(form.iva) + Number(form.iva5) + Number(form.iva15);
     this.setState({ form });
   };
 
