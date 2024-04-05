@@ -3,7 +3,8 @@ import {
     Button, Modal, ModalHeader, ModalBody,
     InputGroup, Input, InputGroupAddon, Table,
     Card, Form, Row, Col, ListGroup, ListGroupItem,
-    FormGroup, Label, CustomInput, ModalFooter
+    FormGroup, Label, CustomInput, ModalFooter,
+    Alert
 } from 'reactstrap'
 import Paginate from '../../Paginate/Index';
 import api from '../../../../services/api';
@@ -20,7 +21,8 @@ class SelectProvider extends Component {
         },
         links: null,
         meta: null,
-        search: ''
+        search: '',
+        error: null,
     }
 
     componentDidUpdate(prevProps) {
@@ -64,6 +66,39 @@ class SelectProvider extends Component {
                 [e.target.name]: e.target.value
             }
         })
+    }
+
+    handleChangeIdentification = async e => {
+        let { name, value } = e.target
+        this.setState({
+            provider: {
+                ...this.state.provider,
+                [name]: value
+            }
+        })
+
+        if (value.length === 13 && this.state.provider.type_identification === 'ruc') {
+            try {
+                await api.get(`providers/searchByRuc/${value}`).then((res) => {
+                    if (res.data.provider !== null) {
+                        if (res.data.provider.branch_id === 0) {
+                            const { name, address, email, phone } = res.data.provider
+                            this.setState({
+                                provider: {
+                                    ...this.state.provider,
+                                    name, address, email, phone,
+                                },
+                                error: null
+                            })
+                        } else {
+                            this.setState({ error: 'El proveedor ya esta registrado' })
+                        }
+                    }
+                });
+            } catch (err) {
+                console.log(err)
+            }
+        }
     }
 
     submit = async () => {
@@ -212,7 +247,7 @@ class SelectProvider extends Component {
 
     render = () => {
 
-        let { providers, provider, suggestions, links, meta, item, search } = this.state
+        let { providers, provider, suggestions, links, meta, item, search, error } = this.state
 
         return (
             <Fragment>
@@ -274,7 +309,7 @@ class SelectProvider extends Component {
                             <FormGroup className="mb-1" row>
                                 <Label for="identication" sm={4}>Identificación *</Label>
                                 <Col sm={8}>
-                                    <Input bsSize="sm" onChange={this.handleChange} value={provider.identication}
+                                    <Input bsSize="sm" onChange={this.handleChangeIdentification} value={provider.identication}
                                         type="text" id="identication" name="identication" maxlength="13" requiered />
                                 </Col>
                             </FormGroup>
@@ -307,6 +342,9 @@ class SelectProvider extends Component {
                                         id="email" name="email" />
                                 </Col>
                             </FormGroup>
+                            {
+                                error !== null ? <Alert color='danger'>{error}</Alert> : null
+                            }
                         </Form>
                     </ModalBody>
                     <ModalFooter>
@@ -345,8 +383,8 @@ class SelectProvider extends Component {
                                 </thead>
                                 <tbody>
                                     {providers.map((provider, index) => (
-                                        <tr key={index}>
-                                            <td scope="row">{provider.atts.identication}</td>
+                                        <tr key={`provider${index}`}>
+                                            <td>{provider.atts.identication}</td>
                                             <td onClick={() => this.selectProvider(provider)}>
                                                 <a href="javascript:void(0);" className="alert-link">{provider.atts.name}</a>
                                             </td>

@@ -39,7 +39,7 @@ class CreateInvoice extends Component {
         received: 0,
         doc_realeted: 0,
         voucher_type: 1,
-        pay_method: null
+        pay_method: null,
       },
       customers: [],
       methodOfPayments: [],
@@ -131,7 +131,7 @@ class CreateInvoice extends Component {
     } else {
       try {
         await api.get('orders/create')
-        .then(({ data }) => {
+          .then(({ data }) => {
             let { points, methodOfPayments, pay_method } = data
             this.setState({
               form: {
@@ -477,6 +477,7 @@ class CreateInvoice extends Component {
         let words = lines[line].split(';');
         let object = {
           code: words[0].trim(),
+          price: words[1].trim() === '' ? null : words[1].trim(),
           quantity: words[2],
         };
         productinputs.push(object);
@@ -747,12 +748,33 @@ class CreateInvoice extends Component {
                                   </td>
                                 </tr>
                                 : null}
-                              <tr>
-                                <td>IVA</td>
-                                <td style={{ 'text-align': 'right' }}>
-                                  {format(form.iva)}
-                                </td>
-                              </tr>
+                              {
+                                form.iva5 > 0 ?
+                                  <tr>
+                                    <td>IVA 5%</td>
+                                    <td style={{ 'text-align': 'right' }}>
+                                      {format(form.iva5)}
+                                    </td>
+                                  </tr> : null
+                              }
+                              {
+                                form.base12 > 0 ?
+                                  <tr>
+                                    <td>IVA 12%</td>
+                                    <td style={{ 'text-align': 'right' }}>
+                                      {format(form.iva)}
+                                    </td>
+                                  </tr> : null
+                              }
+                              {
+                                form.iva15 > 0 ?
+                                  <tr>
+                                    <td>IVA 15%</td>
+                                    <td style={{ 'text-align': 'right' }}>
+                                      {format(form.iva15)}
+                                    </td>
+                                  </tr> : null
+                              }
                               <tr>
                                 <td>No objeto de IVA</td>
                                 <td style={{ 'text-align': 'right' }}>

@@ -9,6 +9,7 @@ import {
   Label,
   Input,
   CustomInput,
+  Alert,
 } from 'reactstrap';
 import PageTitle from '../../../Layout/AppMain/PageTitle';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
@@ -19,6 +20,7 @@ class FormProvider extends Component {
     form: {
       type_identification: 'ruc',
     },
+    error: null
   };
 
   async componentDidMount() {
@@ -119,8 +121,49 @@ class FormProvider extends Component {
     });
   };
 
+  //Change data in to input form
+  handleChangeIdentification = (e) => {
+    this.setState({
+      form: {
+        ...this.state.form,
+        [e.target.name]: e.target.value
+      }
+    })
+
+    if (this.state.form.id === undefined) this.searchByIdentification(e.target.value)
+  }
+
+  searchByIdentification = async (identication) => {
+    let { type_identification } = this.state.form
+    if (identication !== undefined) {
+
+      if ((type_identification === 'ruc' && identication.length === 13)) {
+        try {
+          await api.get(`providers/searchByRuc/${identication}`).then((res) => {
+            if (res.data.provider !== null) {
+              if (res.data.provider.branch_id === 0) {
+                const { name, address, email, phone } = res.data.provider
+                this.setState({
+                  form: {
+                    ...this.state.form,
+                    name, address, email, phone,
+                  },
+                  error: null
+                })
+              } else {
+                this.setState({ error: 'El proveedor ya esta registrado' })
+              }
+            }
+          });
+        } catch (err) {
+          console.log(err)
+        }
+      }
+    }
+  }
+
   render() {
-    let { form } = this.state;
+    let { form, error } = this.state;
 
     return (
       <Fragment>
@@ -185,7 +228,7 @@ class FormProvider extends Component {
                       <Col sm={6}>
                         <Input
                           bsSize="sm"
-                          onChange={this.handleChange}
+                          onChange={this.handleChangeIdentification}
                           value={form.identication}
                           type="text"
                           id="identication"
@@ -263,6 +306,9 @@ class FormProvider extends Component {
                         />
                       </Col>
                     </FormGroup>
+                    {
+                      error !== null ? <Alert color='danger'>{error}</Alert> : null
+                    }
                   </Form>
                 </CardBody>
               </Card>

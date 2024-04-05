@@ -518,12 +518,12 @@ class SelectCustomer extends Component {
                 </thead>
                 <tbody>
                   {customers.map((customer, index) => (
-                    <tr key={index}>
-                      <td scope='row'>{customer.atts.identication}</td>
-                      <td onClick={() => this.selectCustomer(customer)}>
-                        <a href='javascript:void(0);' className='alert-link'>
+                    <tr key={`customer${index}`}>
+                      <td>{customer.atts.identication}</td>
+                      <td>
+                        <button onClick={() => this.selectCustomer(customer)} className='btn btn-link'>
                           {customer.atts.name}
-                        </a>
+                        </button>
                       </td>
                     </tr>
                   ))}
