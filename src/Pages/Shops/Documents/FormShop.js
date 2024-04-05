@@ -856,7 +856,6 @@ class FormShop extends Component {
                           className="my-3"
                           style={{ 'border-top': '1px solid #ced4da' }}
                         >
-                          {/* <strong className='mt-2'>Formas de pago</strong> */}
                         </Row>
 
                         <Description
@@ -889,7 +888,7 @@ class FormShop extends Component {
                                 <td style={{ 'text-align': 'right' }}>
                                   <input
                                     onChange={this.onChangeNumber}
-                                    name="base12"
+                                    name="base5"
                                     value={form.base5}
                                     type="text"
                                     style={{
@@ -921,7 +920,7 @@ class FormShop extends Component {
                                 <td style={{ 'text-align': 'right' }}>
                                   <input
                                     onChange={this.onChangeNumber}
-                                    name="base12"
+                                    name="base15"
                                     value={form.base15}
                                     type="text"
                                     style={{
