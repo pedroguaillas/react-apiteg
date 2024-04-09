@@ -104,7 +104,7 @@ class ItemProduct extends Component {
         <td>
           <Button
             size="sm"
-            onClick={() => deleteProduct(product.product_id)}
+            onClick={() => deleteProduct(index)}
             className="mr-2 btn-transition"
             color="danger"
           >
