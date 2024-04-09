@@ -363,9 +363,13 @@ class CreateInvoice extends Component {
   };
 
   //Delete product
-  deleteProduct = (product_id) => {
-    const productouts = this.state.productouts.filter(product => product.product_id !== product_id)
+  deleteProduct = (index) => {
+    var productouts = [...this.state.productouts]
+    productouts.splice(index, 1)
     this.recalculate(productouts)
+
+    // productouts.indexOf(index)
+    // const productouts = this.state.productouts.filter(product => product.product_id !== product_id)
   }
 
   //add quatity to product
@@ -553,8 +557,8 @@ class CreateInvoice extends Component {
   handleChangeCheck = (e) => {
     let { breakdown, productouts } = this.state
     productouts.forEach(item => {
-      let base = item.price * item.quantity - item.discount
-      item.total_iva = (breakdown ? base : base * (1 + item.percentage / 100)).toFixed(2)
+      let base = (Number(item.price) * Number(item.quantity)) - Number(item.discount)
+      item.total_iva = parseFloat((breakdown ? base : base * (1 + item.percentage / 100)).toFixed(2))
     })
     this.setState((state) => ({
       breakdown: !state.breakdown,
