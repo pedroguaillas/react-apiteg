@@ -1,16 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import {
-  Row,
-  Col,
-  Card,
-  CardBody,
-  Label,
-  Form,
-  FormGroup,
-  Input,
-  CustomInput,
-  Button,
+  Row, Col, Card, CardBody, Label, Form,
+  FormGroup, Input, CustomInput, Button,
 } from 'reactstrap';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import PageTitle from '../../../Layout/AppMain/PageTitle';
@@ -103,18 +95,18 @@ class FormProduct extends Component {
       price1 === '' ||
       code.trim().length === 0 ||
       name.trim().length === 0 ||
-      price1.trim().length === 0
+      ('' + price1).trim().length === 0
     ) {
       alert('No puede quedar campo en blanco');
       return;
     }
 
-    if (isNaN(price1.trim())) {
+    if (isNaN(('' + price1).trim())) {
       alert('El precio solo debe contener numeros');
       return;
     }
 
-    if (Number(price1.trim()) <= 0) {
+    if (Number(('' + price1).trim()) <= 0) {
       alert('El precio debe ser mayor a 0');
       return;
     }
@@ -303,9 +295,6 @@ class FormProduct extends Component {
                               {ivaTaxes.map((iva, iiva) => (
                                 <option value={iva.code} key={`iva${iiva}`}>Iva {iva.percentage}%</option>
                               ))}
-                              {/* <option value={2}>Iva 12%</option>
-                              <option value={0}>Iva 0%</option>
-                              <option value={6}>No objeto de Iva</option> */}
                             </CustomInput>
                           </Col>
                         </FormGroup>
