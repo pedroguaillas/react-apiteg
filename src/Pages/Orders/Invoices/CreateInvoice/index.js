@@ -417,10 +417,9 @@ class CreateInvoice extends Component {
     });
     let sub_total = no_iva + base0 + base5 + base12 + base13 + base15;
 
-    let iva5 = Number(((base5 + Number(totalIce)) * 0.05).toFixed(2));
-    let iva12 = Number(((base12 + Number(totalIce)) * 0.12).toFixed(2));
-    // let iva13 = Number(((base13 + Number(totalIce)) * 0.13).toFixed(2));
-    let iva15 = Number(((base15 + Number(totalIce)) * 0.15).toFixed(2));
+    let iva5 = Number((base5 * 0.05).toFixed(2));
+    let iva12 = base12 > 0 ? Number(((base12 + Number(totalIce)) * 0.12).toFixed(2)) : 0;
+    let iva15 = base15 > 0 ? Number(((base15 + Number(totalIce)) * 0.15).toFixed(2)) : 0;
     let iva = Number((iva5 + iva12 + iva15).toFixed(2));
 
     let total = sub_total + Number(totalIce) + iva;
@@ -433,7 +432,6 @@ class CreateInvoice extends Component {
         base0,
         base5,
         base12,
-        // base12: base5 + base12 + base13 + base15,
         base15,
         sub_total,
         ice: totalIce,
