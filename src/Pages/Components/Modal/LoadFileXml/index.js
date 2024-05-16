@@ -16,11 +16,16 @@ class LoadFileXml extends Component {
     let parser = new DOMParser()
     let xmlDoc = parser.parseFromString(xml, 'text/xml')
 
-    let comprobante = this._getTag(xmlDoc, 'comprobante')
-    let authorization = this._getTag(xmlDoc, 'numeroAutorizacion')
+    let comprobante = xmlDoc.querySelector('comprobante')
 
-    parser = new DOMParser()
-    xmlDoc = parser.parseFromString(comprobante, 'text/xml')
+    // Si el comprobante esta dentro del CDATA de la autorizacion extraer
+    if (comprobante) {
+      comprobante = this._getTag(xmlDoc, 'comprobante')
+      parser = new DOMParser()
+      xmlDoc = parser.parseFromString(comprobante, 'text/xml')
+    }
+
+    let authorization = this._getTag(xmlDoc, 'claveAcceso')
 
     let tv = parseInt(this._getTag(xmlDoc, 'codDoc'))
     let { voucher_type } = this.props
@@ -44,8 +49,7 @@ class LoadFileXml extends Component {
     selectDocXml(xmlDoc, authorization)
   }
 
-  _getTag = (xmlDoc, tag) =>
-    xmlDoc.getElementsByTagName(tag)[0].childNodes[0].nodeValue.trim()
+  _getTag = (xmlDoc, tag) => xmlDoc.getElementsByTagName(tag)[0].childNodes[0].nodeValue.trim()
 
   render = () => {
     return (
