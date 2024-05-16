@@ -82,6 +82,9 @@ class FormShop extends Component {
     let base5 = 0;
     let base12 = 0;
     let base15 = 0;
+    let iva = 0;
+    let iva5 = 0;
+    let iva15 = 0;
     let ice = 0;
     let discount = 0;
 
@@ -100,12 +103,15 @@ class FormShop extends Component {
           break;
         case 2:
           base12 += parseFloat(this._getTag(impuestos[i], 'baseImponible'));
+          iva += parseFloat(this._getTag(impuestos[i], 'valor'));
           break;
         case 4:
           base15 += parseFloat(this._getTag(impuestos[i], 'baseImponible'));
+          iva15 += parseFloat(this._getTag(impuestos[i], 'valor'));
           break;
         case 5:
           base5 += parseFloat(this._getTag(impuestos[i], 'baseImponible'));
+          iva5 += parseFloat(this._getTag(impuestos[i], 'valor'));
           break;
         case 6:
           no_iva += parseFloat(this._getTag(impuestos[i], 'baseImponible'));
@@ -117,9 +123,6 @@ class FormShop extends Component {
       }
     }
 
-    let iva = Number((base12 * 0.12).toFixed(2));
-    let iva5 = Number((base5 * 0.05).toFixed(2));
-    let iva15 = Number((base15 * 0.15).toFixed(2));
     let sub_total = no_iva + base0 + base12;
     let total = parseFloat(
       this._getTag(xmlDoc, tv === 1 ? 'importeTotal' : 'valorTotal')
