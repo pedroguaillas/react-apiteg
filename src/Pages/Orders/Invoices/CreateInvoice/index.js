@@ -69,6 +69,7 @@ class CreateInvoice extends Component {
       selectPoint: {},
       breakdown: false,
       loading: 'success',
+      tourism: false,
     };
   }
 
@@ -121,7 +122,7 @@ class CreateInvoice extends Component {
               aditionals: data.order_aditionals,
               form: data.order,
               points,
-              methodOfPayments
+              methodOfPayments,
             });
           });
       } catch (error) {
@@ -132,14 +133,15 @@ class CreateInvoice extends Component {
       try {
         await api.get('orders/create')
           .then(({ data }) => {
-            let { points, methodOfPayments, pay_method } = data
+            let { points, methodOfPayments, pay_method, tourism } = data
             this.setState({
               form: {
                 ...this.state.form,
                 pay_method
               },
               methodOfPayments,
-              points
+              points,
+              tourism,
             })
             if (points.length === 1 && points[0].point) this.selectSerie(points[0])
           });
@@ -335,6 +337,7 @@ class CreateInvoice extends Component {
 
   //add product when select product from de list modal
   selectProduct = (product, index) => {
+    console.log(this.state.tourism)
     if (
       this.state.productouts.find((p) => p.product_id === product.id) ===
       undefined
@@ -350,8 +353,15 @@ class CreateInvoice extends Component {
           if (product.atts.ice !== null) {
             item.ice = '';
           }
-          item.iva = product.iva.code
-          item.percentage = product.iva.percentage
+          // Si estamos en el tiempo de Feriado (tourism), y el ITEM habilitado para Grabar 8%
+          if (this.state.tourism && product.atts.tourism) {
+            item.iva = 8
+            item.percentage = 8
+          } else {
+            // Caso contrario el IVA correspondiente
+            item.iva = product.iva.code
+            item.percentage = product.iva.percentage
+          }
         }
         return item;
       });
@@ -395,8 +405,8 @@ class CreateInvoice extends Component {
     let no_iva = 0;
     let base0 = 0;
     let base5 = 0;
+    let base8 = 0;
     let base12 = 0;
-    let base13 = 0;
     let base15 = 0;
     let totalDiscount = 0;
     let totalIce = 0;
@@ -408,21 +418,22 @@ class CreateInvoice extends Component {
         // IVA = 0% el total_iva = price * quantity - discount + 0 (0% IVA)
         no_iva += iva === 6 ? Number(total_iva) : 0;
         base0 += iva === 0 ? Number(total_iva) : 0;
-        // IVA > 0% entonces total_iva = price * quantity - discount + Valor del IVA (5%-12%-13%-15%)
+        // IVA > 0% entonces total_iva = price * quantity - discount + Valor del IVA (5%-8%-12%-15%)
         base5 += iva === 5 ? Number(price * quantity - discount) : 0;
+        base8 += iva === 8 ? Number(price * quantity - discount) : 0;
         base12 += iva === 2 ? Number(price * quantity - discount) : 0;
-        // base13 += iva === 10 ? Number(price * quantity - discount) : 0;
         base15 += iva === 4 ? Number(price * quantity - discount) : 0;
       }
     });
-    let sub_total = no_iva + base0 + base5 + base12 + base13 + base15;
+    let sub_total = no_iva + base0 + base5 + base8 + base12 + base15;
 
     let iva5 = Number((base5 * 0.05).toFixed(2));
-    let iva12 = base12 > 0 ? Number(((base12 + Number(totalIce)) * 0.12).toFixed(2)) : 0;
+    let iva8 = Number((base8 * 0.08).toFixed(2));
+    let iva = base12 > 0 ? Number(((base12 + Number(totalIce)) * 0.12).toFixed(2)) : 0;
     let iva15 = base15 > 0 ? Number(((base15 + Number(totalIce)) * 0.15).toFixed(2)) : 0;
-    let iva = Number((iva5 + iva12 + iva15).toFixed(2));
+    let totalIva = Number((iva5 + iva8 + iva + iva15).toFixed(2));
 
-    let total = sub_total + Number(totalIce) + iva;
+    let total = sub_total + Number(totalIce) + totalIva;
 
     this.setState({
       productouts,
@@ -431,14 +442,16 @@ class CreateInvoice extends Component {
         no_iva,
         base0,
         base5,
+        base8,
         base12,
         base15,
         sub_total,
         ice: totalIce,
         discount: totalDiscount,
         iva5,
-        iva15,
+        iva8,
         iva,
+        iva15,
         total
       },
     });
@@ -704,6 +717,13 @@ class CreateInvoice extends Component {
                                     {format(form.base5)}
                                   </td>
                                 </tr> : null}
+                              {form.base8 > 0 ?
+                                <tr>
+                                  <td>Subtotal 8%</td>
+                                  <td style={{ 'text-align': 'right' }}>
+                                    {format(form.base8)}
+                                  </td>
+                                </tr> : null}
                               {form.base12 > 0 ?
                                 <tr>
                                   <td>Subtotal 12%</td>
@@ -756,6 +776,15 @@ class CreateInvoice extends Component {
                                     <td>IVA 5%</td>
                                     <td style={{ 'text-align': 'right' }}>
                                       {format(form.iva5)}
+                                    </td>
+                                  </tr> : null
+                              }
+                              {
+                                form.iva8 > 0 ?
+                                  <tr>
+                                    <td>IVA 8%</td>
+                                    <td style={{ 'text-align': 'right' }}>
+                                      {format(form.iva8)}
                                     </td>
                                   </tr> : null
                               }
