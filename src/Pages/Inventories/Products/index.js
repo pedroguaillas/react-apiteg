@@ -144,11 +144,9 @@ class Products extends Component {
           code: words[0].trim(),
           type_product: words[1].trim(),
           name: words[2].trim(),
-          unity_id: words[3] !== undefined ? words[3].trim() : null,
-          price1: words[4],
-          price2: words[5] !== undefined ? words[5].trim() : null,
-          price3: words[6] !== undefined ? words[6].trim() : null,
-          iva: words[7]
+          price1: words[3],
+          iva: words[4],
+          stock: words[5] !== undefined ? words[5].trim() : null,
         }
         products.push(object)
       }
@@ -402,6 +400,9 @@ class Products extends Component {
                           <th>Nombre</th>
                           <th>Precio</th>
                           <th>iva</th>
+                          {this.props.inventory ?
+                            <th>Stock</th>
+                            : null}
                           <th style={{ width: '1em' }}></th>
                         </tr>
                       </thead>
@@ -427,6 +428,9 @@ class Products extends Component {
                                   ? '12%'
                                   : 'no iva'} */}
                             </td>
+                            {this.props.inventory ?
+                              <td>{product.atts.stock}</td>
+                              : null}
                             <td>
                               <ButtonDropdown
                                 direction='left'
