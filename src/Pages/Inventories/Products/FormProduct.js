@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import {
   Row, Col, Card, CardBody, Label, Form,
   FormGroup, Input, CustomInput, Button,
+  InputGroup,
 } from 'reactstrap';
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group';
 import PageTitle from '../../../Layout/AppMain/PageTitle';
@@ -22,6 +23,8 @@ class FormProduct extends Component {
       stock: '',
       price1: ''
     },
+    desglose: false,
+    total: '',
   };
 
   async componentDidMount() {
@@ -131,6 +134,22 @@ class FormProduct extends Component {
     }
   };
 
+  handleChangeNumberTotal = (e) => {
+    if (isNaN(e.target.value)) {
+      alert('Solo se permite valor numérico');
+      return;
+    } else {
+      let { value } = e.target
+      this.setState({
+        form: {
+          ...this.state.form,
+          price1: parseFloat((value / 1.15).toFixed(6)),
+        },
+        total: value
+      });
+    }
+  };
+
   handleChangeCheck = (e) =>
     this.setState({ [e.target.name]: e.target.checked });
 
@@ -153,7 +172,7 @@ class FormProduct extends Component {
   };
 
   render() {
-    var { form, iceCataloges, ivaTaxes } = this.state;
+    var { form, iceCataloges, ivaTaxes, desglose, total } = this.state;
 
     return (
       <Fragment>
@@ -237,19 +256,43 @@ class FormProduct extends Component {
                         </FormGroup>
                       </Col>
                       <Col md={6}>
+                        <FormGroup check row className="text-center mb-2">
+                          <Label check>
+                            <Input
+                              type='checkbox'
+                              checked={desglose}
+                              id='desglose'
+                              onChange={this.handleChangeCheck}
+                              name='desglose'
+                            />
+                            ¿Necesitas desglosar el IVA?
+                          </Label>
+                        </FormGroup>
                         <FormGroup className="mb-1" row>
                           <Label for="price1" sm={4}>
                             Precio *
                           </Label>
                           <Col sm={6}>
-                            <Input
-                              bsSize="sm"
-                              onChange={this.handleChangeNumber}
-                              value={form.price1}
-                              type="text"
-                              name="price1"
-                              id="price1"
-                            />
+                            <InputGroup>
+                              <Input
+                                bsSize="sm"
+                                placeholder="Total"
+                                onChange={this.handleChangeNumberTotal}
+                                value={total}
+                                type="text"
+                                name="total"
+                                id="total"
+                                hidden={!desglose}
+                              />
+                              <Input
+                                bsSize="sm"
+                                onChange={this.handleChangeNumber}
+                                value={form.price1}
+                                type="text"
+                                name="price1"
+                                id="price1"
+                              />
+                            </InputGroup>
                           </Col>
                         </FormGroup>
                         <FormGroup
@@ -299,7 +342,7 @@ class FormProduct extends Component {
                           </Col>
                         </FormGroup>
                       </Col>
-                      <Col md={4}>
+                      <Col md={4} hidden={iceCataloges.length === 0}>
                         <FormGroup row>
                           <Label for="ice" sm={4}>
                             Imp. ICE

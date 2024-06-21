@@ -2,18 +2,8 @@ import React, { Component, Fragment } from 'react'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 import {
-  Row,
-  Col,
-  Card,
-  CardBody,
-  Form,
-  InputGroup,
-  Table,
-  Input,
-  ButtonDropdown,
-  DropdownMenu,
-  DropdownItem,
-  DropdownToggle
+  Row, Col, Card, CardBody, Form, InputGroup, Input,
+  Table, ButtonDropdown, DropdownMenu, DropdownItem, DropdownToggle
 } from 'reactstrap'
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 import PageTitle from '../../../Layout/AppMain/PageTitle'
@@ -422,11 +412,6 @@ class Products extends Component {
                             </td>
                             <td>
                               {`${product.iva.percentage}%`}
-                              {/* {product.atts.iva == 0
-                                ? '0%'
-                                : product.atts.iva == 2
-                                  ? '12%'
-                                  : 'no iva'} */}
                             </td>
                             {this.props.inventory ?
                               <td>{product.atts.stock}</td>

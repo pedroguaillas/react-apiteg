@@ -460,8 +460,9 @@ class CreateInvoice extends Component {
   onChangeNumber = (e) => {
     let { value } = e.target
     if (value < 0) return
-    let { sub_total, iva, ice } = this.state.form
-    let total = sub_total + Number(ice) + iva - Number(value);
+    let { sub_total, iva5, iva8, iva, iva15, ice } = this.state.form
+    console.log(sub_total, iva, ice)
+    let total = sub_total + Number(ice) + iva5 + Number(iva8) + Number(iva) + iva15 - Number(value);
     this.setState({
       form: {
         ...this.state.form,
