@@ -90,7 +90,7 @@ class FormProduct extends Component {
   };
 
   validate = () => {
-    let { code, name, price1 } = this.state.form;
+    let { code, name, price1, iva, aux_cod } = this.state.form;
 
     if (
       code === undefined ||
@@ -101,6 +101,11 @@ class FormProduct extends Component {
       ('' + price1).trim().length === 0
     ) {
       alert('No puede quedar campo en blanco');
+      return;
+    }
+
+    if (iva === '5' && (aux_cod === null || aux_cod === undefined || aux_cod.trim() === '')) {
+      alert('El "Código aux" es obligatorio en productos con IVA 5%');
       return;
     }
 
@@ -216,6 +221,22 @@ class FormProduct extends Component {
                               type="text"
                               name="code"
                               id="code"
+                              maxLength={25}
+                            />
+                          </Col>
+                        </FormGroup>
+                        <FormGroup className="mb-1" row hidden={form.iva !== '5'}>
+                          <Label for="aux_cod" sm={4}>
+                            Código aux *
+                          </Label>
+                          <Col sm={6}>
+                            <Input
+                              bsSize="sm"
+                              onChange={this.handleChange}
+                              value={form.aux_cod}
+                              type="text"
+                              name="aux_cod"
+                              id="aux_cod"
                               maxLength={25}
                             />
                           </Col>

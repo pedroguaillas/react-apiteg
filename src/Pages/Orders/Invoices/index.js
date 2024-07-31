@@ -2,18 +2,8 @@ import React, { Component, Fragment } from 'react'
 import { Link } from 'react-router-dom'
 import ReactCSSTransitionGroup from 'react-addons-css-transition-group'
 import {
-  Row,
-  Col,
-  Card,
-  CardBody,
-  Table,
-  Form,
-  InputGroup,
-  Input,
-  ButtonDropdown,
-  DropdownMenu,
-  DropdownItem,
-  DropdownToggle
+  Row, Col, Card, CardBody, Table, Form, InputGroup, Input,
+  ButtonDropdown, DropdownMenu, DropdownItem, DropdownToggle
 } from 'reactstrap'
 
 import PageTitle from '../../../Layout/AppMain/PageTitle'
@@ -129,6 +119,40 @@ class Invoices extends Component {
   }
 
   addDocument = () => this.props.history.push('/ventas/registrarfactura')
+
+  addLote = () => document.getElementById('file_lote').click()
+
+  handleLote = e => {
+    // let input = e.target.files[0]
+    // this.sendLote(input)
+
+    let files = e.target.files || e.dataTransfer.files
+
+    if (!files.length) return
+
+    let file = files[0]
+
+    this.sendLote(file)
+  }
+
+  sendLote = async xlsm => {
+
+    const formData = new FormData();
+    formData.append("lot", xlsm)
+    formData.append("point_id", 1)
+    try {
+      await api.post('orders/lot', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }).then(res => {
+        console.log(res.data)
+        this.reloadPage()
+      })
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
   viewInvoicePdf = async id => {
     try {
@@ -312,6 +336,14 @@ class Invoices extends Component {
           options={[
             {
               type: 'button',
+              id: 'tooltip-add-lote',
+              action: this.addLote,
+              icon: 'import',
+              msmTooltip: 'Agregar lote',
+              color: 'success'
+            },
+            {
+              type: 'button',
               id: 'tooltip-add-document',
               action: this.addDocument,
               icon: 'plus',
@@ -364,6 +396,8 @@ class Invoices extends Component {
               </Card>
             </Col>
           </Row>
+
+          <input onChange={this.handleLote} style={{ display: 'none' }} type='file' name='lote' id='file_lote' accept='.xlsx' />
 
           {orders === null ? (
             <p>Cargando ...</p>
